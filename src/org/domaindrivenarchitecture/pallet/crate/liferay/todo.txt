@@ -1,0 +1,28 @@
+TODO Liferay-Wiederverwendung (pa-prod / pa-dev)
+======================================
+
+TODO-Crate-Release
+===============
+
+* TODO: crate-docu
+** Layout - was kommt in welches directory
+** Konfigurationsoptionen
+** wie werden releases installiert? 
+
+* Config mit statefull install als eigener crate fertig stellen
+** (statefull install bedeteutet - Installationsinfofile liegt in /home/pallet/state) --> Also: Liferay-Crate ist fertig
+
+* TODO: kleine funktion schreiben, die Configurationen "slurpt" und als Vector-Of-Srting zur Verfügung stellet.
+
+* TODO: Aufteilung tomcat und liferay neu überlegen
+** wir brauchen dann einen tomcat default
+** einen liferay default und
+** die Möglichkeit, in der Config zu überschreiben
+
+* ReleaseManagement -> "application-deplyoment" eigenständig machen als:
+** IDEE1: tomcat-appliktions-deployment funktion?
+** IDEE2: noch eigenständiger als *-applikations-deployment funktion?
+** Folgen:
+*** liferay Installation an sich als Application-Deployment druchführen?
+*** App-Deploy Phase?
+*** Konzept in der Architektur formulieren
