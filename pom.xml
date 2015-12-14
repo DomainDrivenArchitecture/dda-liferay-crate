@@ -14,7 +14,7 @@
   <scm>
     <connection>scm:git:git://github.com/DomainDrivenArchitecture/dda-liferay-crate.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/DomainDrivenArchitecture/dda-liferay-crate.git</developerConnection>
-    <tag>ac6126e36a9fb481d0aa678d9fa31bdc7a9545f9
+    <tag>b4c0bc930cebac22d542a625f3d25a6fc24b0ba7
 </tag>
     <url>https://github.com/DomainDrivenArchitecture/dda-liferay-crate</url>
   </scm>
@@ -58,7 +58,7 @@
     </repository>
     <repository>
       <id>snapshots</id>
-      <url>https://artifacts.meissa-gmbh.de:443/archiva/repository/snapshots/</url>
+      <url>https://clojars.org/repo/</url>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
@@ -68,7 +68,7 @@
     </repository>
     <repository>
       <id>releases</id>
-      <url>https://artifacts.meissa-gmbh.de/archiva/repository/internal/</url>
+      <url>https://clojars.org/repo/</url>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
