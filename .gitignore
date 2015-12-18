@@ -1,1 +1,4 @@
 /bin/
+/logs/
+/target/
+/.settings/ccw.repl.cmdhistory.prefs
