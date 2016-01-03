@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.domaindrivenarchitecture.org</groupId>
+  <groupId>org.domaindrivenarchitecture</groupId>
   <artifactId>dda-liferay-crate</artifactId>
   <packaging>jar</packaging>
   <version>0.1.0-SNAPSHOT</version>
   <name>dda-liferay-crate</name>
-  <description>meissa-crates</description>
+  <description>dda-liferay-crate</description>
+  <url>https://www.domaindrivenarchitecture.org</url>
   <licenses>
     <license>
-      <name>Copyright meissa GmbH</name>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.html</url>
     </license>
   </licenses>
   <scm>
     <connection>scm:git:git://github.com/DomainDrivenArchitecture/dda-liferay-crate.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/DomainDrivenArchitecture/dda-liferay-crate.git</developerConnection>
-    <tag>b4c0bc930cebac22d542a625f3d25a6fc24b0ba7
+    <tag>4f1b795a1336cc734c7403b66264b9ea1e51cee0
 </tag>
     <url>https://github.com/DomainDrivenArchitecture/dda-liferay-crate</url>
   </scm>

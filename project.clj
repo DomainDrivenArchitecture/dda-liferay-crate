@@ -12,7 +12,7 @@
                  [org.domaindrivenarchitecture.org/dda-config-crate "0.2.0"]
                  [org.domaindrivenarchitecture/dda-basic-crate "0.1.2"]
                  [org.domaindrivenarchitecture/dda-collected-crate "0.1.0-SNAPSHOT"]
-                 [org.domaindrivenarchitecture/dda-backup-crate "0.2.0"]
+                 [org.domaindrivenarchitecture/dda-backup-crate "0.2.1"]
                  [org.domaindrivenarchitecture/dda-tomcat-crate "0.1.0-SNAPSHOT"]
                  [org.domaindrivenarchitecture/dda-mysql-crate "0.1.0-SNAPSHOT"]
                  [org.domaindrivenarchitecture/httpd "0.2.0"]]
