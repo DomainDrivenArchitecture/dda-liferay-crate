@@ -16,7 +16,7 @@
   <scm>
     <connection>scm:git:git://github.com/DomainDrivenArchitecture/dda-liferay-crate.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/DomainDrivenArchitecture/dda-liferay-crate.git</developerConnection>
-    <tag>4f1b795a1336cc734c7403b66264b9ea1e51cee0
+    <tag>85c686dfa0e4bbbf440d4aee0b2073f0478f3224
 </tag>
     <url>https://github.com/DomainDrivenArchitecture/dda-liferay-crate</url>
   </scm>
@@ -125,7 +125,7 @@
     <dependency>
       <groupId>org.domaindrivenarchitecture</groupId>
       <artifactId>dda-backup-crate</artifactId>
-      <version>0.2.0</version>
+      <version>0.2.1</version>
     </dependency>
     <dependency>
       <groupId>org.domaindrivenarchitecture</groupId>

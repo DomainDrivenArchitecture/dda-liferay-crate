@@ -1,3 +1,5 @@
 /bin/
+/logs/
 /target/
-/pom.xml
+/pom.*
+/.settings/
