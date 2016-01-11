@@ -1,4 +1,4 @@
-(defproject org.domaindrivenarchitecture/dda-liferay-crate "0.1.1"
+(defproject org.domaindrivenarchitecture/dda-liferay-crate "0.1.2-SNAPSHOT"
   :description "dda-liferay-crate"
   :url "https://www.domaindrivenarchitecture.org"
   :license {:name "Apache License, Version 2.0"
