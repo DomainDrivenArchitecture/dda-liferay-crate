@@ -45,12 +45,6 @@
 (def TOMCAT-HOME "/var/lib/tomcat7/")
 (def TOMCAT-ROOT (str TOMCAT-HOME "webapps/ROOT/"))
 
-
-(def liferay-default-download-source 
-  "https://tech:flsdjll5Glgflajl@artifacts.meissa-gmbh.de/archiva/repository/internal/liferay/liferay-portal/6.2.1GA2/liferay-portal-6.2.1GA2.war"
-  )
-
-
 (def repo-download-source 
   "https://raw.githubusercontent.com/PolitAktiv/releases/master/liferay/3rd/6.2.1-ce-ga2/")
 
@@ -98,8 +92,7 @@
 
 (defn liferay-portal-into-tomcat
   "make liferay tomcat's ROOT webapp"
-  [& {:keys [liferay-download-source]
-      :or {liferay-download-source liferay-default-download-source}}]
+  [liferay-download-source]
   (actions/remote-directory 
     TOMCAT-ROOT
     :url liferay-download-source
@@ -137,8 +130,7 @@
   ; TODO review mje 24.09.: Found bug here - if we use build lr, we wont use lr download!
   ; besides - without parameter this is expectionally wrong.
   (if (not custom-build?)
-    (liferay-portal-into-tomcat
-      :liferay-download-source liferay-download-source)) 
+    (liferay-portal-into-tomcat liferay-download-source)) 
   (liferay-dependencies-into-tomcat)
   )
 
