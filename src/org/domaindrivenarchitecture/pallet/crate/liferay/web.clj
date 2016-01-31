@@ -74,8 +74,7 @@
   (apache2/install-apachetop-action)
   (gnutls/install-mod-gnutls)
   (jk/install-mod-jk)
-  (rewrite/install-mod-rewrite)
-  )
+  (rewrite/install-mod-rewrite))
 
 (defn configure-webserver
   [& {:keys [name
@@ -87,6 +86,7 @@
              app-port
              google-id
              maintainance-page-content]}]
+  
   (apache2/config-apache2-production-grade
     :security 
     httpd-config/security)
@@ -117,3 +117,15 @@
     (maintainance/write-maintainance-file :content maintainance-page-content)
   
   )
+
+(defn configure-webserver-local
+  [& {:keys [maintainance-page-content]}]
+	(apache2/config-apache2-production-grade :security httpd-config/security)
+	(jk/configure-mod-jk-worker)
+	(apache2/configure-and-enable-vhost
+     "000-default"
+     (into [] (concat (vhost/vhost-head :domain-name "localhost")
+                      (jk/vhost-jk-mount :path "/*")
+                      (vhost/vhost-log :error-name "error.log" :log-name "ssl-access.log" :log-format "combined")
+                      vhost/vhost-tail)))
+	(maintainance/write-maintainance-file :content maintainance-page-content))

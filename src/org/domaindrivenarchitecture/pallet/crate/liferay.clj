@@ -37,29 +37,66 @@
 
 (def facility :dda-liferay)
 
+(def default-liferay-config
+  {
+   ; Database Configuration
+   :db-user-passwd "test1234"
+   :db-root-passwd "test1234"
+   :db-name "lportal"
+   :db-user-name "liferay_user"
+   
+   ; Webserver Configuration
+   :maintainance-page-content "<h1>Webserver Maintainance Mode</h1>"
+   
+   ; Tomcat Configuration
+   :Xmx "1024m"
+   :Xms "256m"
+   :MaxPermSize "2000m"
+   
+   ; Liferay Download Source
+   :liferay-download-source "http://sourceforge.net/projects/lportal/files/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"
+   
+   ; Liferay Configuration
+   :instance-name "liferay-local"
+   
+   
+;   :user-credentials htaccess-user-credentials
+;   :build-releases build-releases
+;   :build-version "b_2.0.0"
+;   :available-app-releases [:2.1.1 :2.1.2 :2.1.4 :2.1.6]
+;   :all-supported-app-releases all-supported-app-releases
+;   :plugin-blacklist ["kaleo-web"]
+;   :maintainance-page-content var-www-static-error-503-html
+;   :portal-ext-properties-content (pa-productive-portal-ext-properties
+;                                    :db-name db-name
+;                                    :db-user-name db-user-name
+;                                    :db-user-passwd  db-user-passwd)
+   })
+
 (defn install-backup
   [app-name config]
-  (backup/install-backup-environment 
-    :app-name app-name)
-  )
+  (backup/install-backup-environment :app-name app-name))
 
-(defn install
-  [app-name config]
-  (let [db-root-passwd (:db-root-passwd config)
-        db-user-passwd (:db-user-passwd config)]
+(defn install 
+  [app-name nodeconfig]
+  (let [config (merge default-liferay-config nodeconfig)]
+    ; Upgrade
     (upgrade/upgrade-all-packages)
-    (db/install-database db-root-passwd)
+    ; Database
+    (db/install-database (:db-root-passwd config))
     (db/install-db-instance
-            :db-root-passwd db-root-passwd
-            :db-name "lportal"
-            :db-user-name "liferay_user"
-            :db-user-passwd db-user-passwd)
+      :db-root-passwd (:db-root-passwd config)
+      :db-name (:db-name config)
+      :db-user-name (:db-user-name config)
+      :db-user-passwd (:db-user-passwd config))
+    ; Webserver + Tomcat
     (web/install-webserver)
-    (tomcat-app/install-tomcat7 
-      :custom-java-version :6)
-    (liferay-app/install-liferay :custom-build? (contains? config :build-version)
-                                 :liferay-download-source (:liferay-download-source config))
-    (install-backup app-name config)
+    (tomcat-app/install-tomcat7 :custom-java-version :6)
+    ; Liferay Package
+    (liferay-app/install-liferay 
+      :custom-build? (contains? config :build-version)
+      :liferay-download-source (:liferay-download-source config))
+    ; Release Management
     (release/install-release-management)
     ))
 
@@ -72,8 +109,7 @@
         instance-name (-> config :instance-name)
         available-releases (-> config :available-releases)
         all-releases (-> config :all-releases)
-        plugin-blacklist (-> config :plugin-blacklist)
-        ]
+        plugin-blacklist (-> config :plugin-blacklist)]
     (backup/install-backup-app-instance 
       :app-name app-name 
       :instance-name instance-name
@@ -93,54 +129,47 @@
   )
 
 (defn configure
-  [app-name config]
-  (let [db-user-passwd (-> config :db-user-passwd)
-        fqdn (-> config :fqdn)
-        instance-name (-> config :instance-name)
-        domain-cert (-> config :domain-cert)
-        domain-key (-> config :domain-key)
-        ca-cert (-> config :ca-cert)
-        google-id (-> config :google-id)
-        maintainance-page-content (-> config :maintainance-page-content)
-        portal-ext-properties-content (-> config :portal-ext-properties-content)
-        Xmx (-> config :Xmx)
-        Xms (-> config :Xms)
-        MaxPermSize (-> config :MaxPermSize)
-        jdk6 (-> config :jdk6)
-        fqdn-to-be-replaced (-> config :fqdn-to-be-replaced)]
-    (web/configure-webserver 
-                  :name instance-name
-                  :domain-name fqdn
-                  :domain-cert domain-cert
-                  :domain-key domain-key
-                  :ca-cert ca-cert
-                  :app-port "8009"
-                  :google-id google-id
-                  :maintainance-page-content maintainance-page-content)
+  [app-name nodeconfig]
+  (let [config (merge default-liferay-config nodeconfig)]
+    ; Webserver
+    (if (:ca-cert config)
+      (web/configure-webserver  ; use https
+		     :name (:instance-name config)
+		     :domain-name (:fqdn config)
+		     :domain-cert (:domain-cert config)
+		     :domain-key (:domain-key config)
+		     :ca-cert (:ca-cert config)
+		     :app-port "8009"
+		     :google-id (:google-id config)
+		     :maintainance-page-content (:maintainance-page-content config))
+      (web/configure-webserver-local  ; don't use https for a local instance
+		     :maintainance-page-content (:maintainance-page-content config)))
+    
+    ; Tomcat
     (tomcat-app/configure-tomcat7
       :lines-catalina-properties liferay-config/etc-tomcat7-catalina-properties
       :lines-ROOT-xml liferay-config/etc-tomcat7-Catalina-localhost-ROOT-xml
       :lines-etc-default-tomcat7 (tomcat-config/default-tomcat7 
-                                   :Xmx Xmx
-                                   :Xms Xms
-                                   :MaxPermSize MaxPermSize
-                                   :jdk6 jdk6)
+                                   :Xmx (:Xmx config)
+                                   :Xms (:Xms config)
+                                   :MaxPermSize (:MaxPermSize config)
+                                   :jdk6 (:jdk6 config))
       :lines-server-xml liferay-config/etc-tomcat7-server-xml
       :lines-setenv-sh (tomcat-config/setenv-sh
-                         :Xmx Xmx 
-                         :Xms Xms
-                         :MaxPermSize MaxPermSize
-                         :jdk6 jdk6)
+                         :Xmx (:Xmx config)
+                         :Xms (:Xms config)
+                         :MaxPermSize (:MaxPermSize config)
+                         :jdk6 (:jdk6 config))
       )
+    ; Liferay
     (liferay-app/configure-liferay
       false
-      :db-name "lportal"
-      :db-user-name "liferay_user"
-      :db-user-passwd db-user-passwd
-      :portal-ext-properties portal-ext-properties-content
-      :fqdn-to-be-replaced fqdn-to-be-replaced
-      :fqdn-replacement fqdn)
-    (configure-backup app-name config)
+      :db-name (:db-name config)
+      :db-user-name (:db-user-name config)
+      :db-user-passwd (:db-user-passwd config)
+      :portal-ext-properties (:portal-ext-properties-content config)
+      :fqdn-to-be-replaced (:fqdn-to-be-replaced config)
+      :fqdn-replacement (:fqdn config))
     )
   )
 

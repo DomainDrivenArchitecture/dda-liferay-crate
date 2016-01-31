@@ -34,10 +34,7 @@
       :mode mode
       :force true
       :literal true
-      :content 
-      (string/join
-        \newline
-        content)))
+      :content (string/join \newline content)))
   )
 
 (def LIFERAY-HOME "/var/lib/liferay/")
@@ -143,13 +140,15 @@
             :db-name db-name
             :db-user-name db-user-name
             :db-user-passwd db-user-passwd)
-          portal-ext-properties)]
+           portal-ext-properties)]
+    
     (configure-liferay-file
       (if custom-build?
         "/var/lib/liferay/portal-ext.properties"
         "/var/lib/tomcat7/webapps/ROOT/WEB-INF/classes/portal-ext.properties")
-      effective-portal-ext-properties 
-      :liferay-config)
+       effective-portal-ext-properties 
+       :liferay-config)
+    
     (configure-liferay-file 
       "/var/lib/liferay/prodDataReplacements.sh"
       (db-replace-scripts/var-lib-liferay-prodDataReplacements-sh
