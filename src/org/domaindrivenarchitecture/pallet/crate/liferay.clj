@@ -51,26 +51,13 @@
    ; Tomcat Configuration
    :Xmx "1024m"
    :Xms "256m"
-   :MaxPermSize "2000m"
+   :MaxPermSize "512m"
    
    ; Liferay Download Source
    :liferay-download-source "http://sourceforge.net/projects/lportal/files/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"
-   
+
    ; Liferay Configuration
-   :instance-name "liferay-local"
-   
-   
-;   :user-credentials htaccess-user-credentials
-;   :build-releases build-releases
-;   :build-version "b_2.0.0"
-;   :available-app-releases [:2.1.1 :2.1.2 :2.1.4 :2.1.6]
-;   :all-supported-app-releases all-supported-app-releases
-;   :plugin-blacklist ["kaleo-web"]
-;   :maintainance-page-content var-www-static-error-503-html
-;   :portal-ext-properties-content (pa-productive-portal-ext-properties
-;                                    :db-name db-name
-;                                    :db-user-name db-user-name
-;                                    :db-user-passwd  db-user-passwd)
+   :instance-name "liferay-local"   
    })
 
 (defn install-backup
@@ -142,8 +129,7 @@
 		     :app-port "8009"
 		     :google-id (:google-id config)
 		     :maintainance-page-content (:maintainance-page-content config))
-      (web/configure-webserver-local  ; don't use https for a local instance
-		     :maintainance-page-content (:maintainance-page-content config)))
+      (web/configure-webserver-local))  ; don't use https for a local instance
     
     ; Tomcat
     (tomcat-app/configure-tomcat7
@@ -172,6 +158,7 @@
       :fqdn-replacement (:fqdn config))
     )
   )
+
 
 (def ^:dynamic with-liferay
   (api/server-spec
