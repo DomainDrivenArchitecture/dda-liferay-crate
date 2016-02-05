@@ -14,15 +14,11 @@ TODO-Crate-Release
 
 * Design für funktions-signature übernehmen
 
-* funktionen erhalten kommentare
-
 * Konzept zu Key-Value ConfigFiles
 
 * Arch: Kapitel über interne Datenstruktur Vektor
 
-* PA und meissa Spezifisches rauslösen
-
-* Config mit statefull install als eigener crate fertig stellen
+-* Config mit statefull install als eigener crate fertig stellen
 ** (statefull install bedeteutet - Installationsinfofile liegt in /home/pallet/state) --> Also: Liferay-Crate ist fertig
 
 * TODO: kleine funktion schreiben, die Configurationen "slurpt" und als Vector-Of-Srting zur Verfügung stellet.
