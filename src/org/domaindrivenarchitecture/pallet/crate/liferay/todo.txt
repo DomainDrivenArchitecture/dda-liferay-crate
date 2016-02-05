@@ -16,6 +16,8 @@ TODO-Crate-Release
 
 * funktionen erhalten kommentare
 
+* Konzept zu Key-Value ConfigFiles
+
 * Arch: Kapitel über interne Datenstruktur Vektor
 
 * PA und meissa Spezifisches rauslösen
