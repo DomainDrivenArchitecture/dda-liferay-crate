@@ -16,27 +16,27 @@
 
 (ns org.domaindrivenarchitecture.pallet.crate.liferay
   (:require
-      [pallet.actions :as actions]
-      [pallet.api :as api]
-      [pallet.crate :as crate]
-      [pallet.crate.service :as service]
-      [pallet.stevedore :as stevedore]
-      [org.domaindrivenarchitecture.pallet.crate.dda-base :as dda-base]
+      ; Generic Dependencies
+      [org.domaindrivenarchitecture.pallet.crate.basecrate :refer :all]
+      [org.domaindrivenarchitecture.pallet.crate.upgrade :as upgrade]
+      ; Liferay Dependecies
       [org.domaindrivenarchitecture.pallet.crate.liferay.db :as db]
-      [org.domaindrivenarchitecture.pallet.crate.backup :as backup]
-      [org.domaindrivenarchitecture.pallet.crate.liferay.backup :as lr-backup]
-      [org.domaindrivenarchitecture.pallet.crate.config :as config]
       [org.domaindrivenarchitecture.pallet.crate.liferay.release-management :as release]
       [org.domaindrivenarchitecture.pallet.crate.liferay.web :as web]
       [org.domaindrivenarchitecture.pallet.crate.liferay.app :as liferay-app]
+      [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as liferay-config]
+      [org.domaindrivenarchitecture.pallet.crate.liferay.backup :as liferay-backup]
+      ; Backup Dependency
+      [org.domaindrivenarchitecture.pallet.crate.backup :as backup]
+      ; Tomcat Dependency
       [org.domaindrivenarchitecture.pallet.crate.tomcat.app :as tomcat-app]
       [org.domaindrivenarchitecture.pallet.crate.tomcat.app-config :as tomcat-config]
-      [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as liferay-config]
-      [org.domaindrivenarchitecture.pallet.crate.upgrade :as upgrade]
       ))
 
-(def facility :dda-liferay)
+; Crate Version
+(def version [0 1 2])
 
+; Liferay Crate Default Configuration
 (def default-liferay-config
   {
    ; Database Configuration
@@ -44,26 +44,26 @@
    :db-root-passwd "test1234"
    :db-name "lportal"
    :db-user-name "liferay_user"
-   
    ; Webserver Configuration
    :maintainance-page-content "<h1>Webserver Maintainance Mode</h1>"
-   
    ; Tomcat Configuration
    :Xmx "1024m"
    :Xms "256m"
    :MaxPermSize "512m"
-   
    ; Liferay Download Source
    :liferay-download-source "http://sourceforge.net/projects/lportal/files/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"
-
    ; Liferay Configuration
    :instance-name "liferay-local"   
    })
 
+
+; Liferay Backup: Install Routine
 (defn install-backup
   [app-name config]
   (backup/install-backup-environment :app-name app-name))
 
+
+; Liferay App: Install Routine
 (defn install 
   [app-name nodeconfig]
   (let [config (merge default-liferay-config nodeconfig)]
@@ -81,12 +81,15 @@
     (tomcat-app/install-tomcat7 :custom-java-version :6)
     ; Liferay Package
     (liferay-app/install-liferay 
+      (:repo-download-source config)
       :custom-build? (contains? config :build-version)
       :liferay-download-source (:liferay-download-source config))
     ; Release Management
     (release/install-release-management)
     ))
 
+
+; Liferay Backup: Configure Routine
 (defn configure-backup
   [app-name config]
   (let [db-user-passwd (:db-user-passwd config)
@@ -101,20 +104,19 @@
       :app-name app-name 
       :instance-name instance-name
       :backup-lines
-      (lr-backup/liferay-source-backup-script-lines instance-name db-user-passwd)
+      (liferay-backup/liferay-source-backup-script-lines instance-name db-user-passwd)
       :source-transport-lines
-      (lr-backup/liferay-source-transport-script-lines instance-name 1)
+      (liferay-backup/liferay-source-transport-script-lines instance-name 1)
       :restore-lines
-      (lr-backup/politaktiv-liferay-restore-script-lines 
+      (liferay-backup/liferay-restore-script-lines 
         instance-name 
         fqdn
         db-name
         db-user-name
         db-user-passwd)
-      )
-    )
-  )
+      )))
 
+; Liferay: Configure Routine
 (defn configure
   [app-name nodeconfig]
   (let [config (merge default-liferay-config nodeconfig)]
@@ -147,6 +149,7 @@
                          :MaxPermSize (:MaxPermSize config)
                          :jdk6 (:jdk6 config))
       )
+    
     ; Liferay
     (liferay-app/configure-liferay
       false
@@ -160,38 +163,29 @@
   )
 
 
-(def ^:dynamic with-liferay
-  (api/server-spec
-    :phases 
-    {:install
-     (api/plan-fn
-       (dda-base/install-with-instances
-         (name facility)
-         (config/get-nodespecific-additional-config facility)
-         install))
-     :configure
-     (api/plan-fn
-       (dda-base/configure-with-instances
-         (name facility)
-         (config/get-nodespecific-additional-config facility)
-         configure))
-    }))
+; Pallet Server Specs >>liferay<<
+(defversionedplan installplan-liferay
+  (ver-notinstalled?) install)
+
+(defversionedplan configureplan-liferay
+  (ver-always?) configure configure-instance)
+
+(def liferay-crate 
+  "DDA Liferay crate"
+  (create-versioned-crate
+    :dda-liferay version installplan-liferay configureplan-liferay))
+
+(def with-liferay
+  "Pallet server-spec for liferay"
+  (create-server-spec liferay-crate))
 
 
+; Pallet Server Specs >>liferay-backup<<
+(def liferay-backup-crate 
+  "Backup Scripts for liferay"
+  (create-versioned-crate
+    :dda-liferay-backup version install-backup configure-backup))
 
-(def ^:dynamic with-liferay-backup
-  (api/server-spec
-    :phases 
-    {:install
-     (api/plan-fn
-       (dda-base/install-with-instances
-         (name facility)
-         (config/get-nodespecific-additional-config facility)
-         install-backup))
-     :configure
-     (api/plan-fn
-       (dda-base/configure-with-instances
-         (name facility)
-         (config/get-nodespecific-additional-config facility)
-         configure-backup))
-    }))
+(def with-liferay-backup
+  "Pallet server-spec for liferay backup"
+  (create-server-spec liferay-backup-crate))

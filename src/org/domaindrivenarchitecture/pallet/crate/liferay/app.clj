@@ -42,10 +42,6 @@
 (def TOMCAT-HOME "/var/lib/tomcat7/")
 (def TOMCAT-ROOT (str TOMCAT-HOME "webapps/ROOT/"))
 
-(def repo-download-source 
-  "https://raw.githubusercontent.com/PolitAktiv/releases/master/liferay/3rd/6.2.1-ce-ga2/")
-
-
 (defn create-liferay-directories
   []
     (actions/directory 
@@ -100,7 +96,7 @@
   )
 
 (defn liferay-dependencies-into-tomcat
-  []
+  [repo-download-source]
   "get dependency files" 
   (doseq [jar ["activation" "ccpp" "hsql" "jms" 
                "jta" "jtds" "junit" "jutf7" "mail" 
@@ -119,8 +115,8 @@
 )
 
 (defn install-liferay
-  [& {:keys [custom-build? liferay-download-source]
-      :or {costom-build? false}}]
+  [repo-download-source & {:keys [custom-build? liferay-download-source]
+            :or {costom-build? false}}]
   "creates liferay directories, copies liferay webapp into tomcat and loads dependencies into tomcat"
   (create-liferay-directories)
   (delete-tomcat-default-ROOT)
@@ -128,7 +124,7 @@
   ; besides - without parameter this is expectionally wrong.
   (if (not custom-build?)
     (liferay-portal-into-tomcat liferay-download-source)) 
-  (liferay-dependencies-into-tomcat)
+  (liferay-dependencies-into-tomcat repo-download-source)
   )
 
 (defn configure-liferay

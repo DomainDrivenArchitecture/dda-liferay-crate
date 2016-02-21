@@ -53,7 +53,7 @@
       :gens-stored-on-source-system generations)
   )
 
-(defn politaktiv-liferay-restore-script-lines
+(defn liferay-restore-script-lines
   ""
   [instance-name fqdn db-name db-user-name db-pass]
   (into [] 
@@ -70,11 +70,11 @@
           ["  # replace location in portal config"
            (str 
              "  sedHttps=\"s/<name>cdn.host.https<\\/name>"
-             "<value>https:\\/\\/www.politaktiv.org<\\/value>/"
+             "<value>https:\\/\\/" fqdn "<\\/value>/"
              "<name>cdn.host.https<\\/name><value>https:\\/\\/"
              fqdn "<\\/value>/\"")
            (str "  sedHttp=\"s/<name>cdn.host.http<\\/name>"
-                "<value>http:\\/\\/www.politaktiv.org<\\/value>/"
+                "<value>http:\\/\\/" fqdn "<\\/value>/"
                 "<name>cdn.host.http<\\/name><value>http:\\/\\/"
                 fqdn "<\\/value>/\"")
            "  sed -e \"$sedHttps\" ${most_recent_sql_dump} > output1.sql"
