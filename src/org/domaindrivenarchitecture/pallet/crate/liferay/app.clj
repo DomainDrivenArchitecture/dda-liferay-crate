@@ -116,7 +116,7 @@
 
 (defn install-liferay
   [repo-download-source & {:keys [custom-build? liferay-download-source]
-            :or {costom-build? false}}]
+            :or {custom-build? false}}]
   "creates liferay directories, copies liferay webapp into tomcat and loads dependencies into tomcat"
   (create-liferay-directories)
   (delete-tomcat-default-ROOT)
