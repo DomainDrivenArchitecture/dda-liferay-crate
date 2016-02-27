@@ -14,7 +14,7 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-(ns org.domaindrivenarchitecture.pallet.crate.liferay.web-test
+(ns org.domaindrivenarchitecture.pallet.crate.liferay.release-managemen-test
   (:require
     [clojure.test :refer :all]    
     [clojure.set :as cloj-set]

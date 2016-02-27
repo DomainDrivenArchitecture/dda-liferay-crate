@@ -36,33 +36,39 @@
 ; plugins are part of a release-definition, a release definitons holds several plugins
 
 (defn get-plugin-war-file-name
+  {:deprecated "0.1.2"}
   [plugin]
   (subs (get plugin 1) ( + (.lastIndexOf (get plugin 1) "/" ) 1)) 
   )
 
 (defn get-plugin-name
+  {:deprecated "0.1.2"}
   [plugin]
   (get plugin 0)
   )
 
 (defn get-plugin-download-path
+  {:deprecated "0.1.2"}
   [plugin]
   (get plugin 1)
   )
 
 (defn get-version-difference-new-plugins
+  {:deprecated "0.1.2"}
   [all-supported-app-releases
    & {:keys [oldVersion newVersion]}]
   (into [] (cloj-set/difference (get all-supported-app-releases newVersion) (get all-supported-app-releases oldVersion)))
   )
   
 (defn get-version-difference-dismissed-plugins
+  {:deprecated "0.1.2"}
     [all-supported-app-releases
      & {:keys [oldVersion newVersion]}]
   (into [] (cloj-set/difference (get all-supported-app-releases oldVersion) (get all-supported-app-releases newVersion)))
   )
 
 (defn- contains-plugin? [plugin coll]
+  {:deprecated "0.1.2"}
   (boolean (some #(= plugin %) coll)))
 
 
@@ -72,6 +78,7 @@
 
 (defn- create-release
   "creates a new set of plugins (=release)"
+  {:deprecated "0.1.2"}
   [new-release-version-key-string release-definitions]
   (let [release-key (keyword new-release-version-key-string)
         new-release-version (release-definitions release-key)]
@@ -89,6 +96,7 @@
 
 (defn- get-supported-app-releases-for-build
   "returns a set of app-releases that a liferay-build supports"
+  {:deprecated "0.1.2"}
   [build-version build-releases]
   (let [current-release (build-releases (keyword build-version))]
     ; if a build has a set of supported app-releases defined ...
@@ -103,12 +111,14 @@
 (defn create-all-supported-app-releases-full-mapping
   [all-supported-app-releases]
   "builds all releases, propagating the version changes"
+  {:deprecated "0.1.2"}
   (zipmap  (into [] (keys all-supported-app-releases)) 
            (map #(create-release % all-supported-app-releases) (into [] (keys all-supported-app-releases)))
   ))
 
 (defn- get-available-releases-build-specific
   "only makes those releases available, who fit to the current build"
+  {:deprecated "0.1.2"}
   [build-version build-releases available-app-releases]
   (let [supported-app-releases (get-supported-app-releases-for-build build-version build-releases)]
     (cloj-set/intersection supported-app-releases (into #{} available-app-releases))
@@ -120,6 +130,7 @@
 
 (defn without-blacklist
   "creates a collection of plugins that are not contained in the blacklist"
+  {:deprecated "0.1.2"}
   [set-of-plugins blacklist]
   (if (empty? blacklist)
     ;if the blacklist is empty, just return the set of plugins
@@ -137,6 +148,7 @@
 (defn fetch-available-app-releases
   [& {:keys [available-app-releases all-supported-app-releases plugin-blacklist]}]
   "Makes the addressed system download the plugins defined as available"
+  {:deprecated "0.1.2"}
   (doseq [release available-app-releases]
     (let [release-download-directory (str releases-local-path (name release))]
       (actions/plan-when-not 
@@ -165,6 +177,7 @@
 (defn delete-deprecated-releases
   [& {:keys [available-app-releases all-supported-app-releases]}]
   "Makes the addressed system remove release instances which are not defined as available (any more)"
+  {:deprecated "0.1.2"}
   (let [release-keys-available (set available-app-releases)
         release-keys-all (set (keys all-supported-app-releases))
         ; perspektivisch könnten wir hier die existierenden releases vom Zielsystem lesen .. dat aber erst in einem zweiten schritt machen.
@@ -183,7 +196,8 @@
 
 (defn install-script-do-deploy
   []
-  "Creates script for deploying one specific release. To be called by the admin connected to the server via ssh"  
+  "Creates script for deploying one specific release. To be called by the admin connected to the server via ssh" 
+  {:deprecated "0.1.2"}
   (actions/plan-when-not 
     (stevedore/script (file-exists? "/var/lib/liferay/do-deploy.sh"))
     (actions/remote-file "/var/lib/liferay/do-deploy.sh"
@@ -224,7 +238,8 @@
 
 (defn install-script-do-rollout
   [& {:keys [custom-tomcat-home]}]
-  "Creates script for rolling out a build deploying the new applications alongside. To be called by the admin connected to the server via ssh"  
+  "Creates script for rolling out a build deploying the new applications alongside. To be called by the admin connected to the server via ssh"
+  {:deprecated "0.1.2"}
   (actions/plan-when-not 
     (stevedore/script (file-exists? "/var/lib/liferay/do-rollout.sh"))
     (actions/remote-file "/var/lib/liferay/do-rollout.sh"
@@ -275,6 +290,7 @@
 (defn install-release-management-directories
   []
   "Creates the directories that will be used for the release management"
+  {:deprecated "0.1.2"}
   (actions/directory
     "/var/lib/liferay/portal-release-instance"
     :action :create
@@ -287,6 +303,7 @@
 (defn install-release-management
   [& {:keys [custom-tomcat-home]}]
   "Runs all functions to be called in install phase"
+  {:deprecated "0.1.2"}
   (install-script-do-deploy)
   (install-script-do-rollout :custom-tomcat-home custom-tomcat-home)
   (install-release-management-directories)
@@ -296,6 +313,7 @@
 (defn configure-release-definitions
   "DEPRICATED; downloads all release-definitions; was supposed to be called in the configure-phase;
    refer to rollout-release-definitions and call it in the rollout-phase"
+  {:deprecated "0.1.2"}
   [& {:keys [available-app-releases 
              all-supported-app-releases 
              plugin-blacklist
@@ -313,6 +331,7 @@
 (defn rollout-release-definitions
   "Rolls out the new release configuration by deleting depricated releases and fetching the current configuration;
    only rolls out those releases which fit the currently defined build-version"
+  {:deprecated "0.1.2"}
   [& {:keys [build-version
              build-releases
              available-app-releases 
