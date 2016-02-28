@@ -19,17 +19,29 @@
              :include-macros true ;; cljs only
              ]))
 
-(def LiferayRelease
+(def Version
   "A schema for a nested data type"
-  {:application s/Str
-  :hooks []
-  :layouts []
-  :themes []
-  :portlets []})
+  [(s/one s/Num "major") (s/one s/Num "minor") (s/one s/Num "patch")])
+
+(def LiferayApp
+  "A schema for a nested data type"
+  [(s/one s/Str "name") (s/one s/Str "url")])
+
+(def LiferayRelease
+  "LiferayRelease relates a release name with specification of versioned apps."
+  {:name s/Str
+   :version Version
+   :application LiferayApp
+   :hooks [LiferayApp]
+   :layouts [LiferayApp]
+   :themes [LiferayApp]
+   :portlets [LiferayApp]})
 
 
-(def default-config
- {:application "..."
+(def default-release
+ {:name "Liferay CE"
+  :version [6 2 1]
+  :application ["ROOT" "http://sourceforge.net/projects/lportal/files/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"]
   :hooks []
   :layouts []
   :themes []

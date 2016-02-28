@@ -16,24 +16,22 @@
 
 (ns org.domaindrivenarchitecture.pallet.crate.liferay.liferay-release-test
   (:require
-    [schema.core :as s]
     [clojure.test :refer :all]    
     [clojure.set :as cloj-set]
+    [schema.core :as s]
+    [schema.experimental.complete :as c]
     [org.domaindrivenarchitecture.pallet.crate.liferay.liferay-release :as sut]
     ))
 
-(def default-release-definition 
- {:application "download-url"
-  :hooks []
-  :layouts []
-  :themes []
-  :portlets []})
+(def default-release-definition
+  (c/complete {:application ["name" "download-url"]} sut/LiferayRelease))
  
  (deftest defaults
   (testing 
     "test the default release definition" 
-      (is (= default-release-definition
-             sut/default-config))
+      (is (s/validate
+            sut/LiferayRelease
+            sut/default-release))
       (is (s/validate
             sut/LiferayRelease
             default-release-definition))))
