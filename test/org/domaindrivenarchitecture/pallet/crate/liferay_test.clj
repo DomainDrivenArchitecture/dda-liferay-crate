@@ -42,8 +42,14 @@
              :releases [default-release-definition]}))
       ))
  
- (deftest configvalidation
+ (deftest config-validation
   (testing 
     "test wheter merged config are validated" 
       (is (thrown? clojure.lang.ExceptionInfo
-                   (let [config (sut/merge-config {:an-unexpected-key nil})])))))
+                   (let [config (sut/merge-config {:an-unexpected-key nil})])))
+      (is (map? 
+            (sut/merge-config {:third-party-download-root-dir "download root"
+                               :httpd {:fqdn "fqdn"
+                                       :domain-cert "cert"
+                                       :domain-key "key"}})))
+      ))

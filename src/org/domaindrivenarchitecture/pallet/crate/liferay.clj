@@ -49,10 +49,10 @@
      :httpd {:fqdn s/Str
              :domain-cert s/Str
              :domain-key s/Str
-             :ca-cert s/Str
+             (s/optional-key :ca-cert) s/Str
              (s/optional-key :app-port) s/Str
              (s/optional-key :google-id) s/Str
-             (s/optional-key :maintainance-page-content) s/Str}
+             (s/optional-key :maintainance-page-content) [s/Str]}
      :tomcat {:Xmx s/Str
               :Xms s/Str
               :MaxPermSize s/Str
@@ -62,7 +62,7 @@
      :instance-name s/Str   
      :home-dir s/Str
      :lib-dir s/Str
-     :portal-ext-properties-content s/Str
+     :portal-ext-properties-content [s/Str]
      :third-party-download-root-dir s/Str
      (s/optional-key :fqdn-to-be-replaced) s/Str}
     schema/LiferayReleaseConfig))
@@ -90,7 +90,7 @@
    :httpd {:fqdn "localhost.localdomain"
            :ca-cert nil
            :app-port "8009"
-           :maintainance-page-content "<h1>Webserver Maintainance Mode</h1>"}
+           :maintainance-page-content "[<h1>Webserver Maintainance Mode</h1>]"}
    ; Tomcat Configuration
    :tomcat {:Xmx "1024m"
             :Xms "256m"
@@ -102,6 +102,7 @@
    :home-dir "/var/lib/liferay/"
    :lib-dir "/var/lib/liferay/lib/"
    :release-dir "/var/lib/liferay/prepare-rollout/"
+   :portal-ext-properties-content ["TODO ..."]
    :releases [default-release]})
 
 (s/defn ^:always-validate merge-config :- LiferayConfig
