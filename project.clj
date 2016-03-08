@@ -4,9 +4,10 @@
   :license {:name "Apache License, Version 2.0"
             :url "https://www.apache.org/licenses/LICENSE-2.0.html"}
   :pallet {:source-paths ["src"]}
-  :dependencies [[org.clojure/clojure "1.8.0"]
-                 [com.palletops/pallet "0.8.10"]
+  :dependencies [[org.clojure/clojure "1.7.0"]
+                 [com.palletops/pallet "0.8.11"]
                  [prismatic/schema "1.0.5"]
+                 [metosin/schema-tools "0.7.0"]
                  [org.domaindrivenarchitecture/dda-basic-crate "0.3.0-SNAPSHOT"]
                  [org.domaindrivenarchitecture/dda-collected-crate "0.3.0-SNAPSHOT"]
                  [org.domaindrivenarchitecture/dda-backup-crate "0.2.2-SNAPSHOT"]

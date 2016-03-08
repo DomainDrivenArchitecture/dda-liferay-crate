@@ -19,75 +19,71 @@
      [clojure.string :as string]
      [pallet.actions :as actions]
      [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as liferay-config]
-     [org.domaindrivenarchitecture.pallet.crate.liferay.db-replace-scripts :as db-replace-scripts]
-    ))
+     [org.domaindrivenarchitecture.pallet.crate.liferay.db-replace-scripts :as db-replace-scripts]))
 
-(defn- configure-liferay-file
+(defn- liferay-config-file
   "Create and upload a config file"
-  [file-name content type]
-  (let [owner (if (= type :liferay-config) "tomcat7" "root")
-        mode (if (= type :sh) "744" "644")]
-    (actions/remote-file
-      file-name
-      :owner owner
-      :group owner
-      :mode mode
-      :force true
-      :literal true
-      :content (string/join \newline content)))
+  [file-name content  & {:keys [owner mode]
+            :or {owner "tomcat7" mode "644"}}]
+  (actions/remote-file
+    file-name
+    :owner owner
+    :group owner
+    :mode mode
+    :literal true
+    :content (string/join \newline content))
   )
 
-(def LIFERAY-HOME "/var/lib/liferay/")
-(def LIFERAY-LIB (str LIFERAY-HOME "lib/"))
-(def TOMCAT-HOME "/var/lib/tomcat7/")
-(def TOMCAT-ROOT (str TOMCAT-HOME "webapps/ROOT/"))
+(defn- liferay-remote-file
+  "Create and upload a config file"
+  [file-name url & {:keys [owner mode]
+                    :or {owner "tomcat7" mode "644"}}]
+  (actions/remote-file
+    file-name
+    :owner owner
+    :group owner
+    :mode mode
+    :insecure true
+    :literal true
+    :url url)
+  )
+
+(defn- liferay-dir
+  "Create and upload a config file"
+  [dir-path & {:keys [owner mode]
+            :or {owner "tomcat7"
+                 mode "755"}}]
+  (actions/directory 
+      dir-path
+      :action :create
+      :owner owner
+      :group owner
+      :mode "mode")
+  )
 
 (defn create-liferay-directories
-  []
-    (actions/directory 
-      (str LIFERAY-HOME "logs")
-      :action :create
-      :owner "tomcat7"
-      :group "tomcat7"
-      :mode "755"
-      )
-    (actions/directory 
-      (str LIFERAY-HOME "data")
-      :action :create
-      :owner "tomcat7"
-      :group "tomcat7"
-      :mode "755"
-      )
-    (actions/directory 
-      (str LIFERAY-HOME "deploy")
-      :action :create
-      :owner "tomcat7"
-      :group "tomcat7"
-      :mode "755"
-      )
-    (actions/directory
-      LIFERAY-LIB
-      :action :create
-      :owner "tomcat7"
-      :group "tomcat7"
-      :mode "755"
-      )
+  [liferay-home-dir liferay-lib-dir liferay-release-dir]
+  (liferay-dir (str liferay-home-dir "logs"))
+  (liferay-dir (str liferay-home-dir "data"))
+  (liferay-dir (str liferay-home-dir "deploy"))
+  (liferay-dir liferay-lib-dir)
+  (liferay-dir liferay-release-dir :owner "root")
   )
 
 ; TODO: review mje 18.08: Das ist tomcat spezifisch und gehört hier raus.
 (defn delete-tomcat-default-ROOT
-  []
+  [tomcat-root-dir]
   (actions/directory
-    TOMCAT-ROOT
+    tomcat-root-dir
     :action :delete
     :recursive true)
   )
 
 (defn liferay-portal-into-tomcat
   "make liferay tomcat's ROOT webapp"
-  [liferay-download-source]
+  [tomcat-root-dir liferay-download-source]
   (actions/remote-directory 
-    TOMCAT-ROOT
+    tomcat-root-dir
     :url liferay-download-source
     :unpack :unzip
     :recursive true
@@ -96,35 +92,23 @@
   )
 
 (defn liferay-dependencies-into-tomcat
-  [repo-download-source]
+  [liferay-lib-dir repo-download-source]
   "get dependency files" 
   (doseq [jar ["activation" "ccpp" "hsql" "jms" 
                "jta" "jtds" "junit" "jutf7" "mail" 
                "mysql" "persistence" "portal-service" 
                "portlet" "postgresql" "support-tomcat"]]
     (let [download-location (str repo-download-source jar ".jar")
-          target-file (str LIFERAY-LIB jar ".jar")]
-      (actions/remote-file 
-        target-file
-        :url download-location
-        :owner "tomcat7"
-        :group "tomcat7"
-        :insecure true
-        :mode 644)
-      ))
-)
+          target-file (str liferay-lib-dir jar ".jar")]
+      (liferay-remote-file target-file :url download-location)))
+  )
 
 (defn install-liferay
-  [repo-download-source & {:keys [custom-build? liferay-download-source]
-            :or {custom-build? false}}]
+  [tomcat-root-dir liferay-home-dir liferay-lib-dir liferay-release-dir repo-download-source]
   "creates liferay directories, copies liferay webapp into tomcat and loads dependencies into tomcat"
-  (create-liferay-directories)
-  (delete-tomcat-default-ROOT)
-  ; TODO review mje 24.09.: Found bug here - if we use build lr, we wont use lr download!
-  ; besides - without parameter this is expectionally wrong.
-  (if (not custom-build?)
-    (liferay-portal-into-tomcat liferay-download-source)) 
-  (liferay-dependencies-into-tomcat repo-download-source)
+  (create-liferay-directories liferay-home-dir liferay-lib-dir liferay-release-dir)
+  (delete-tomcat-default-ROOT tomcat-root-dir)
+  (liferay-dependencies-into-tomcat liferay-lib-dir repo-download-source)
   )
 
 (defn configure-liferay
@@ -138,16 +122,15 @@
             :db-user-passwd db-user-passwd)
            portal-ext-properties)]
     
-    (configure-liferay-file
+    (liferay-config-file
       (if custom-build?
         "/var/lib/liferay/portal-ext.properties"
         "/var/lib/tomcat7/webapps/ROOT/WEB-INF/classes/portal-ext.properties")
-       effective-portal-ext-properties 
-       :liferay-config)
+       effective-portal-ext-properties)
     
-    (configure-liferay-file 
+    (liferay-config-file 
       "/var/lib/liferay/prodDataReplacements.sh"
       (db-replace-scripts/var-lib-liferay-prodDataReplacements-sh
         fqdn-to-be-replaced fqdn-replacement db-name db-user-name db-user-passwd)
-      :sh))
+      :owner "root" :mode "744"))
   )

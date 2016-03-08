@@ -16,90 +16,144 @@
 
 (ns org.domaindrivenarchitecture.pallet.crate.liferay
   (:require
-      ; Generic Dependencies
-      [org.domaindrivenarchitecture.pallet.crate.basecrate :refer :all]
-      [org.domaindrivenarchitecture.pallet.crate.upgrade :as upgrade]
-      ; Liferay Dependecies
-      [org.domaindrivenarchitecture.pallet.crate.liferay.db :as db]
-      [org.domaindrivenarchitecture.pallet.crate.liferay.release-management :as release]
-      [org.domaindrivenarchitecture.pallet.crate.liferay.web :as web]
-      [org.domaindrivenarchitecture.pallet.crate.liferay.app :as liferay-app]
-      [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as liferay-config]
-      [org.domaindrivenarchitecture.pallet.crate.liferay.backup :as liferay-backup]
-      ; Backup Dependency
-      [org.domaindrivenarchitecture.pallet.crate.backup :as backup]
-      ; Tomcat Dependency
-      [org.domaindrivenarchitecture.pallet.crate.tomcat.app :as tomcat-app]
-      [org.domaindrivenarchitecture.pallet.crate.tomcat.app-config :as tomcat-config]
-      ))
+    [schema.core :as s :include-macros true]
+    [schema-tools.core :as st]
+    ; Generic Dependencies
+    [org.domaindrivenarchitecture.pallet.crate.basecrate :refer :all]
+    [org.domaindrivenarchitecture.pallet.crate.versions :as versions]
+    [org.domaindrivenarchitecture.pallet.crate.upgrade :as upgrade]
+    ; Liferay Dependecies
+    [org.domaindrivenarchitecture.pallet.crate.liferay.db :as db]
+    [org.domaindrivenarchitecture.pallet.crate.liferay.release-management :as release]
+    [org.domaindrivenarchitecture.pallet.crate.liferay.web :as web]
+    [org.domaindrivenarchitecture.pallet.crate.liferay.app :as liferay-app]
+    [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as liferay-config]
+    [org.domaindrivenarchitecture.pallet.crate.liferay.backup :as liferay-backup]
+    [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]
+    ; Backup Dependency
+    [org.domaindrivenarchitecture.pallet.crate.backup :as backup]
+    ; Tomcat Dependency
+    [org.domaindrivenarchitecture.pallet.crate.tomcat.app :as tomcat-app]
+    [org.domaindrivenarchitecture.pallet.crate.tomcat.app-config :as tomcat-config]
+    ))
 
 ; Crate Version
 (def version [0 1 2])
 
+(def LiferayConfig
+  "The configuration for liferay release feature." 
+  (merge
+    {:db {:root-passwd s/Str
+          :db-name s/Str
+          :user-name s/Str
+          :user-passwd s/Str}
+     :httpd {:fqdn s/Str
+             :domain-cert s/Str
+             :domain-key s/Str
+             :ca-cert s/Str
+             (s/optional-key :app-port) s/Str
+             (s/optional-key :google-id) s/Str
+             (s/optional-key :maintainance-page-content) s/Str}
+     :tomcat {:Xmx s/Str
+              :Xms s/Str
+              :MaxPermSize s/Str
+              :home-dir s/Str
+              :webapps-root-dir s/Str}
+     ; Liferay Configuration
+     :instance-name s/Str   
+     :home-dir s/Str
+     :lib-dir s/Str
+     :portal-ext-properties-content s/Str
+     :third-party-download-root-dir s/Str
+     (s/optional-key :fqdn-to-be-replaced) s/Str}
+    schema/LiferayReleaseConfig))
+
+
+(def default-release
+  "The default release configuration."
+ {:name "Liferay CE"
+  :version [6 2 1]
+  :application ["ROOT" "http://sourceforge.net/projects/lportal/files/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"]
+  :hooks []
+  :layouts []
+  :themes []
+  :portlets []})
+
+
 ; Liferay Crate Default Configuration
 (def default-liferay-config
-  {
-   ; Database Configuration
-   :db-user-passwd "test1234"
-   :db-root-passwd "test1234"
-   :db-name "lportal"
-   :db-user-name "liferay_user"
+  {; Database Configuration
+   :db {:root-passwd "test1234"
+        :db-name "lportal"
+        :user-name "liferay_user"
+        :user-passwd "test1234"}
    ; Webserver Configuration
-   :maintainance-page-content "<h1>Webserver Maintainance Mode</h1>"
+   :httpd {:fqdn "localhost.localdomain"
+           :ca-cert nil
+           :app-port "8009"
+           :maintainance-page-content "<h1>Webserver Maintainance Mode</h1>"}
    ; Tomcat Configuration
-   :Xmx "1024m"
-   :Xms "256m"
-   :MaxPermSize "512m"
-   ; Liferay Download Source
-   :liferay-download-source "http://sourceforge.net/projects/lportal/files/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"
+   :tomcat {:Xmx "1024m"
+            :Xms "256m"
+            :MaxPermSize "512m"
+            :home-dir "/var/lib/tomcat7/"
+            :webapps-root-dir "/var/lib/tomcat7/webapps/ROOT/"}
    ; Liferay Configuration
-   :instance-name "liferay-local"   
-   })
+   :instance-name "default"   
+   :home-dir "/var/lib/liferay/"
+   :lib-dir "/var/lib/liferay/lib/"
+   :release-dir "/var/lib/liferay/prepare-rollout/"
+   :releases [default-release]})
+
+(s/defn merge-config :- LiferayConfig
+  "merges the partial config with default config & ensures that resulting config is valid."
+  [partial-config]
+  (merge default-liferay-config partial-config))
 
 
 ; Liferay Backup: Install Routine
-(defn install-backup
-  [app-name config]
+(s/defn install-backup
+  [app-name partial-config]
   (backup/install-backup-environment :app-name app-name))
 
 
 ; Liferay App: Install Routine
 (defn install 
-  [app-name nodeconfig]
-  (let [config (merge default-liferay-config nodeconfig)]
+  [app-name partial-config]
+  (let [config (merge-config partial-config)]
     ; Upgrade
     (upgrade/upgrade-all-packages)
     ; Database
-    (db/install-database (:db-root-passwd config))
+    (db/install-database (st/get-in config [:db :root-passwd]))
     (db/install-db-instance
-      :db-root-passwd (:db-root-passwd config)
-      :db-name (:db-name config)
-      :db-user-name (:db-user-name config)
-      :db-user-passwd (:db-user-passwd config))
+      :db-root-passwd (st/get-in config [:db :root-passwd])
+      :db-name (st/get-in config [:db :db-name])
+      :db-user-name (st/get-in config [:db :user-name])
+      :db-user-passwd (st/get-in config [:db :user-passwd]))
     ; Webserver + Tomcat
     (web/install-webserver)
     (tomcat-app/install-tomcat7 :custom-java-version :6)
     ; Liferay Package
     (liferay-app/install-liferay 
-      (:repo-download-source config)
-      :custom-build? (contains? config :build-version)
-      :liferay-download-source (:liferay-download-source config))
+      (st/get-in config [:tomcat :home-dir])
+      (st/get-in config [:home-dir])
+      (st/get-in config [:lib-dir])
+      (st/get-in config [:release-dir])
+      (st/get-in config [:third-party-download-root-dir]))
     ; Release Management
     (release/install-release-management)
     ))
 
-
-; Liferay Backup: Configure Routine
 (defn configure-backup
-  [app-name config]
-  (let [db-user-passwd (:db-user-passwd config)
-        db-user-name (:db-user-name config)
-        db-name (:db-name config)
-        fqdn (-> config :fqdn)
-        instance-name (-> config :instance-name)
-        available-releases (-> config :available-releases)
-        all-releases (-> config :all-releases)
-        plugin-blacklist (-> config :plugin-blacklist)]
+  "Liferay Backup: Configure Routine"
+  [app-name partial-config]
+  (let [config (merge-config partial-config)
+        db-user-passwd (st/get-in config [:db :user-passwd])
+        db-user-name (st/get-in config [:db :user-named])
+        db-name (st/get-in config [:db :db-named])
+        instance-name (st/get-in config [:instance-name])
+        fqdn (st/get-in config [:httpd :fqdn])
+        available-releases (st/get-in config [:releases])]
     (backup/install-backup-app-instance 
       :app-name app-name 
       :instance-name instance-name
@@ -116,59 +170,58 @@
         db-user-passwd)
       )))
 
-; Liferay: Configure Routine
 (defn configure
-  [app-name nodeconfig]
-  (let [config (merge default-liferay-config nodeconfig)]
+  "Liferay: Configure Routine"
+  [app-name partial-config]
+  (let [config (merge-config partial-config)]
     ; Webserver
-    (if (:ca-cert config)
+    ; TODO: review mje: if should reside in webserver ns & tested
+    (if (st/get-in config [:httpd :domain-key])
       (web/configure-webserver  ; use https
-		     :name (:instance-name config)
-		     :domain-name (:fqdn config)
-		     :domain-cert (:domain-cert config)
-		     :domain-key (:domain-key config)
-		     :ca-cert (:ca-cert config)
-		     :app-port "8009"
-		     :google-id (:google-id config)
-		     :maintainance-page-content (:maintainance-page-content config))
-      (web/configure-webserver-local))  ; don't use https for a local instance
+		     :name (st/get-in config [:instance-name])
+		     :domain-name (st/get-in config [:httpd :fqdn])
+		     :domain-cert (st/get-in config [:httpd :domain-cert])
+		     :domain-key (st/get-in config [:httpd :domain-key])
+		     :ca-cert (st/get-in config [:httpd :ca-cert])
+		     :app-port (st/get-in config [:httpd :app-port])
+		     :google-id (st/get-in config [:httpd :google-id])
+		     :maintainance-page-content (st/get-in config [:httpd :maintainance-page-content]))
+      (web/configure-webserver-local))
     
     ; Tomcat
     (tomcat-app/configure-tomcat7
       :lines-catalina-properties liferay-config/etc-tomcat7-catalina-properties
       :lines-ROOT-xml liferay-config/etc-tomcat7-Catalina-localhost-ROOT-xml
       :lines-etc-default-tomcat7 (tomcat-config/default-tomcat7 
-                                   :Xmx (:Xmx config)
-                                   :Xms (:Xms config)
-                                   :MaxPermSize (:MaxPermSize config)
-                                   :jdk6 (:jdk6 config))
+                                   :Xmx (st/get-in config [:tomcat :Xmx])
+                                   :Xms (st/get-in config [:tomcat :Xms])
+                                   :MaxPermSize (st/get-in config [:tomcat :MaxPermSize])
+                                   :jdk6 true)
       :lines-server-xml liferay-config/etc-tomcat7-server-xml
       :lines-setenv-sh (tomcat-config/setenv-sh
-                         :Xmx (:Xmx config)
-                         :Xms (:Xms config)
-                         :MaxPermSize (:MaxPermSize config)
-                         :jdk6 (:jdk6 config))
+                         :Xmx (st/get-in config [:tomcat :Xmx])
+                         :Xms (st/get-in config [:tomcat :Xms])
+                         :MaxPermSize (st/get-in config [:tomcat :MaxPermSize])
+                         :jdk6 true)
       )
     
     ; Liferay
     (liferay-app/configure-liferay
       false
-      :db-name (:db-name config)
-      :db-user-name (:db-user-name config)
-      :db-user-passwd (:db-user-passwd config)
-      :portal-ext-properties (:portal-ext-properties-content config)
-      :fqdn-to-be-replaced (:fqdn-to-be-replaced config)
-      :fqdn-replacement (:fqdn config))
-    )
-  )
-
+      :db-name (st/get-in config [:db :db-name])
+      :db-user-name (st/get-in config [:db :user-name])
+      :db-user-passwd (st/get-in config [:db :user-passwd])
+      :portal-ext-properties (st/get-in config [:portal-ext-properties-content])
+      :fqdn-to-be-replaced (st/get-in config [:fqdn-to-be-replaced])
+      :fqdn-replacement (st/get-in config [:httpd :fqdn]))
+    ))
 
 ; Pallet Server Specs >>liferay<<
 (defversionedplan installplan-liferay
-  (ver-notinstalled?) install)
+  (versions/ver-notinstalled?) install)
 
 (defversionedplan configureplan-liferay
-  (ver-always?) configure configure-instance)
+  (versions/ver-always?) configure)
 
 (def liferay-crate 
   "DDA Liferay crate"

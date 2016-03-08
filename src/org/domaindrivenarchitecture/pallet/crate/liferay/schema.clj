@@ -14,10 +14,8 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-(ns org.domaindrivenarchitecture.pallet.crate.liferay.liferay-release
-   (:require [schema.core :as s
-             :include-macros true ;; cljs only
-             ]))
+(ns org.domaindrivenarchitecture.pallet.crate.liferay.schema
+   (:require [schema.core :as s :include-macros true]))
 
 (def Version
   "A schema for a nested data type"
@@ -37,12 +35,7 @@
    :themes [LiferayApp]
    :portlets [LiferayApp]})
 
-
-(def default-release
- {:name "Liferay CE"
-  :version [6 2 1]
-  :application ["ROOT" "http://sourceforge.net/projects/lportal/files/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"]
-  :hooks []
-  :layouts []
-  :themes []
-  :portlets []})
+(def LiferayReleaseConfig
+  "The configuration for liferay release feature."
+  {:release-dir s/Str
+   :releases [LiferayRelease]})

@@ -14,25 +14,30 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-(ns org.domaindrivenarchitecture.pallet.crate.liferay.liferay-release-test
+(ns org.domaindrivenarchitecture.pallet.crate.liferay-test
   (:require
     [clojure.test :refer :all]    
     [clojure.set :as cloj-set]
     [schema.core :as s]
     [schema.experimental.complete :as c]
-    [org.domaindrivenarchitecture.pallet.crate.liferay.liferay-release :as sut]
+    [org.domaindrivenarchitecture.pallet.crate.liferay :as sut]
+    [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]
     ))
 
 (def default-release-definition
-  (c/complete {:application ["name" "download-url"]} sut/LiferayRelease))
+  (c/complete {:application ["name" "download-url"]} schema/LiferayRelease))
  
  (deftest defaults
   (testing 
     "test the default release definition" 
       (is (s/validate
-            sut/LiferayRelease
+            schema/LiferayRelease
             sut/default-release))
       (is (s/validate
-            sut/LiferayRelease
-            default-release-definition))))
-  
+            schema/LiferayRelease
+            default-release-definition))
+      (is (s/validate
+            schema/LiferayReleaseConfig
+            {:release-dir "/prepare-rollout"
+             :releases [default-release-definition]}))
+      ))

@@ -307,3 +307,31 @@
     ""]
     ))
 
+(defn deploy-script
+  []
+  ["#!/bin/bash"                           
+   "if [ \"$#\" -eq 0 ]; then"
+   "   echo \"\" ;" 
+   "   echo \"Available Releases are:\" ;"
+   "   find portal-release-instance/ -type d | sort | cut -f2 -d'/' ;"
+   "   echo \"\" ; "
+   "   echo \"Please use the release you want to deploy as a parameter for this script\" ;"
+   "   echo \"\" ; "
+   "fi"
+   "if [ \"$#\" -eq 1 ]; then"
+   "   if [ -d /var/lib/liferay/portal-release-instance/${1} ]; then"
+   "      cp /var/lib/liferay/portal-release-instance/${1}/* /var/lib/liferay/deploy ;"
+   "      chown tomcat7 /var/lib/liferay/deploy/* ;"
+   "   else"
+   "      echo \"\";" 
+   "      echo \"ERROR: Specified release does not exist or you don't have the permission for it! Please run again as root! For a list of the available releases, run this script without parameters in order to show the available releases!\" ;"
+   "      echo \"\"; "
+   "   fi"
+   "fi"
+   "if [ \"$#\" -ge 2 ]; then"
+   "   echo \"\";" 
+   "   echo \"Please specify 1 release parameter only!\" ;"
+   "   echo \"\" ; "
+   "fi"
+   ""])
+
