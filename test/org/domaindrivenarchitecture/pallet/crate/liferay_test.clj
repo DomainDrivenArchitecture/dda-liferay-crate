@@ -41,3 +41,9 @@
             {:release-dir "/prepare-rollout"
              :releases [default-release-definition]}))
       ))
+ 
+ (deftest configvalidation
+  (testing 
+    "test wheter merged config are validated" 
+      (is (thrown? clojure.lang.ExceptionInfo
+                   (let [config (sut/merge-config {:an-unexpected-key nil})])))))

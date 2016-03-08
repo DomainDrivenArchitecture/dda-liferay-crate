@@ -24,7 +24,6 @@
     [org.domaindrivenarchitecture.pallet.crate.upgrade :as upgrade]
     ; Liferay Dependecies
     [org.domaindrivenarchitecture.pallet.crate.liferay.db :as db]
-    [org.domaindrivenarchitecture.pallet.crate.liferay.release-management :as release]
     [org.domaindrivenarchitecture.pallet.crate.liferay.web :as web]
     [org.domaindrivenarchitecture.pallet.crate.liferay.app :as liferay-app]
     [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as liferay-config]
@@ -105,7 +104,7 @@
    :release-dir "/var/lib/liferay/prepare-rollout/"
    :releases [default-release]})
 
-(s/defn merge-config :- LiferayConfig
+(s/defn ^:always-validate merge-config :- LiferayConfig
   "merges the partial config with default config & ensures that resulting config is valid."
   [partial-config]
   (merge default-liferay-config partial-config))
@@ -134,14 +133,14 @@
     (web/install-webserver)
     (tomcat-app/install-tomcat7 :custom-java-version :6)
     ; Liferay Package
-    (liferay-app/install-liferay 
-      (st/get-in config [:tomcat :home-dir])
-      (st/get-in config [:home-dir])
-      (st/get-in config [:lib-dir])
-      (st/get-in config [:release-dir])
-      (st/get-in config [:third-party-download-root-dir]))
-    ; Release Management
-    (release/install-release-management)
+;    (liferay-app/install-liferay 
+;      (st/get-in config [:tomcat :home-dir])
+;      (st/get-in config [:home-dir])
+;      (st/get-in config [:lib-dir])
+;      (st/get-in config [:release-dir])
+;      (st/get-in config [:third-party-download-root-dir]))
+;    ; Release Management
+;    (release/install-release-management)
     ))
 
 (defn configure-backup
