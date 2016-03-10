@@ -52,4 +52,10 @@
                                :httpd {:fqdn "fqdn"
                                        :domain-cert "cert"
                                        :domain-key "key"}})))
+      (is (map? 
+            (sut/merge-config {:third-party-download-root-dir "download root"
+                               :httpd {:fqdn "fqdn"
+                                       :domain-cert "cert"
+                                       :domain-key "key"}
+                               :tomcat {:Xmx "123"}})))
       ))

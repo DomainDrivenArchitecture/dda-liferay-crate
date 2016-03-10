@@ -88,9 +88,8 @@
         :user-passwd "test1234"}
    ; Webserver Configuration
    :httpd {:fqdn "localhost.localdomain"
-           :ca-cert nil
            :app-port "8009"
-           :maintainance-page-content "[<h1>Webserver Maintainance Mode</h1>]"}
+           :maintainance-page-content ["<h1>Webserver Maintainance Mode</h1>"]}
    ; Tomcat Configuration
    :tomcat {:Xmx "1024m"
             :Xms "256m"
@@ -105,10 +104,17 @@
    :portal-ext-properties-content ["TODO ..."]
    :releases [default-release]})
 
+(defn deep-merge
+  "Recursively merges maps. If keys are not maps, the last value wins."
+  [& vals]
+  (if (every? map? vals)
+    (apply merge-with deep-merge vals)
+    (last vals)))
+
 (s/defn ^:always-validate merge-config :- LiferayConfig
   "merges the partial config with default config & ensures that resulting config is valid."
   [partial-config]
-  (merge default-liferay-config partial-config))
+  (deep-merge default-liferay-config partial-config))
 
 
 ; Liferay Backup: Install Routine
