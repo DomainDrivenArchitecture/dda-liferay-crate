@@ -140,12 +140,12 @@
     (web/install-webserver)
     (tomcat-app/install-tomcat7 :custom-java-version :6)
     ; Liferay Package
-;    (liferay-app/install-liferay 
-;      (st/get-in config [:tomcat :home-dir])
-;      (st/get-in config [:home-dir])
-;      (st/get-in config [:lib-dir])
-;      (st/get-in config [:release-dir])
-;      (st/get-in config [:third-party-download-root-dir]))
+    (liferay-app/install-liferay 
+      (st/get-in config [:tomcat :home-dir])
+      (st/get-in config [:home-dir])
+      (st/get-in config [:lib-dir])
+      (st/get-in config [:release-dir])
+      (st/get-in config [:third-party-download-root-dir]))
 ;    ; Release Management
 ;    (release/install-release-management)
     ))

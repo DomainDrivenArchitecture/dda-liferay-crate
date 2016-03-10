@@ -56,9 +56,10 @@
   (actions/directory 
       dir-path
       :action :create
+      :recursive true
       :owner owner
       :group owner
-      :mode "mode")
+      :mode mode)
   )
 
 (defn create-liferay-directories
@@ -100,13 +101,14 @@
                "portlet" "postgresql" "support-tomcat"]]
     (let [download-location (str repo-download-source jar ".jar")
           target-file (str liferay-lib-dir jar ".jar")]
-      (liferay-remote-file target-file :url download-location)))
+      (liferay-remote-file target-file download-location)))
   )
 
 (defn install-liferay
   [tomcat-root-dir liferay-home-dir liferay-lib-dir liferay-release-dir repo-download-source]
   "creates liferay directories, copies liferay webapp into tomcat and loads dependencies into tomcat"
   (create-liferay-directories liferay-home-dir liferay-lib-dir liferay-release-dir)
+  ;; TODO: review mje 2016_03_10: this should go to tomcat crate
   (delete-tomcat-default-ROOT tomcat-root-dir)
   (liferay-dependencies-into-tomcat liferay-lib-dir repo-download-source)
   )
