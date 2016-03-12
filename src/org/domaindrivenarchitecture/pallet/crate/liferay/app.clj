@@ -17,7 +17,10 @@
 (ns org.domaindrivenarchitecture.pallet.crate.liferay.app
    (:require
      [clojure.string :as string]
+     [schema.core :as s]
+     [schema-tools.core :as st]
      [pallet.actions :as actions]
+     [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]
      [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as liferay-config]
      [org.domaindrivenarchitecture.pallet.crate.liferay.db-replace-scripts :as db-replace-scripts]))
 
@@ -104,13 +107,41 @@
       (liferay-remote-file target-file download-location)))
   )
 
-(defn install-liferay
-  [tomcat-root-dir liferay-home-dir liferay-lib-dir liferay-release-dir repo-download-source]
+(s/defn ^:always-validate prepare-apps-rollout :- s/Any
+  "prepare the rollout of liferay applications"
+  [dir :- s/Str 
+   apps :- [schema/LiferayApp]]
+  (liferay-dir dir :owner "root")
+  (doseq [app apps]
+    (liferay-remote-file (str (first app) ".war") (second app) :owner "root")
+    )
+  )
+
+(s/defn ^:always-validate prepare-rollout 
+  "prepare the rollout of all releases"
+  [liferay-release-config :- schema/LiferayReleaseConfig]
+  (let [base-release-dir (st/get-in liferay-release-config [:release-dir])
+        releases (st/get-in liferay-release-config [:releases])]
+    (doseq [release releases]
+      (let [release-dir (str base-release-dir "/" (st/get-in release [:name]) "-" (st/get-in release [:version]))]
+        (liferay-dir release-dir :owner "root")
+        (prepare-apps-rollout (str release-dir "/app") [(st/get-in release [:application])])
+        (prepare-apps-rollout (str release-dir "/hooks") (st/get-in release [:hooks]))
+        (prepare-apps-rollout (str release-dir "/layouts") (st/get-in release [:layouts]))
+        (prepare-apps-rollout (str release-dir "/themes") (st/get-in release [:themes]))
+        (prepare-apps-rollout (str release-dir "/portlets") (st/get-in release [:portlets]))
+      ))
+    ))
+
+(s/defn install-liferay
+  [tomcat-root-dir liferay-home-dir liferay-lib-dir repo-download-source 
+   liferay-release-config :- schema/LiferayReleaseConfig]
   "creates liferay directories, copies liferay webapp into tomcat and loads dependencies into tomcat"
-  (create-liferay-directories liferay-home-dir liferay-lib-dir liferay-release-dir)
-  ;; TODO: review mje 2016_03_10: this should go to tomcat crate
+  (create-liferay-directories liferay-home-dir liferay-lib-dir 
+                              (st/get-in liferay-release-config [:release-dir]))
   (delete-tomcat-default-ROOT tomcat-root-dir)
   (liferay-dependencies-into-tomcat liferay-lib-dir repo-download-source)
+  (prepare-rollout liferay-release-config)
   )
 
 (defn configure-liferay
