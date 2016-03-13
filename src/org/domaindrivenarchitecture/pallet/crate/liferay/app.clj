@@ -107,6 +107,12 @@
       (liferay-remote-file target-file download-location)))
   )
 
+(s/defn ^:allwas-validate release-dir :- s/Str
+  ""
+  [base-release-dir :- s/Str 
+   release :- schema/LiferayRelease ]
+  (str base-release-dir (st/get-in release [:name]) "-" (string/join "." (st/get-in release [:version]))))
+
 (s/defn ^:always-validate prepare-apps-rollout :- s/Any
   "prepare the rollout of liferay applications"
   [dir :- s/Str 
@@ -123,7 +129,7 @@
   (let [base-release-dir (st/get-in liferay-release-config [:release-dir])
         releases (st/get-in liferay-release-config [:releases])]
     (doseq [release releases]
-      (let [release-dir (str base-release-dir "/" (st/get-in release [:name]) "-" (st/get-in release [:version]))]
+      (let [release-dir (release-dir base-release-dir release)]
         (liferay-dir release-dir :owner "root")
         (prepare-apps-rollout (str release-dir "/app") [(st/get-in release [:application])])
         (prepare-apps-rollout (str release-dir "/hooks") (st/get-in release [:hooks]))
@@ -141,7 +147,6 @@
                               (st/get-in liferay-release-config [:release-dir]))
   (delete-tomcat-default-ROOT tomcat-root-dir)
   (liferay-dependencies-into-tomcat liferay-lib-dir repo-download-source)
-  (prepare-rollout liferay-release-config)
   )
 
 (defn configure-liferay

@@ -19,9 +19,25 @@
   (:require
     [clojure.test :refer :all]
     [pallet.build-actions :as build-actions]
+    [schema.core :as s]
+    [schema.experimental.complete :as c]
     [pallet.actions :as actions]
     [org.domaindrivenarchitecture.pallet.test-utils :as tu]
+    [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]
     [org.domaindrivenarchitecture.pallet.crate.liferay.app :as sut]))
+
+
+(deftest test-release-name
+  "test the release name generation"
+  []
+  (testing 
+    (is 
+      (= 
+        "dir/test-0.2.0"
+        (sut/release-dir "dir/" (c/complete {:name "test" :version [0 2 0]} schema/LiferayRelease))
+        ))
+    ))
+
 
 (deftest test-good
   "test the good case"

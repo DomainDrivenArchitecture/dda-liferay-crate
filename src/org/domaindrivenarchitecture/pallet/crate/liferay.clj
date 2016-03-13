@@ -73,7 +73,7 @@
 
 (def default-release
   "The default release configuration."
- {:name "Liferay CE"
+ {:name "LiferayCE"
   :version [6 2 1]
   :application ["ROOT" "http://sourceforge.net/projects/lportal/files/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"]
   :hooks []
@@ -118,6 +118,12 @@
   [partial-config]
   (deep-merge default-liferay-config partial-config))
 
+(defn prepare-rollout
+  "Liferay: rollout preparation"
+  [app-name partial-config]
+  (let [config (merge-config partial-config)]
+    (liferay-app/prepare-rollout (st/select-schema config schema/LiferayReleaseConfig))
+  ))
 
 ; Liferay Backup: Install Routine
 (defn install-backup
@@ -148,8 +154,10 @@
       (st/get-in config [:lib-dir])
       (st/get-in config [:third-party-download-root-dir])
       (st/select-schema config schema/LiferayReleaseConfig))
-;    ; Release Management
+    ; Release Management
 ;    (release/install-release-management)
+    ; do the initial rollout
+    (prepare-rollout app-name partial-config)
     ))
 
 (defn configure-backup
@@ -223,11 +231,6 @@
       :fqdn-to-be-replaced (st/get-in config [:fqdn-to-be-replaced])
       :fqdn-replacement (st/get-in config [:httpd :fqdn]))
     ))
-
-(defn prepare-rollout
-  "Liferay: rollout preparation"
-  [app-name partial-config]
-  )
 
 ; Pallet Server Specs >>liferay<<
 (defversionedplan installplan-liferay
