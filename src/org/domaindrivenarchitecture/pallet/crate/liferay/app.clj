@@ -119,7 +119,7 @@
    apps :- [schema/LiferayApp]]
   (liferay-dir dir :owner "root")
   (doseq [app apps]
-    (liferay-remote-file (str (first app) ".war") (second app) :owner "root")
+    (liferay-remote-file (str dir (first app) ".war") (second app) :owner "root")
     )
   )
 
@@ -131,11 +131,11 @@
     (doseq [release releases]
       (let [release-dir (release-dir base-release-dir release)]
         (liferay-dir release-dir :owner "root")
-        (prepare-apps-rollout (str release-dir "/app") [(st/get-in release [:application])])
-        (prepare-apps-rollout (str release-dir "/hooks") (st/get-in release [:hooks]))
-        (prepare-apps-rollout (str release-dir "/layouts") (st/get-in release [:layouts]))
-        (prepare-apps-rollout (str release-dir "/themes") (st/get-in release [:themes]))
-        (prepare-apps-rollout (str release-dir "/portlets") (st/get-in release [:portlets]))
+        (prepare-apps-rollout (str release-dir "/app/") [(st/get-in release [:application])])
+        (prepare-apps-rollout (str release-dir "/hooks/") (st/get-in release [:hooks]))
+        (prepare-apps-rollout (str release-dir "/layouts/") (st/get-in release [:layouts]))
+        (prepare-apps-rollout (str release-dir "/themes/") (st/get-in release [:themes]))
+        (prepare-apps-rollout (str release-dir "/portlets/") (st/get-in release [:portlets]))
       ))
     ))
 
