@@ -21,6 +21,8 @@
     [clojure.set :as cloj-set]
     [clojure.string :as cloj-str]
     ))
+(require '[pallet.stevedore :refer [script with-script-language]])
+(require 'pallet.stevedore.bash) ;; for bash output
 
 ; paths
 (def repo-base-path
@@ -194,47 +196,141 @@
     ))
  
 
+;Stevedore Testing
 (defn install-script-do-deploy
+  "deploys a do-deploy script on the target platform"
   []
+  (actions/plan-when-not 
+      (stevedore/script (file-exists? "/var/lib/liferay/do-deploy.sh"))
+      (actions/remote-file "/var/lib/liferay/do-deploy.sh"
+                           :literal true
+                           :owner "tomcat7" 
+                           :group "pallet" 
+                           :mode "0744"
+                           :content )
+  (with-script-language :pallet.stevedore.bash/bash
+    (script (defn params [hot-or-cold-deploy? version]
+               (if (= ("\"$#\"") 0)
+                 (println "Available releases are:"
+                          ;da müssen wir nochmal drüber nachdenken ob die Schleife hier wirklich Sinn macht
+                          (doseq [x @(pipe (pipe ("find portal-release-instance/ -type d") ("sort")) ("cut -f2 -d0"))]
+                            (println @x))
+                          (println "\"Please use the release you want to deploy as a parameter for this script\""))))))))
+
+(defn dsl-test
+  ""
+  []
+   (with-script-language :pallet.stevedore.bash/bash
+    (script (defn params [p1 version]
+               (cond (= ("\"$#\"") 0)
+                 (do (println "\"Available releases are:\"")
+                          ;da müssen wir nochmal drüber nachdenken ob die Schleife hier wirklich Sinn macht
+                          (doseq [x @(pipe (pipe ("find portal-release-instance/ -type d") ("sort")) ("cut -f2 -d0"))]
+                            (println @x))
+                          (println "\"Please use the release you want to deploy as a parameter for this script\""))
+                 )))))
+
+(defn dsl-test2
+  ""
+  []
+  (with-script-language :pallet.stevedore.bash/bash
+    (script (defn foo [x] (println @x)))))
+
+(defn dsl-test3
+  ""
+  []
+  (with-script-language :pallet.stevedore.bash/bash
+    (script (do (defn foo [x y] (println @x))))))
+
+
+(defn install-script-do-deploy-deprecated
+  [& hot-deploy]
   "Creates script for deploying one specific release. To be called by the admin connected to the server via ssh" 
   {:deprecated "0.1.2"}
-  (actions/plan-when-not 
-    (stevedore/script (file-exists? "/var/lib/liferay/do-deploy.sh"))
-    (actions/remote-file "/var/lib/liferay/do-deploy.sh"
-                         :literal true
-                         :owner "tomcat7" 
-                         :group "pallet" 
-                         :mode "0744"
-                         :content 
-                         (cloj-str/join
-                           \newline
-                           ["#!/bin/bash"                           
-                            "if [ \"$#\" -eq 0 ]; then"
-                            "   echo \"\" ;" 
-                            "   echo \"Available Releases are:\" ;"
-                            "   find portal-release-instance/ -type d | sort | cut -f2 -d'/' ;"
-                            "   echo \"\" ; "
-                            "   echo \"Please use the release you want to deploy as a parameter for this script\" ;"
-                            "   echo \"\" ; "
-                            "fi"
-                            "if [ \"$#\" -eq 1 ]; then"
-                            "   if [ -d /var/lib/liferay/portal-release-instance/${1} ]; then"
-                            "      cp /var/lib/liferay/portal-release-instance/${1}/* /var/lib/liferay/deploy ;"
-                            "      chown tomcat7 /var/lib/liferay/deploy/* ;"
-                            "   else"
-                            "      echo \"\";" 
-                            "      echo \"ERROR: Specified release does not exist or you don't have the permission for it! Please run again as root! For a list of the available releases, run this script without parameters in order to show the available releases!\" ;"
-                            "      echo \"\"; "
-                            "   fi"
-                            "fi"
-                            "if [ \"$#\" -ge 2 ]; then"
-                            "   echo \"\";" 
-                            "   echo \"Please specify 1 release parameter only!\" ;"
-                            "   echo \"\" ; "
-                            "fi"
-                            ""]
-      )) 
-  ))
+  (if hot-deploy
+    (actions/plan-when-not 
+      (stevedore/script (file-exists? "/var/lib/liferay/do-deploy.sh"))
+      (actions/remote-file "/var/lib/liferay/do-deploy.sh"
+                           :literal true
+                           :owner "tomcat7" 
+                           :group "pallet" 
+                           :mode "0744"
+                           :content 
+                           (cloj-str/join
+                             \newline
+                             ["#!/bin/bash"                           
+                              "if [ \"$#\" -eq 0 ]; then"
+                              "   echo \"\" ;" 
+                              "   echo \"Available Releases are:\" ;"
+                              "   find portal-release-instance/ -type d | sort | cut -f2 -d'/' ;"
+                              "   echo \"\" ; "
+                              "   echo \"Please use the release you want to deploy as a parameter for this script\" ;"
+                              "   echo \"\" ; "
+                              "fi"
+                              "if [ \"$#\" -eq 1 ]; then"
+                              "   if [ -d /var/lib/liferay/portal-release-instance/${1} ]; then"
+                              "      cp /var/lib/liferay/portal-release-instance/${1}/* /var/lib/liferay/deploy ;"
+                              "      chown tomcat7 /var/lib/liferay/deploy/* ;"
+                              "   else"
+                              "      echo \"\";" 
+                              "      echo \"ERROR: Specified release does not exist or you don't have the permission for it! Please run again as root! For a list of the available releases, run this script without parameters in order to show the available releases!\" ;"
+                              "      echo \"\"; "
+                              "   fi"
+                              "fi"
+                              "if [ \"$#\" -ge 2 ]; then"
+                              "   echo \"\";" 
+                              "   echo \"Please specify 1 release parameter only!\" ;"
+                              "   echo \"\" ; "
+                              "fi"
+                              ""]
+        )) 
+    )
+    ;überarbeitetes sh-Skript
+    (actions/plan-when-not 
+      (stevedore/script (file-exists? "/var/lib/liferay/do-deploy.sh"))
+      (actions/remote-file "/var/lib/liferay/do-deploy.sh"
+                           :literal true
+                           :owner "tomcat7" 
+                           :group "pallet" 
+                           :mode "0744"
+                           :content 
+                           (cloj-str/join
+                             \newline
+                             ["#!/bin/bash"                           
+                              "if [ \"$#\" -eq 0 ]; then"
+                              "   echo \"\" ;" 
+                              "   echo \"Available Releases are:\" ;"
+                              "   find portal-release-instance/ -type d | sort | cut -f2 -d'/' ;"
+                              "   echo \"\" ; "
+                              "   echo \"Please use the release you want to deploy as a parameter for this script\" ;"
+                              "   echo \"\" ; "
+                              "fi"
+                              "if [ \"$#\" -eq 1 ]; then"
+                              "   if [ -d /var/lib/liferay/portal-release-instance/${1} ]; then"
+                              ;Tomcat stoppen
+                              "      service tomcat7 stop;"        
+                              ;alles in /var/lib/tomcat7/webapps löschen
+                              "      rm -rf /var/lib/tomcat7/webapps;"
+                              ;nach /var/lib/tomcat7/webapps kopieren
+                              "      cp /var/lib/liferay/portal-release-instance/${1}/* /var/lib/tomcat7/webapps ;"
+                              
+                              "      chown tomcat7 /var/lib/liferay/deploy/* ;"
+                              ;f. Zeile angepasst
+                              "      service tomcat7 start;"
+                              ""
+                              "   else"
+                              "      echo \"\";" 
+                              "      echo \"ERROR: Specified release does not exist or you don't have the permission for it! Please run again as root! For a list of the available releases, run this script without parameters in order to show the available releases!\" ;"
+                              "      echo \"\"; "
+                              "   fi"
+                              "fi"
+                              "if [ \"$#\" -ge 2 ]; then"
+                              "   echo \"\";" 
+                              "   echo \"Please specify 1 release parameter only!\" ;"
+                              "   echo \"\" ; "
+                              "fi"
+                              ""]
+      )))))
 
 (defn install-script-do-rollout
   [& {:keys [custom-tomcat-home]}]
@@ -345,6 +441,17 @@
                                 :all-supported-app-releases all-supported-app-releases-full-mapping)
     (fetch-available-app-releases :available-app-releases available-app-releases-for-given-build
                               :all-supported-app-releases all-supported-app-releases-full-mapping
-                              :plugin-blacklist plugin-blacklist) 
+                              :plugin-blackliinstall-script-do-deployst plugin-blacklist) 
     ))
+
+
+
+
+
+                 
+                 
+
+
+
+
 
