@@ -313,7 +313,7 @@
 
 (defn deploy-script
   []
-  (let [prepare-dir "/var/lib/liferay/portal-release-instance/"
+  (let [prepare-dir "/var/lib/liferay/prepare-rollout/"
         deploy-dir "/var/lib/liferay/deploy/"
         tomcat-dir "/var/lib/tomcat7/webapps/"
         application-parts ["app" "hooks" "layouts" "portlets" "themes"]]
