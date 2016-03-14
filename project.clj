@@ -21,7 +21,8 @@
   :profiles {:dev
              {:dependencies
               [[com.palletops/pallet "0.8.10" :classifier "tests"]
-               [org.clojure/test.check "0.9.0"]]
+               [org.clojure/test.check "0.9.0"]
+               [org.domaindrivenarchitecture/dda-basic-crate "0.3.0-SNAPSHOT" :classifier "tests"]]
               :plugins
               [[com.palletops/pallet-lein "0.8.0-alpha.1"]]}
               :leiningen/reply

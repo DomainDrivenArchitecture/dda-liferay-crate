@@ -16,12 +16,15 @@
 
 (ns org.domaindrivenarchitecture.pallet.crate.liferay
   (:require
-    [schema.core :as s :include-macros true]
+    [schema.core :as s]
     [schema-tools.core :as st]
+    ; pallet
+    [pallet.api :as api]
     ; Generic Dependencies
     [org.domaindrivenarchitecture.pallet.crate.basecrate :refer :all]
     [org.domaindrivenarchitecture.pallet.crate.versions :as versions]
     [org.domaindrivenarchitecture.pallet.crate.upgrade :as upgrade]
+    [org.domaindrivenarchitecture.pallet.crate.config :as config]
     ; Liferay Dependecies
     [org.domaindrivenarchitecture.pallet.crate.liferay.db :as db]
     [org.domaindrivenarchitecture.pallet.crate.liferay.web :as web]
@@ -37,7 +40,7 @@
     ))
 
 ; Crate Version
-(def version [0 1 2])
+(def version [0 2 0])
 
 (def LiferayConfig
   "The configuration for liferay release feature." 
@@ -70,7 +73,7 @@
 
 (def default-release
   "The default release configuration."
- {:name "Liferay CE"
+ {:name "LiferayCE"
   :version [6 2 1]
   :application ["ROOT" "http://sourceforge.net/projects/lportal/files/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"]
   :hooks []
@@ -78,9 +81,8 @@
   :themes []
   :portlets []})
 
-
-; Liferay Crate Default Configuration
 (def default-liferay-config
+  "Liferay Crate Default Configuration"
   {; Database Configuration
    :db {:root-passwd "test1234"
         :db-name "lportal"
@@ -116,9 +118,15 @@
   [partial-config]
   (deep-merge default-liferay-config partial-config))
 
+(defn prepare-rollout
+  "Liferay: rollout preparation"
+  [app-name partial-config]
+  (let [config (merge-config partial-config)]
+    (liferay-app/prepare-rollout (st/select-schema config schema/LiferayReleaseConfig))
+  ))
 
 ; Liferay Backup: Install Routine
-(s/defn install-backup
+(defn install-backup
   [app-name partial-config]
   (backup/install-backup-environment :app-name app-name))
 
@@ -144,10 +152,12 @@
       (st/get-in config [:tomcat :home-dir])
       (st/get-in config [:home-dir])
       (st/get-in config [:lib-dir])
-      (st/get-in config [:release-dir])
-      (st/get-in config [:third-party-download-root-dir]))
-;    ; Release Management
+      (st/get-in config [:third-party-download-root-dir])
+      (st/select-schema config schema/LiferayReleaseConfig))
+    ; Release Management
 ;    (release/install-release-management)
+    ; do the initial rollout
+    (prepare-rollout app-name partial-config)
     ))
 
 (defn configure-backup
@@ -236,7 +246,16 @@
 
 (def with-liferay
   "Pallet server-spec for liferay"
-  (create-server-spec liferay-crate))
+  (api/server-spec
+    :phases {
+             :configure (api/plan-fn (create-configure-plan liferay-crate))
+             :install (api/plan-fn (create-install-plan liferay-crate))
+             :prepare-rollout (api/plan-fn 
+                                (prepare-rollout
+                                  (name (:facility liferay-crate))  
+                                  (config/get-nodespecific-additional-config (:facility liferay-crate))
+                                  ))}
+    ))
 
 
 ; Pallet Server Specs >>liferay-backup<<

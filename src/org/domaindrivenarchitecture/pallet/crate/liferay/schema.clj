@@ -15,11 +15,8 @@
 ; limitations under the License.
 
 (ns org.domaindrivenarchitecture.pallet.crate.liferay.schema
-   (:require [schema.core :as s :include-macros true]))
-
-(def Version
-  "A schema for a nested data type"
-  [(s/one s/Num "major") (s/one s/Num "minor") (s/one s/Num "patch")])
+   (:require [schema.core :as s :include-macros true]
+             [org.domaindrivenarchitecture.pallet.crate.base.schema :as base]))
 
 (def LiferayApp
   "A schema for a nested data type"
@@ -28,7 +25,7 @@
 (def LiferayRelease
   "LiferayRelease relates a release name with specification of versioned apps."
   {:name s/Str
-   :version Version
+   :version base/Version
    :application LiferayApp
    :hooks [LiferayApp]
    :layouts [LiferayApp]
