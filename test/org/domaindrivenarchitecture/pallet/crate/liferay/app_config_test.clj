@@ -17,9 +17,28 @@
 (ns org.domaindrivenarchitecture.pallet.crate.liferay.app-config-test
   (:require
     [clojure.test :refer :all]
+    [clojure.java.io :as io]
+    [clojure.string :as string]
     [pallet.actions :as actions]
+    [pallet.stevedore :as stevedore]
     [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as sut]
     ))
+
+(defn source-comment-re-str []
+  (str "(?sm) *# " (.getName (io/file *file*)) ":\\d+\n?"))
+
+;;; a test method that adds a check for source line comment
+(defmethod assert-expr 'script= [msg form]
+  (let [[_ expected expr] form]
+    `(let [re# (re-pattern ~(source-comment-re-str))
+           expected# (-> ~expected string/trim)
+           actual# (-> ~expr (string/replace re# "") string/trim)]
+       (if (= expected# actual#)
+         (do-report
+          {:type :pass :message ~msg :expected expected# :actual actual#})
+         (do-report
+          {:type :fail :message ~msg :expected expected# :actual actual#})))))
+
 
 (def ^:private portal-ext-properties-with-all-keys
   ["#"
@@ -99,3 +118,56 @@
              :db-name "my-db-name")))
     )
   )
+
+(deftest test-test
+  (testing 
+    "test the good case"
+    (is (script= 
+          "echo \"Available releases are:\""
+          (stevedore/with-script-language :pallet.stevedore.bash/bash
+            (stevedore/script 
+              (println "\"Available releases are:\"")
+  ))))))
+
+(deftest do-deploy-script
+  (testing 
+    "test the good case"
+    (is (script= 
+          (string/join
+            \newline
+            ["if [ \"$#\" -eq 0 ]; then"
+             "echo \"\"" 
+             "echo \"Available Releases are:\""
+             "find portal-release-instance/ -type d | sort | cut -f2 -d'/'"
+             "echo \"\""
+             "echo \"Please use the release you want to deploy as a parameter for this script\""
+             "echo \"\""
+             "exit 1"
+             "fi"
+             "if [ \"$#\" -ge 3 ]; then"
+             "echo \"\"" 
+             "echo \"Please specify 2 parameters only!\""
+             "echo \"\""
+             "exit 1"
+             "fi"
+             "if [ -d /var/lib/liferay/portal-release-instance/${1} ]; then"
+             "if [ \"${2}\" == \"hot\" ]; then"
+             "for part in app hooks layouts portlets themes; do"
+             "cp /var/lib/liferay/portal-release-instance/${1}/${part}/* /var/lib/liferay/deploy/"
+             "done"
+             "chown tomcat7 /var/lib/liferay/deploy/*"
+             "else"
+             "service tomcat7 stop"
+             "rm -rf /var/lib/tomcat7/webapps/*"
+             "for part in app hooks layouts portlets themes; do"
+             "cp /var/lib/liferay/portal-release-instance/${1}/${part}/* /var/lib/tomcat7/webapps/"
+             "done"
+             "chown tomcat7 /var/lib/tomcat7/webapps/*"
+             "fi"
+             "else"
+             "echo \"\"" 
+             "echo \"ERROR: Specified release does not exist or you don't have the permission for it! Please run again as root! For a list of the available releases, run this script without parameters in order to show the available releases!\" ;"
+             "echo \"\""
+             "fi"]) 
+            (sut/deploy-script)))
+  ))

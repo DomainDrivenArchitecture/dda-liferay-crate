@@ -15,7 +15,11 @@
 ; limitations under the License.
 
 
-(ns org.domaindrivenarchitecture.pallet.crate.liferay.app-config)
+(ns org.domaindrivenarchitecture.pallet.crate.liferay.app-config
+  (require 
+    [pallet.stevedore :as stevedore]
+    [pallet.script.scriptlib :as lib]
+    [pallet.stevedore.bash :as bash]))
 
 (defn usr-share-tomcat7-bin-setenv-sh
   [&{:keys [Xmx MaxPermSize]
@@ -309,29 +313,47 @@
 
 (defn deploy-script
   []
-  ["#!/bin/bash"                           
-   "if [ \"$#\" -eq 0 ]; then"
-   "   echo \"\" ;" 
-   "   echo \"Available Releases are:\" ;"
-   "   find portal-release-instance/ -type d | sort | cut -f2 -d'/' ;"
-   "   echo \"\" ; "
-   "   echo \"Please use the release you want to deploy as a parameter for this script\" ;"
-   "   echo \"\" ; "
-   "fi"
-   "if [ \"$#\" -eq 1 ]; then"
-   "   if [ -d /var/lib/liferay/portal-release-instance/${1} ]; then"
-   "      cp /var/lib/liferay/portal-release-instance/${1}/* /var/lib/liferay/deploy ;"
-   "      chown tomcat7 /var/lib/liferay/deploy/* ;"
-   "   else"
-   "      echo \"\";" 
-   "      echo \"ERROR: Specified release does not exist or you don't have the permission for it! Please run again as root! For a list of the available releases, run this script without parameters in order to show the available releases!\" ;"
-   "      echo \"\"; "
-   "   fi"
-   "fi"
-   "if [ \"$#\" -ge 2 ]; then"
-   "   echo \"\";" 
-   "   echo \"Please specify 1 release parameter only!\" ;"
-   "   echo \"\" ; "
-   "fi"
-   ""])
+  (let [prepare-dir "/var/lib/liferay/portal-release-instance/"
+        deploy-dir "/var/lib/liferay/deploy/"
+        tomcat-dir "/var/lib/tomcat7/webapps/"
+        application-parts ["app" "hooks" "layouts" "portlets" "themes"]]
+    ; TODO: Validate tomcat-dir not empty!
+  (stevedore/with-script-language :pallet.stevedore.bash/bash
+    (stevedore/with-source-line-comments false 
+      (stevedore/script 
+        ;(~lib/declare-arguments [release-dir hot-or-cold])
+        ("if [ \"$#\" -eq 0 ]; then")
+        (println "\"\"")
+        (println "\"Available Releases are:\"")
+        (pipe (pipe ("find portal-release-instance/ -type d") ("sort")) ("cut -f2 -d'/'"))
+        (println "\"\"")
+        (println "\"Please use the release you want to deploy as a parameter for this script\"")
+        (println "\"\"")
+        ("exit 1")
+        ("fi")
+        ("if [ \"$#\" -ge 3 ]; then")
+        (println "\"\"") 
+        (println "\"Please specify 2 parameters only!\"")
+        (println "\"\"")
+        ("exit 1")
+        ("fi")
+        (if (directory? (str ~prepare-dir @1))
+          (if (= @2 "hot") 
+            (do
+              (doseq [part ~application-parts]
+                ("cp" (str ~prepare-dir @1 "/" @part "/*") ~deploy-dir))
+              ("chown tomcat7" (str ~deploy-dir "*")))
+            (do
+              ("service tomcat7 stop")
+              ("rm -rf" (str ~tomcat-dir "*"))
+              (doseq [part ~application-parts]
+                ("cp" (str ~prepare-dir @1 "/" @part "/*") ~tomcat-dir))
+              ("chown tomcat7" (str ~tomcat-dir "*"))
+              ))
+          (do 
+            (println "\"\"")
+            (println "\"ERROR: Specified release does not exist or you don't have the permission for it! Please run again as root! For a list of the available releases, run this script without parameters in order to show the available releases!\" ;")
+            (println "\"\"")))
+        ))))
+  )
 
