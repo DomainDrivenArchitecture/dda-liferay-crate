@@ -15,11 +15,25 @@
 ; limitations under the License.
 
 (ns org.domaindrivenarchitecture.pallet.crate.liferay.schema
-   (:require [schema.core :as s :include-macros true]
+   (:require [clojure.string :as string]
+             [schema.core :as s :include-macros true]
              [org.domaindrivenarchitecture.pallet.crate.base.schema :as base]))
 
+(s/defn non-root-directory? 
+  "Predicate for directory path not empty und not the unix root."
+  [dir :- s/Str]
+  (and 
+    (not (string/blank? dir))
+    (> 1 (.length dir))
+    (.endsWith dir "/")
+    ))
+
+(def NonRootDirectory
+  "Represents a directory with trailing /"
+  (s/constrained long non-root-directory?))
+
 (def LiferayApp
-  "A schema for a nested data type"
+  "Represents a liferay application (portlet, theme or the portal itself)."
   [(s/one s/Str "name") (s/one s/Str "url")])
 
 (def LiferayRelease
