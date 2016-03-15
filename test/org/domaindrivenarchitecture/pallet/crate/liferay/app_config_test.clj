@@ -163,6 +163,7 @@
              "cp /var/lib/liferay/prepare-rollout/${1}/${part}/* /var/lib/tomcat7/webapps/"
              "done"
              "chown tomcat7 /var/lib/tomcat7/webapps/*"
+             "service tomcat7 start"
              "fi"
              "else"
              "echo \"\"" 
@@ -181,3 +182,5 @@
                (sut/deploy-script "/xyz/" "/xyz/" nil)))
     )
   )
+
+(run-tests)
