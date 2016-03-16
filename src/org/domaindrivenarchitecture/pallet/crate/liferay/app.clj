@@ -66,10 +66,10 @@
   )
 
 (defn create-liferay-directories
-  [liferay-home-dir liferay-lib-dir liferay-release-dir]
+  [liferay-home-dir liferay-lib-dir liferay-release-dir liferay-deploy-dir]
   (liferay-dir (str liferay-home-dir "logs"))
   (liferay-dir (str liferay-home-dir "data"))
-  (liferay-dir (str liferay-home-dir "deploy"))
+  (liferay-dir liferay-deploy-dir)
   (liferay-dir liferay-lib-dir)
   (liferay-dir liferay-release-dir :owner "root")
   )
@@ -123,7 +123,7 @@
     )
   )
 
-(s/defn ^:always-validate install-script-do-rollout
+(s/defn ^:always-validate install-do-rollout-script
   "Creates script for rolling liferay version. To be called by the admin connected to the server via ssh"
   [liferay-home :- schema/NonRootDirectory
    prepare-dir :- schema/NonRootDirectory 
@@ -135,7 +135,7 @@
     :group "root"
     :mode "0744"
     :literal true
-    :content (app-config/rollout-script prepare-dir deploy-dir tomcat-dir)
+    :content (app-config/do-deploy-script prepare-dir deploy-dir tomcat-dir)
     ))
 
 (s/defn ^:always-validate prepare-rollout 
@@ -155,14 +155,14 @@
     ))
 
 (s/defn install-liferay
-  [tomcat-root-dir liferay-home-dir liferay-lib-dir repo-download-source 
+  [tomcat-root-dir tomcat-webapps-dir liferay-home-dir 
+   liferay-lib-dir liferay-deploy-dir repo-download-source 
    liferay-release-config :- schema/LiferayReleaseConfig]
   "creates liferay directories, copies liferay webapp into tomcat and loads dependencies into tomcat"
-  (create-liferay-directories liferay-home-dir liferay-lib-dir 
-                              (st/get-in liferay-release-config [:release-dir]))
-  (delete-tomcat-default-ROOT tomcat-root-dir)
+  (create-liferay-directories liferay-home-dir liferay-lib-dir (st/get-in liferay-release-config [:release-dir]) liferay-deploy-dir)
   (liferay-dependencies-into-tomcat liferay-lib-dir repo-download-source)
   (liferay-dependencies-into-tomcat liferay-lib-dir repo-download-source)
+  (install-do-rollout-script liferay-home-dir (st/get-in liferay-release-config [:release-dir]) liferay-deploy-dir tomcat-webapps-dir)
   )
 
 (defn configure-liferay

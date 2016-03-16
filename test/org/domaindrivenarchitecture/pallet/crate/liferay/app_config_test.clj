@@ -119,7 +119,7 @@
     )
   )
 
-(deftest do-rollout-script
+(deftest do-deploy-script
   (testing 
     "test the good case"
     (is (script= 
@@ -128,7 +128,7 @@
             ["if [ \"$#\" -eq 0 ]; then"
              "echo \"\"" 
              "echo \"Available Releases are:\""
-             "find portal-release-instance/ -type d | sort | cut -f2 -d'/'"
+             "find /var/lib/liferay/prepare-rollout/ -type d | sort | cut -f2 -d'/'"
              "echo \"\""
              "echo \"Please use the release you want to deploy as a parameter for this script\""
              "echo \"\""
@@ -160,16 +160,16 @@
              "echo \"ERROR: Specified release does not exist or you don't have the permission for it! Please run again as root! For a list of the available releases, run this script without parameters in order to show the available releases!\" ;"
              "echo \"\""
              "fi"]) 
-            (sut/rollout-script "/var/lib/liferay/prepare-rollout/" "/var/lib/liferay/deploy/" "/var/lib/tomcat7/webapps/")))
+            (sut/do-deploy-script "/var/lib/liferay/prepare-rollout/" "/var/lib/liferay/deploy/" "/var/lib/tomcat7/webapps/")))
     )
   (testing 
     "test the corner cases"
     (is
       (thrown? clojure.lang.ExceptionInfo
-               (sut/rollout-script "/xyz/" "/xyz/" "/")))
+               (sut/do-deploy-script "/xyz/" "/xyz/" "/")))
     (is
       (thrown? clojure.lang.ExceptionInfo
-               (sut/rollout-script "/xyz/" "/xyz/" nil)))
+               (sut/do-deploy-script "/xyz/" "/xyz/" nil)))
     )
   )
 

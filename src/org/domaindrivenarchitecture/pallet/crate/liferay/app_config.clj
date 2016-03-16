@@ -313,7 +313,7 @@
     ""]
     ))
 
-(s/defn ^:always-validate rollout-script
+(s/defn ^:always-validate do-deploy-script
   "Provides the do-deploy script content."
   [prepare-dir :- schema/NonRootDirectory 
    deploy-dir :- schema/NonRootDirectory
@@ -326,7 +326,7 @@
           ("if [ \"$#\" -eq 0 ]; then")
           (println "\"\"")
           (println "\"Available Releases are:\"")
-          (pipe (pipe ("find portal-release-instance/ -type d") ("sort")) ("cut -f2 -d'/'"))
+          (pipe (pipe ("find" ~prepare-dir "-type d") ("sort")) ("cut -f2 -d'/'"))
           (println "\"\"")
           (println "\"Please use the release you want to deploy as a parameter for this script\"")
           (println "\"\"")

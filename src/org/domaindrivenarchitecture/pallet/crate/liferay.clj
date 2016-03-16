@@ -60,11 +60,12 @@
               :Xms s/Str
               :MaxPermSize s/Str
               :home-dir schema/NonRootDirectory
-              :webapps-root-dir schema/NonRootDirectory}
+              :webapps-dir schema/NonRootDirectory}
      ; Liferay Configuration
      :instance-name s/Str   
      :home-dir schema/NonRootDirectory
      :lib-dir schema/NonRootDirectory
+     :deploy-dir schema/NonRootDirectory
      :portal-ext-properties-content [s/Str]
      :third-party-download-root-dir s/Str
      (s/optional-key :fqdn-to-be-replaced) s/Str}
@@ -97,11 +98,12 @@
             :Xms "256m"
             :MaxPermSize "512m"
             :home-dir "/var/lib/tomcat7/"
-            :webapps-root-dir "/var/lib/tomcat7/webapps/ROOT/"}
+            :webapps-dir "/var/lib/tomcat7/webapps/"}
    ; Liferay Configuration
    :instance-name "default"   
    :home-dir "/var/lib/liferay/"
    :lib-dir "/var/lib/liferay/lib/"
+   :deploy-dir "/var/lib/liferay/deploy/"
    :release-dir "/var/lib/liferay/prepare-rollout/"
    :portal-ext-properties-content ["TODO ..."]
    :releases [default-release]})
@@ -150,8 +152,10 @@
     ; Liferay Package
     (liferay-app/install-liferay 
       (st/get-in config [:tomcat :home-dir])
+      (st/get-in config [:tomcat :webapps-dir])
       (st/get-in config [:home-dir])
       (st/get-in config [:lib-dir])
+      (st/get-in config [:deploy-dir])
       (st/get-in config [:third-party-download-root-dir])
       (st/select-schema config schema/LiferayReleaseConfig))
     ; Release Management
