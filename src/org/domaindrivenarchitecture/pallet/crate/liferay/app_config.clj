@@ -350,6 +350,7 @@
                 (doseq [part ~application-parts]
                   ("cp" (str ~prepare-dir @1 "/" @part "/*") ~tomcat-dir))
                 ("chown tomcat7" (str ~tomcat-dir "*"))
+                ("service tomcat7 start")
                 ))
             (do 
               (println "\"\"")
