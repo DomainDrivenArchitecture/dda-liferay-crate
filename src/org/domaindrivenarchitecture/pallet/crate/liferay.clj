@@ -59,12 +59,12 @@
      :tomcat {:Xmx s/Str
               :Xms s/Str
               :MaxPermSize s/Str
-              :home-dir s/Str
-              :webapps-root-dir s/Str}
+              :home-dir schema/NonRootDirectory
+              :webapps-root-dir schema/NonRootDirectory}
      ; Liferay Configuration
      :instance-name s/Str   
-     :home-dir s/Str
-     :lib-dir s/Str
+     :home-dir schema/NonRootDirectory
+     :lib-dir schema/NonRootDirectory
      :portal-ext-properties-content [s/Str]
      :third-party-download-root-dir s/Str
      (s/optional-key :fqdn-to-be-replaced) s/Str}

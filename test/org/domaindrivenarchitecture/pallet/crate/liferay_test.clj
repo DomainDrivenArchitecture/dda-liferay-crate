@@ -38,7 +38,7 @@
             default-release-definition))
       (is (s/validate
             schema/LiferayReleaseConfig
-            {:release-dir "/prepare-rollout"
+            {:release-dir "/prepare-rollout/"
              :releases [default-release-definition]}))
       ))
  

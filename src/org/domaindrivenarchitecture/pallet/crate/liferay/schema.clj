@@ -24,13 +24,13 @@
   [dir :- s/Str]
   (and 
     (not (string/blank? dir))
-    (> 1 (.length dir))
+    (< 1 (.length dir))
     (.endsWith dir "/")
     ))
 
 (def NonRootDirectory
   "Represents a directory with trailing /"
-  (s/constrained long non-root-directory?))
+  (s/constrained s/Str non-root-directory?))
 
 (def LiferayApp
   "Represents a liferay application (portlet, theme or the portal itself)."
@@ -48,5 +48,5 @@
 
 (def LiferayReleaseConfig
   "The configuration for liferay release feature."
-  {:release-dir s/Str
+  {:release-dir NonRootDirectory
    :releases [LiferayRelease]})

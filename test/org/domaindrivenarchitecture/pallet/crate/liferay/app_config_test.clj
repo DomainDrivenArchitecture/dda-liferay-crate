@@ -119,17 +119,7 @@
     )
   )
 
-(deftest test-test
-  (testing 
-    "test the good case"
-    (is (script= 
-          "echo \"Available releases are:\""
-          (stevedore/with-script-language :pallet.stevedore.bash/bash
-            (stevedore/script 
-              (println "\"Available releases are:\"")
-  ))))))
-
-(deftest do-deploy-script
+(deftest do-rollout-script
   (testing 
     "test the good case"
     (is (script= 
@@ -169,15 +159,15 @@
              "echo \"ERROR: Specified release does not exist or you don't have the permission for it! Please run again as root! For a list of the available releases, run this script without parameters in order to show the available releases!\" ;"
              "echo \"\""
              "fi"]) 
-            (sut/deploy-script "/var/lib/liferay/prepare-rollout/" "/var/lib/liferay/deploy/" "/var/lib/tomcat7/webapps/")))
+            (sut/rollout-script "/var/lib/liferay/prepare-rollout/" "/var/lib/liferay/deploy/" "/var/lib/tomcat7/webapps/")))
     )
   (testing 
     "test the corner cases"
     (is
       (thrown? clojure.lang.ExceptionInfo
-               (sut/deploy-script "/xyz/" "/xyz/" "/")))
+               (sut/rollout-script "/xyz/" "/xyz/" "/")))
     (is
       (thrown? clojure.lang.ExceptionInfo
-               (sut/deploy-script "/xyz/" "/xyz/" nil)))
+               (sut/rollout-script "/xyz/" "/xyz/" nil)))
     )
   )

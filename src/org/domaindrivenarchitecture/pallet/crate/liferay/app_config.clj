@@ -313,7 +313,7 @@
     ""]
     ))
 
-(s/defn deploy-script
+(s/defn ^:always-validate rollout-script
   "Provides the do-deploy script content."
   [prepare-dir :- schema/NonRootDirectory 
    deploy-dir :- schema/NonRootDirectory

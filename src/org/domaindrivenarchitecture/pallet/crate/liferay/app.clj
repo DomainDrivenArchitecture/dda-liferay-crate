@@ -21,7 +21,7 @@
      [schema-tools.core :as st]
      [pallet.actions :as actions]
      [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]
-     [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as liferay-config]
+     [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as app-config]
      [org.domaindrivenarchitecture.pallet.crate.liferay.db-replace-scripts :as db-replace-scripts]))
 
 (defn- liferay-config-file
@@ -123,6 +123,21 @@
     )
   )
 
+(s/defn ^:always-validate install-script-do-rollout
+  "Creates script for rolling liferay version. To be called by the admin connected to the server via ssh"
+  [liferay-home :- schema/NonRootDirectory
+   prepare-dir :- schema/NonRootDirectory 
+   deploy-dir :- schema/NonRootDirectory
+   tomcat-dir :- schema/NonRootDirectory]
+  (actions/remote-file
+    (str liferay-home "do-rollout.sh")
+    :owner "root"
+    :group "root"
+    :mode "0744"
+    :literal true
+    :content (app-config/rollout-script prepare-dir deploy-dir tomcat-dir)
+    ))
+
 (s/defn ^:always-validate prepare-rollout 
   "prepare the rollout of all releases"
   [liferay-release-config :- schema/LiferayReleaseConfig]
@@ -147,6 +162,7 @@
                               (st/get-in liferay-release-config [:release-dir]))
   (delete-tomcat-default-ROOT tomcat-root-dir)
   (liferay-dependencies-into-tomcat liferay-lib-dir repo-download-source)
+  (liferay-dependencies-into-tomcat liferay-lib-dir repo-download-source)
   )
 
 (defn configure-liferay
@@ -154,7 +170,7 @@
                     portal-ext-properties fqdn-to-be-replaced fqdn-replacement]}]
   (let [effective-portal-ext-properties 
         (if (empty? portal-ext-properties) 
-          (liferay-config/var-lib-tomcat7-webapps-ROOT-WEB-INF-classes-portal-ext-properties 
+          (app-config/var-lib-tomcat7-webapps-ROOT-WEB-INF-classes-portal-ext-properties 
             :db-name db-name
             :db-user-name db-user-name
             :db-user-passwd db-user-passwd)

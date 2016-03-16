@@ -32,7 +32,7 @@
            (sut/non-root-directory? "ends without slash")))
     (is (= false
            (sut/non-root-directory? "/")))
-    (is (= false
+    (is (= true
            (sut/non-root-directory? "/var/lib/")))
     )
   )
