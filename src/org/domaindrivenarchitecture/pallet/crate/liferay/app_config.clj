@@ -330,6 +330,12 @@
           (println "\"\"")
           (println "\"Please use the release you want to deploy as a parameter for this script\"")
           (println "\"\"")
+          (println "\"To copy all the specified application-parts to the specified deploy-dir and chown of the
+                   deploy-dir use hot as second Parameter\"")
+          (println "\"\"")
+          (println "\"To stop the tomcat7 service, delete the tomcat-dir, copy the specified prepare-dir to the specified tomcat-dir
+                   and restart the comcat7 service use cold as second Parameter\"")
+          (println "\"\"")
           ("exit 1")
           ("fi")
           ("if [ \"$#\" -ge 3 ]; then")
