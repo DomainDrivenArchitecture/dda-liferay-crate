@@ -326,7 +326,7 @@
           ("if [ \"$#\" -eq 0 ]; then")
           (println "\"\"")
           (println "\"Available Releases are:\"")
-          (pipe (pipe ("find" ~prepare-dir "-type d") ("sort")) ("cut -f2 -d'/'"))
+          (pipe (pipe ("find" ~prepare-dir "-mindepth 2 -type d") ("cut -d/ -f6")) ("sort -u"))
           (println "\"\"")
           (println "\"Please use the release you want to deploy as a parameter for this script\"")
           (println "\"\"")

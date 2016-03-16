@@ -128,7 +128,7 @@
             ["if [ \"$#\" -eq 0 ]; then"
              "echo \"\"" 
              "echo \"Available Releases are:\""
-             "find /var/lib/liferay/prepare-rollout/ -type d | sort | cut -f2 -d'/'"
+             "find /var/lib/liferay/prepare-rollout/ -mindepth 2 -type d | cut -d/ -f6 | sort -u"
              "echo \"\""
              "echo \"Please use the release you want to deploy as a parameter for this script\""
              "echo \"\""
