@@ -113,8 +113,8 @@
    release :- schema/LiferayRelease ]
   (str base-release-dir (st/get-in release [:name]) "-" (string/join "." (st/get-in release [:version]))))
 
-(s/defn ^:always-validate prepare-apps-rollout :- s/Any
-  "prepare the rollout of liferay applications"
+(s/defn ^:always-validate download-and-store-applications :- s/Any
+  "download and store liferay applications in given directory"
   [dir :- s/Str 
    apps :- [schema/LiferayApp]]
   (liferay-dir dir :owner "root")
@@ -143,14 +143,16 @@
   [liferay-release-config :- schema/LiferayReleaseConfig]
   (let [base-release-dir (st/get-in liferay-release-config [:release-dir])
         releases (st/get-in liferay-release-config [:releases])]
+    ;(actions/execute "")
     (doseq [release releases]
       (let [release-dir (release-dir base-release-dir release)]
         (liferay-dir release-dir :owner "root")
-        (prepare-apps-rollout (str release-dir "/app/") [(st/get-in release [:application])])
-        (prepare-apps-rollout (str release-dir "/hooks/") (st/get-in release [:hooks]))
-        (prepare-apps-rollout (str release-dir "/layouts/") (st/get-in release [:layouts]))
-        (prepare-apps-rollout (str release-dir "/themes/") (st/get-in release [:themes]))
-        (prepare-apps-rollout (str release-dir "/portlets/") (st/get-in release [:portlets]))
+        (download-and-store-applications (str release-dir "/app/") [(st/get-in release [:application])])
+        ()
+        (download-and-store-applications (str release-dir "/hooks/") (st/get-in release [:hooks]))
+        (download-and-store-applications (str release-dir "/layouts/") (st/get-in release [:layouts]))
+        (download-and-store-applications (str release-dir "/themes/") (st/get-in release [:themes]))
+        (download-and-store-applications (str release-dir "/portlets/") (st/get-in release [:portlets]))
       ))
     ))
 
