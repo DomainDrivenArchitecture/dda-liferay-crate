@@ -66,7 +66,6 @@
      :home-dir schema/NonRootDirectory
      :lib-dir schema/NonRootDirectory
      :deploy-dir schema/NonRootDirectory
-     :portal-ext-properties-content [s/Str]
      :third-party-download-root-dir s/Str
      (s/optional-key :fqdn-to-be-replaced) s/Str}
     schema/LiferayReleaseConfig))
@@ -105,7 +104,6 @@
    :lib-dir "/var/lib/liferay/lib/"
    :deploy-dir "/var/lib/liferay/deploy/"
    :release-dir "/var/lib/liferay/prepare-rollout/"
-   :portal-ext-properties-content ["TODO ..."]
    :releases [default-release]})
 
 (defn deep-merge

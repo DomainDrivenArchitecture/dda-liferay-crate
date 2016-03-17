@@ -24,7 +24,7 @@
     [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]
     ))
 
-(def default-release-definition
+(def release-definition
   (c/complete {:application ["name" "download-url"]} schema/LiferayRelease))
  
  (deftest defaults
@@ -35,11 +35,11 @@
             sut/default-release))
       (is (s/validate
             schema/LiferayRelease
-            default-release-definition))
+           release-definition))
       (is (s/validate
             schema/LiferayReleaseConfig
             {:release-dir "/prepare-rollout/"
-             :releases [default-release-definition]}))
+             :releases [release-definition]}))
       ))
  
  (deftest config-validation

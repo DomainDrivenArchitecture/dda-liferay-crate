@@ -33,11 +33,21 @@
   (testing 
     (is 
       (= 
+        "test-0.2.0"
+        (sut/release-name (c/complete {:name "test" :version [0 2 0]} schema/LiferayRelease))
+        ))
+    ))
+
+(deftest test-release-dir
+  "test the release name generation"
+  []
+  (testing 
+    (is 
+      (= 
         "dir/test-0.2.0"
         (sut/release-dir "dir/" (c/complete {:name "test" :version [0 2 0]} schema/LiferayRelease))
         ))
     ))
-
 
 (deftest test-good
   "test the good case"
@@ -49,7 +59,7 @@
         (tu/extract-nth-action-command
           (build-actions/build-actions
             build-actions/ubuntu-session         
-            (sut/prepare-apps-rollout "dir" [["appname" "url"]]))
+            (sut/download-and-store-applications "dir" [["appname" "url"]]))
              1)
         "appname.war"
         )))
@@ -57,7 +67,7 @@
     "multi app"
     (let [actions (build-actions/build-actions
             build-actions/ubuntu-session         
-            (sut/prepare-apps-rollout "dir" [["appname1" "url"]
+            (sut/download-and-store-applications "dir" [["appname1" "url"]
                                              ["appname2" "url"]]))]
       (is 
         (.contains 
@@ -81,5 +91,5 @@
       (thrown? clojure.lang.ExceptionInfo
               (build-actions/build-actions
                 build-actions/ubuntu-session         
-                (sut/prepare-apps-rollout "dir" [["appname" "url" "unexpected"]]))
+                (sut/download-and-store-applications "dir" [["appname" "url" "unexpected"]]))
           ))))

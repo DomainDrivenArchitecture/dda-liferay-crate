@@ -107,11 +107,16 @@
       (liferay-remote-file target-file download-location)))
   )
 
+(s/defn ^:allwas-validate release-name :- s/Str
+  "get the release dir name"
+  [release :- schema/LiferayRelease ]
+  (str (st/get-in release [:name]) "-" (string/join "." (st/get-in release [:version]))))
+
 (s/defn ^:allwas-validate release-dir :- s/Str
-  ""
+  "get the release dir name"
   [base-release-dir :- s/Str 
    release :- schema/LiferayRelease ]
-  (str base-release-dir (st/get-in release [:name]) "-" (string/join "." (st/get-in release [:version]))))
+  (str base-release-dir (release-name release)))
 
 (s/defn ^:always-validate download-and-store-applications :- s/Any
   "download and store liferay applications in given directory"
@@ -148,11 +153,13 @@
       (let [release-dir (release-dir base-release-dir release)]
         (liferay-dir release-dir :owner "root")
         (download-and-store-applications (str release-dir "/app/") [(st/get-in release [:application])])
-        ()
         (download-and-store-applications (str release-dir "/hooks/") (st/get-in release [:hooks]))
         (download-and-store-applications (str release-dir "/layouts/") (st/get-in release [:layouts]))
         (download-and-store-applications (str release-dir "/themes/") (st/get-in release [:themes]))
         (download-and-store-applications (str release-dir "/portlets/") (st/get-in release [:portlets]))
+        (when (contains? release :config)
+          (liferay-dir (str release-dir "/config/") :owner "root")
+          (liferay-config-file (str release-dir "/config/portal-ext.properties" (st/get-in release [:config]))))        
       ))
     ))
 
