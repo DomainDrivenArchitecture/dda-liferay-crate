@@ -45,7 +45,7 @@
   "# Techbase"
   "#"
   "liferay.home=/var/lib/liferay"
-  "setup.wizard.enabled=false"
+  "setup.wizard.enabled=true"
   "index.on.startup=false"
   "#"
   "# MySQL"
@@ -108,14 +108,9 @@
     "test the good case"
     (is (= portal-ext-properties-with-all-keys
            (sut/var-lib-tomcat7-webapps-ROOT-WEB-INF-classes-portal-ext-properties 
-             :db-name "my-db-name"
-             :db-user-name "my_db_user_name" 
-             :db-user-passwd "my_db_user_passwd")))
-    (is (= portal-ext-properties-with-no-key
-           (sut/var-lib-tomcat7-webapps-ROOT-WEB-INF-classes-portal-ext-properties )))
-    (is (= portal-ext-properties-with-unsufficient-keys
-           (sut/var-lib-tomcat7-webapps-ROOT-WEB-INF-classes-portal-ext-properties 
-             :db-name "my-db-name")))
+             {:db {:db-name "my-db-name"
+                   :user-name "my_db_user_name" 
+                   :user-passwd "my_db_user_passwd"}})))
     )
   )
 
@@ -127,16 +122,11 @@
             \newline
             ["if [ \"$#\" -eq 0 ]; then"
              "echo \"\"" 
-             "echo \"Available Releases are:\""
+             "echo \"Usage is: prepare-rollout [release] [deployment-mode].\""
+             "echo \"  deployment-mode:      [hot|full] hot uses the liferay hot deployment mechanism for deploying portlets, themes, a.s.o.\""
+             "echo \"                                   full restarts tomcat and rolles out the liferay app itself, the configuration and portlets ...\""
+             "echo \"  Available Releases are:\""
              "find /var/lib/liferay/prepare-rollout/ -mindepth 2 -type d | cut -d/ -f6 | sort -u"
-             "echo \"\""
-             "echo \"Please use the release you want to deploy as a parameter for this script\""
-             "echo \"\""
-             "echo \"To copy all the specified application-parts to the specified deploy-dir and chown of the
-                   deploy-dir use hot as second Parameter\""
-             "echo \"\""
-             "echo \"To stop the tomcat7 service, delete the tomcat-dir, copy the specified prepare-dir to the specified tomcat-dir
-                   and restart the comcat7 service use cold as second Parameter\""
              "echo \"\""
              "exit 1"
              "fi"
@@ -158,6 +148,8 @@
              "for part in app hooks layouts portlets themes; do"
              "cp /var/lib/liferay/prepare-rollout/${1}/${part}/* /var/lib/tomcat7/webapps/"
              "done"
+             "unzip /var/lib/tomcat7/webapps/ROOT.war"
+             "cp /var/lib/liferay/prepare-rollout/${1}/config/portal-ext.properties /var/lib/tomcat7/webapps/ROOT/WEB-INF/classes/"
              "chown tomcat7 /var/lib/tomcat7/webapps/*"
              "service tomcat7 start"
              "fi"

@@ -32,6 +32,13 @@
   "Represents a directory with trailing /"
   (s/constrained s/Str non-root-directory?))
 
+(def DbConfig
+  "Represents the database configuration."
+  {:db {:root-passwd s/Str
+        :db-name s/Str
+        :user-name s/Str
+        :user-passwd s/Str}})
+
 (def LiferayApp
   "Represents a liferay application (portlet, theme or the portal itself)."
   [(s/one s/Str "name") (s/one s/Str "url")])

@@ -17,7 +17,8 @@
 
 (ns org.domaindrivenarchitecture.pallet.crate.liferay.app-config
   (require
-    [schema.core :as s :include-macros true]
+    [schema.core :as s]
+    [schema-tools.core :as st]
     [pallet.stevedore :as stevedore]
     [pallet.script.scriptlib :as lib]
     [pallet.stevedore.bash :as bash]
@@ -274,44 +275,38 @@
    ]
   )
 
-(defn var-lib-tomcat7-webapps-ROOT-WEB-INF-classes-portal-ext-properties 
-  [& {:keys [:db-name :db-user-name :db-user-passwd]}]
-  (into 
-    (into 
-      ["#"
-       "# Techbase"
-       "#"
-       "liferay.home=/var/lib/liferay"
-       "setup.wizard.enabled=false"
-       "index.on.startup=false"]
-      (if (and (not (nil? db-name))
-               (not (nil? db-user-name))
-               (not (nil? db-user-passwd)))
-        ["#"
-        "# MySQL"
-        "#"
-        "jdbc.default.driverClassName=com.mysql.jdbc.Driver"
-        (str "jdbc.default.url=jdbc:mysql://localhost:3306/" db-name 
-             "?useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false")
-        (str "jdbc.default.username=" db-user-name)
-        (str "jdbc.default.password=" db-user-passwd)
-        "#"
-        "# C3PO" 
-        "#"
-        "#jdbc.default.acquireIncrement=2"
-        "#jdbc.default.idleConnectionTestPeriod=60"
-        "#jdbc.default.maxIdleTime=3600"
-        "#jdbc.default.maxPoolSize=100"
-        "#jdbc.default.minPoolSize=40"]
-        ))
-    [""
-    "#"
-    "# Timeouts"
-    "#"
-    "com.liferay.util.Http.timeout=1000"
-    "session.timeout=120"
-    ""]
-    ))
+(s/defn var-lib-tomcat7-webapps-ROOT-WEB-INF-classes-portal-ext-properties
+  "creates the default portal-ext.properties for mySql."
+  [db-config :- schema/DbConfig]
+  ["#"
+   "# Techbase"
+   "#"
+   "liferay.home=/var/lib/liferay"
+   "setup.wizard.enabled=true"
+   "index.on.startup=false"
+   "#"
+   "# MySQL"
+   "#"
+   "jdbc.default.driverClassName=com.mysql.jdbc.Driver"
+   (str "jdbc.default.url=jdbc:mysql://localhost:3306/" (st/get-in db-config [:db :db-name]) 
+        "?useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false")
+   (str "jdbc.default.username=" (st/get-in db-config [:db :user-name]))
+   (str "jdbc.default.password=" (st/get-in db-config [:db :user-passwd]))
+   "#"
+   "# C3PO" 
+   "#"
+   "#jdbc.default.acquireIncrement=2"
+   "#jdbc.default.idleConnectionTestPeriod=60"
+   "#jdbc.default.maxIdleTime=3600"
+   "#jdbc.default.maxPoolSize=100"
+   "#jdbc.default.minPoolSize=40"
+   ""
+   "#"
+   "# Timeouts"
+   "#"
+   "com.liferay.util.Http.timeout=1000"
+   "session.timeout=120"
+   ""])
 
 (s/defn ^:always-validate do-deploy-script
   "Provides the do-deploy script content."
@@ -325,16 +320,11 @@
           ;(~lib/declare-arguments [release-dir hot-or-cold])
           ("if [ \"$#\" -eq 0 ]; then")
           (println "\"\"")
-          (println "\"Available Releases are:\"")
+          (println "\"Usage is: prepare-rollout [release] [deployment-mode].\"")
+          (println "\"  deployment-mode:      [hot|full] hot uses the liferay hot deployment mechanism for deploying portlets, themes, a.s.o.\"")
+          (println "\"                                   full restarts tomcat and rolles out the liferay app itself, the configuration and portlets ...\"")
+          (println "\"  Available Releases are:\"")
           (pipe (pipe ("find" ~prepare-dir "-mindepth 2 -type d") ("cut -d/ -f6")) ("sort -u"))
-          (println "\"\"")
-          (println "\"Please use the release you want to deploy as a parameter for this script\"")
-          (println "\"\"")
-          (println "\"To copy all the specified application-parts to the specified deploy-dir and chown of the
-                   deploy-dir use hot as second Parameter\"")
-          (println "\"\"")
-          (println "\"To stop the tomcat7 service, delete the tomcat-dir, copy the specified prepare-dir to the specified tomcat-dir
-                   and restart the comcat7 service use cold as second Parameter\"")
           (println "\"\"")
           ("exit 1")
           ("fi")
@@ -355,6 +345,8 @@
                 ("rm -rf" (str ~tomcat-dir "*"))
                 (doseq [part ~application-parts]
                   ("cp" (str ~prepare-dir @1 "/" @part "/*") ~tomcat-dir))
+                ("unzip" (str ~tomcat-dir "ROOT.war"))
+                ("cp" (str ~prepare-dir @1 "/config/portal-ext.properties") (str ~tomcat-dir "ROOT/WEB-INF/classes/"))
                 ("chown tomcat7" (str ~tomcat-dir "*"))
                 ("service tomcat7 start")
                 ))

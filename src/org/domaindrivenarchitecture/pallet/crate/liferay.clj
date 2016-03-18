@@ -45,11 +45,7 @@
 (def LiferayConfig
   "The configuration for liferay release feature." 
   (merge
-    {:db {:root-passwd s/Str
-          :db-name s/Str
-          :user-name s/Str
-          :user-passwd s/Str}
-     :httpd {:fqdn s/Str
+    {:httpd {:fqdn s/Str
              :domain-cert s/Str
              :domain-key s/Str
              (s/optional-key :ca-cert) s/Str
@@ -68,6 +64,7 @@
      :deploy-dir schema/NonRootDirectory
      :third-party-download-root-dir s/Str
      (s/optional-key :fqdn-to-be-replaced) s/Str}
+    schema/DbConfig
     schema/LiferayReleaseConfig))
 
 
