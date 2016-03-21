@@ -22,7 +22,10 @@
      [pallet.actions :as actions]
      [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]
      [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as app-config]
-     [org.domaindrivenarchitecture.pallet.crate.liferay.db-replace-scripts :as db-replace-scripts]))
+     [org.domaindrivenarchitecture.pallet.crate.liferay.db-replace-scripts :as db-replace-scripts]
+     [pallet.stevedore :as stevedore]
+     [pallet.script.scriptlib :as lib]
+     [pallet.stevedore.bash :as bash]))
 
 (defn- liferay-config-file
   "Create and upload a config file"
@@ -143,30 +146,46 @@
     :content (app-config/do-deploy-script prepare-dir deploy-dir tomcat-dir)
     ))
 
+(s/defn ^:allwas-validate remove-all-but-specified-versions
+  "Removes all other Versions except the specifided Versions"
+  [releases :- [schema/LiferayRelease] 
+   release-dir :- schema/NonRootDirectory]
+  (let [versions (map (str (do (st/get-in releases [:name]) (string/join "." (st/get-in releases [:version])))) releases)]
+    (stevedore/with-script-language :pallet.stevedore.bash/bash
+      (stevedore/with-source-line-comments false 
+        (stevedore/script 
+          (pipe (pipe ("ls" ~release-dir) ("grep -Ev" ~versions)) ("xargs -I {} rm -r" ~release-dir "{}"))))
+    )
+  )
+)
+
 (s/defn ^:always-validate prepare-rollout 
   "prepare the rollout of all releases"
   [db-config :- schema/DbConfig
    release-config :- schema/LiferayReleaseConfig]
   (let [base-release-dir (st/get-in release-config [:release-dir])
         releases (st/get-in release-config [:releases])]
-    ;(actions/execute "")
-    (doseq [release releases]
-      (let [release-dir (release-dir base-release-dir release)]
-        (liferay-dir release-dir :owner "root")
-        (download-and-store-applications (str release-dir "/app/") [(st/get-in release [:application])])
-        (download-and-store-applications (str release-dir "/hooks/") (st/get-in release [:hooks]))
-        (download-and-store-applications (str release-dir "/layouts/") (st/get-in release [:layouts]))
-        (download-and-store-applications (str release-dir "/themes/") (st/get-in release [:themes]))
-        (download-and-store-applications (str release-dir "/portlets/") (st/get-in release [:portlets]))
-        (liferay-dir (str release-dir "/config/") :owner "root")
-        (if (contains? release :config)
-          (liferay-config-file (str release-dir "/config/portal-ext.properties" (st/get-in release [:config])))
-          (liferay-config-file 
-            (str release-dir "/config/portal-ext.properties")
-            (app-config/var-lib-tomcat7-webapps-ROOT-WEB-INF-classes-portal-ext-properties db-config)
-            ))
-      ))
-    ))
+    (do (let [release-dir (st/get-in release-config [:release-dir])]
+          (remove-all-but-specified-versions releases release-dir))
+        (doseq [release releases]
+          (let [release-dir (release-dir base-release-dir release)]
+            (liferay-dir release-dir :owner "root")
+            (download-and-store-applications (str release-dir "/app/") [(st/get-in release [:application])])
+            (download-and-store-applications (str release-dir "/hooks/") (st/get-in release [:hooks]))
+            (download-and-store-applications (str release-dir "/layouts/") (st/get-in release [:layouts]))
+            (download-and-store-applications (str release-dir "/themes/") (st/get-in release [:themes]))
+            (download-and-store-applications (str release-dir "/portlets/") (st/get-in release [:portlets]))
+            (liferay-dir (str release-dir "/config/") :owner "root")
+            (if (contains? release :config)
+              (liferay-config-file (str release-dir "/config/portal-ext.properties" (st/get-in release [:config])))
+              (liferay-config-file 
+                (str release-dir "/config/portal-ext.properties")
+                (app-config/var-lib-tomcat7-webapps-ROOT-WEB-INF-classes-portal-ext-properties db-config)
+                ))
+          ))
+    )))
+
+
 
 (s/defn install-liferay
   [tomcat-root-dir tomcat-webapps-dir liferay-home-dir 
