@@ -166,7 +166,7 @@
   (let [base-release-dir (st/get-in release-config [:release-dir])
         releases (st/get-in release-config [:releases])]
     (do (let [release-dir (st/get-in release-config [:release-dir])]
-          (remove-all-but-specified-versions releases release-dir))
+          (actions/exec-script (remove-all-but-specified-versions releases release-dir)))
         (doseq [release releases]
           (let [release-dir (release-dir base-release-dir release)]
             (liferay-dir release-dir :owner "root")
