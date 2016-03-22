@@ -116,11 +116,19 @@
 (deftest remove-all-but-specified-versions
   (testing 
     "test the good case"
-    (is (script= 
-          (string/join
-            \newline
-            [""]) 
-            (sut/remove-all-but-specified-versions 
-              [(c/complete {:name "test" :version [0 2 0]} schema/LiferayRelease)] 
-              "/var/lib/liferay/prepare-rollout/" )))
-    ))
+    (and (is (script= 
+               (string/join
+                 \newline
+                 ["ls /var/lib/liferay/prepare-rollout/ | grep -Ev test0.2.0 | xargs -I {} rm -r /var/lib/liferay/prepare-rollout/ {}"]) 
+                 (sut/remove-all-but-specified-versions 
+                   [(c/complete {:name "test" :version [0 2 0]} schema/LiferayRelease)] 
+                   "/var/lib/liferay/prepare-rollout/" )))
+         "Testing for a list with mutliple elements and different directory"
+         (is (script=
+               (string/join 
+                 \newline
+                 ["ls /var/lib/liferay/prepare-rollout/test/ | grep -Ev test1.0.0|test-2.0.0 | xargs -I {} rm -r /var/lib/liferay/prepare-rollout/test/ {}"])
+                                (sut/remove-all-but-specified-versions 
+                   [(c/complete {:name "test" :version [1 0 0]} schema/LiferayRelease) , (c/complete {:name "test-" :version [2 0 0]} schema/LiferayRelease)] 
+                   "/var/lib/liferay/prepare-rollout/test/" ))))
+   ))

@@ -20,6 +20,7 @@
      [schema.core :as s]
      [schema-tools.core :as st]
      [pallet.actions :as actions]
+     [schema.experimental.complete :as c]
      [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]
      [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as app-config]
      [org.domaindrivenarchitecture.pallet.crate.liferay.db-replace-scripts :as db-replace-scripts]
@@ -150,12 +151,11 @@
   "Removes all other Versions except the specifided Versions"
   [releases :- [schema/LiferayRelease] 
    release-dir :- schema/NonRootDirectory]
-  (let [versions (map (str (do (st/get-in releases [:name]) (string/join "." (st/get-in releases [:version])))) releases)]
+  (let [versions (string/join "|" (map #(str (st/get-in % [:name]) (string/join "." (st/get-in % [:version]))) releases))]
     (stevedore/with-script-language :pallet.stevedore.bash/bash
       (stevedore/with-source-line-comments false 
         (stevedore/script 
-          ("grep -Ev" ~versions)
-          ;(pipe (pipe ("ls" ~release-dir) ("grep -Ev" ~versions)) ("xargs -I {} rm -r" ~release-dir "{}"))
+          (pipe (pipe ("ls" ~release-dir) ("grep -Ev" ~versions)) ("xargs -I {} rm -r" ~release-dir "{}"))
           ))
     )
   )
@@ -167,8 +167,8 @@
    release-config :- schema/LiferayReleaseConfig]
   (let [base-release-dir (st/get-in release-config [:release-dir])
         releases (st/get-in release-config [:releases])]
-;    (actions/exec-script
-;      (remove-all-but-specified-versions releases base-release-dir))
+    (actions/exec-script
+     (remove-all-but-specified-versions releases base-release-dir))
       (doseq [release releases]
         (let [release-dir (release-dir base-release-dir release)]
           (liferay-dir release-dir :owner "root")
