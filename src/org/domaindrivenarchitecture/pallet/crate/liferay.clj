@@ -119,7 +119,9 @@
   "Liferay: rollout preparation"
   [app-name partial-config]
   (let [config (merge-config partial-config)]
-    (liferay-app/prepare-rollout (st/select-schema config schema/LiferayReleaseConfig))
+    (liferay-app/prepare-rollout
+      (st/select-schema config schema/DbConfig)
+      (st/select-schema config schema/LiferayReleaseConfig))
   ))
 
 ; Liferay Backup: Install Routine

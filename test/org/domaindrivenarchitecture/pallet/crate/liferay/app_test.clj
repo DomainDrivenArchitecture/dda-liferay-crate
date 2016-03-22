@@ -18,13 +18,31 @@
 (ns org.domaindrivenarchitecture.pallet.crate.liferay.app-test
   (:require
     [clojure.test :refer :all]
+    [clojure.java.io :as io]    
+    [clojure.string :as string]
     [pallet.build-actions :as build-actions]
     [schema.core :as s]
     [schema.experimental.complete :as c]
+    [pallet.stevedore :as stevedore]
     [pallet.actions :as actions]
     [org.domaindrivenarchitecture.pallet.test-utils :as tu]
     [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]
     [org.domaindrivenarchitecture.pallet.crate.liferay.app :as sut]))
+
+(defn source-comment-re-str []
+  (str "(?sm) *# " (.getName (io/file *file*)) ":\\d+\n?"))
+
+;;; a test method that adds a check for source line comment
+(defmethod assert-expr 'script= [msg form]
+  (let [[_ expected expr] form]
+    `(let [re# (re-pattern ~(source-comment-re-str))
+           expected# (-> ~expected string/trim)
+           actual# (-> ~expr (string/replace re# "") string/trim)]
+       (if (= expected# actual#)
+         (do-report
+          {:type :pass :message ~msg :expected expected# :actual actual#})
+         (do-report
+          {:type :fail :message ~msg :expected expected# :actual actual#})))))
 
 
 (deftest test-release-name
@@ -93,3 +111,16 @@
                 build-actions/ubuntu-session         
                 (sut/download-and-store-applications "dir" [["appname" "url" "unexpected"]]))
           ))))
+
+
+(deftest remove-all-but-specified-versions
+  (testing 
+    "test the good case"
+    (is (script= 
+          (string/join
+            \newline
+            [""]) 
+            (sut/remove-all-but-specified-versions 
+              [(c/complete {:name "test" :version [0 2 0]} schema/LiferayRelease)] 
+              "/var/lib/liferay/prepare-rollout/" )))
+    ))
