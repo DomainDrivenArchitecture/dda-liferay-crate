@@ -201,24 +201,9 @@
 
 (defn configure-liferay
   [custom-build? & {:keys [db-name db-user-name db-user-passwd
-                    portal-ext-properties fqdn-to-be-replaced fqdn-replacement]}]
-  (let [effective-portal-ext-properties 
-        (if (empty? portal-ext-properties) 
-          (app-config/var-lib-tomcat7-webapps-ROOT-WEB-INF-classes-portal-ext-properties 
-            :db-name db-name
-            :db-user-name db-user-name
-            :db-user-passwd db-user-passwd)
-           portal-ext-properties)]
-    
-    (liferay-config-file
-      (if custom-build?
-        "/var/lib/liferay/portal-ext.properties"
-        "/var/lib/tomcat7/webapps/ROOT/WEB-INF/classes/portal-ext.properties")
-       effective-portal-ext-properties)
-    
+                    fqdn-to-be-replaced fqdn-replacement]}]    
     (liferay-config-file 
       "/var/lib/liferay/prodDataReplacements.sh"
       (db-replace-scripts/var-lib-liferay-prodDataReplacements-sh
         fqdn-to-be-replaced fqdn-replacement db-name db-user-name db-user-passwd)
       :owner "root" :mode "744"))
-  )

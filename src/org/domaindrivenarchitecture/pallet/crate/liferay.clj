@@ -228,7 +228,6 @@
       :db-name (st/get-in config [:db :db-name])
       :db-user-name (st/get-in config [:db :user-name])
       :db-user-passwd (st/get-in config [:db :user-passwd])
-      :portal-ext-properties (st/get-in config [:portal-ext-properties-content])
       :fqdn-to-be-replaced (st/get-in config [:fqdn-to-be-replaced])
       :fqdn-replacement (st/get-in config [:httpd :fqdn]))
     ))
