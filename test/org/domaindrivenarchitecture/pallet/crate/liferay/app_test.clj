@@ -54,6 +54,11 @@
         "test-0.2.0"
         (sut/release-name (c/complete {:name "test" :version [0 2 0]} schema/LiferayRelease))
         ))
+    (is 
+      (= 
+        "test-0.2.0.1"
+        (sut/release-name (c/complete {:name "test" :version [0 2 0 1]} schema/LiferayRelease))
+        ))
     ))
 
 (deftest test-release-dir
@@ -67,7 +72,7 @@
         ))
     ))
 
-(deftest test-good
+(deftest test-good-download-and-store
   "test the good case"
   []
   (testing 
@@ -100,7 +105,7 @@
     ))
   )
 
-(deftest test-corner-cases
+(deftest test-corner-cases-download-and-store
   "test the corner case"
   []
   (testing 
@@ -119,16 +124,44 @@
     (and (is (script= 
                (string/join
                  \newline
-                 ["ls /var/lib/liferay/prepare-rollout/ | grep -Ev test0.2.0 | xargs -I {} rm -r /var/lib/liferay/prepare-rollout/ {}"]) 
-                 (sut/remove-all-but-specified-versions 
-                   [(c/complete {:name "test" :version [0 2 0]} schema/LiferayRelease)] 
-                   "/var/lib/liferay/prepare-rollout/" )))
+                 ["ls /var/lib/liferay/prepare-rollout/ | grep -Ev test0.2.0 | xargs -I {} rm -r /var/lib/liferay/prepare-rollout/ {}"])
+               (stevedore/with-script-language :pallet.stevedore.bash/bash
+                 (stevedore/with-source-line-comments false  
+                   (sut/remove-all-but-specified-versions 
+                     [(c/complete {:name "test" :version [0 2 0]} schema/LiferayRelease)] 
+                     "/var/lib/liferay/prepare-rollout/" )))
+               ))
          "Testing for a list with mutliple elements and different directory"
          (is (script=
                (string/join 
                  \newline
                  ["ls /var/lib/liferay/prepare-rollout/test/ | grep -Ev test1.0.0|test-2.0.0 | xargs -I {} rm -r /var/lib/liferay/prepare-rollout/test/ {}"])
-                                (sut/remove-all-but-specified-versions 
-                   [(c/complete {:name "test" :version [1 0 0]} schema/LiferayRelease) , (c/complete {:name "test-" :version [2 0 0]} schema/LiferayRelease)] 
-                   "/var/lib/liferay/prepare-rollout/test/" ))))
-   ))
+               (stevedore/with-script-language :pallet.stevedore.bash/bash
+                 (stevedore/with-source-line-comments false              
+                   (sut/remove-all-but-specified-versions 
+                       [(c/complete {:name "test" :version [1 0 0]} schema/LiferayRelease) , (c/complete {:name "test-" :version [2 0 0]} schema/LiferayRelease)] 
+                       "/var/lib/liferay/prepare-rollout/test/" )))
+               ))
+         )
+    ))
+
+(deftest integration-prepare-rollout
+  (testing 
+    "test the good case"
+    (let [actions (build-actions/build-actions
+            build-actions/ubuntu-session         
+            (sut/prepare-rollout 
+              (c/complete {} schema/DbConfig)
+              {:release-dir "/somedir/"
+               :releases [(c/complete {:config ["1" "2" "3"]} schema/LiferayRelease)]}))]
+      (is 
+        (= 
+          ""
+          actions
+          ))
+      (is 
+        (.contains 
+          (tu/extract-nth-action-command actions 1)
+          "appname1.war"
+          ))
+      )))
