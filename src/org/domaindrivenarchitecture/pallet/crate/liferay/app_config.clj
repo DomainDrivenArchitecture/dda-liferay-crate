@@ -345,7 +345,7 @@
                 ("rm -rf" (str ~tomcat-dir "*"))
                 (doseq [part ~application-parts]
                   ("cp" (str ~prepare-dir @1 "/" @part "/*") ~tomcat-dir))
-                ("unzip" (str ~tomcat-dir "ROOT.war"))
+                ("unzip" (str ~tomcat-dir "ROOT.war -d " ~tomcat-dir "ROOT/"))
                 ("cp" (str ~prepare-dir @1 "/config/portal-ext.properties") (str ~tomcat-dir "ROOT/WEB-INF/classes/"))
                 ("chown tomcat7" (str ~tomcat-dir "*"))
                 ("service tomcat7 start")

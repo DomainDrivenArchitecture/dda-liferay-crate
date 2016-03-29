@@ -169,20 +169,22 @@
       (remove-all-but-specified-versions releases base-release-dir))
     (doseq [release releases]
       (let [release-dir (release-dir base-release-dir release)]
-        (liferay-dir release-dir :owner "root")
-        (download-and-store-applications (str release-dir "/app/") [(st/get-in release [:application])])
-        (download-and-store-applications (str release-dir "/hooks/") (st/get-in release [:hooks]))
-        (download-and-store-applications (str release-dir "/layouts/") (st/get-in release [:layouts]))
-        (download-and-store-applications (str release-dir "/themes/") (st/get-in release [:themes]))
-        (download-and-store-applications (str release-dir "/portlets/") (st/get-in release [:portlets]))
-        (liferay-dir (str release-dir "/config/") :owner "root")
-        (if (contains? release :config)
-          (liferay-config-file (str release-dir "/config/portal-ext.properties") (st/get-in release [:config]))
-          (liferay-config-file 
-            (str release-dir "/config/portal-ext.properties")
-            (app-config/var-lib-tomcat7-webapps-ROOT-WEB-INF-classes-portal-ext-properties db-config)
-            ))
-      ))
+        (actions/plan-when-not
+          (stevedore/script (directory? ~release-dir)) 
+          (liferay-dir release-dir :owner "root")
+          (download-and-store-applications (str release-dir "/app/") [(st/get-in release [:application])])
+          (download-and-store-applications (str release-dir "/hooks/") (st/get-in release [:hooks]))
+          (download-and-store-applications (str release-dir "/layouts/") (st/get-in release [:layouts]))
+          (download-and-store-applications (str release-dir "/themes/") (st/get-in release [:themes]))
+          (download-and-store-applications (str release-dir "/portlets/") (st/get-in release [:portlets]))
+          (liferay-dir (str release-dir "/config/") :owner "root")
+          (if (contains? release :config)
+            (liferay-config-file (str release-dir "/config/portal-ext.properties") (st/get-in release [:config]))
+            (liferay-config-file 
+              (str release-dir "/config/portal-ext.properties")
+              (app-config/var-lib-tomcat7-webapps-ROOT-WEB-INF-classes-portal-ext-properties db-config)
+              ))
+            )))
     ))
 
 

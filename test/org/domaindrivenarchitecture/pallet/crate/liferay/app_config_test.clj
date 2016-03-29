@@ -148,7 +148,7 @@
              "for part in app hooks layouts portlets themes; do"
              "cp /var/lib/liferay/prepare-rollout/${1}/${part}/* /var/lib/tomcat7/webapps/"
              "done"
-             "unzip /var/lib/tomcat7/webapps/ROOT.war"
+             "unzip /var/lib/tomcat7/webapps/ROOT.war -d /var/lib/tomcat7/webapps/ROOT/"
              "cp /var/lib/liferay/prepare-rollout/${1}/config/portal-ext.properties /var/lib/tomcat7/webapps/ROOT/WEB-INF/classes/"
              "chown tomcat7 /var/lib/tomcat7/webapps/*"
              "service tomcat7 start"

@@ -48,11 +48,11 @@
   {:name s/Str
    :version base/Version
    :application LiferayApp
-   (s/optional-key :config) [s/Str]
    :hooks [LiferayApp]
    :layouts [LiferayApp]
    :themes [LiferayApp]
    :portlets [LiferayApp]
+   (s/optional-key :config) [s/Str]
    })
 
 (def LiferayReleaseConfig

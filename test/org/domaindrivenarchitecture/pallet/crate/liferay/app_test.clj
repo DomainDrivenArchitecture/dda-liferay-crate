@@ -25,7 +25,7 @@
     [schema.experimental.complete :as c]
     [pallet.stevedore :as stevedore]
     [pallet.actions :as actions]
-    [org.domaindrivenarchitecture.pallet.test-utils :as tu]
+    [org.domaindrivenarchitecture.pallet.plan-test-utils :as tu]
     [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]
     [org.domaindrivenarchitecture.pallet.crate.liferay.app :as sut]))
 
@@ -148,20 +148,20 @@
 (deftest integration-prepare-rollout
   (testing 
     "test the good case"
-    (let [actions (build-actions/build-actions
-            build-actions/ubuntu-session         
-            (sut/prepare-rollout 
-              (c/complete {} schema/DbConfig)
-              {:release-dir "/somedir/"
-               :releases [(c/complete {:config ["1" "2" "3"]} schema/LiferayRelease)]}))]
+    (let [plan (build-actions/build-actions
+                 build-actions/ubuntu-session         
+                 (sut/prepare-rollout 
+                   (c/complete {} schema/DbConfig)
+                   {:release-dir "/somedir/"
+                    :releases [(c/complete {:config ["123" "2" "3"]} schema/LiferayRelease)]}))]
       (is 
-        (= 
-          ""
-          actions
-          ))
-      (is 
-        (.contains 
-          (tu/extract-nth-action-command actions 1)
-          "appname1.war"
+        (.contains
+           (first 
+             (tu/extract-action-summary-containing
+               "portal-ext.properties"
+               (tu/extract-actions-meta
+                 (tu/extract-actions
+                   (tu/extract-node-values plan)))))
+            "123"
           ))
       )))
