@@ -17,20 +17,8 @@
 (ns org.domaindrivenarchitecture.pallet.crate.liferay.schema
    (:require [clojure.string :as string]
              [schema.core :as s :include-macros true]
-             [org.domaindrivenarchitecture.pallet.crate.base.schema :as base]))
-
-(s/defn non-root-directory? 
-  "Predicate for directory path not empty und not the unix root."
-  [dir :- s/Str]
-  (and 
-    (not (string/blank? dir))
-    (< 1 (.length dir))
-    (.endsWith dir "/")
-    ))
-
-(def NonRootDirectory
-  "Represents a directory with trailing /"
-  (s/constrained s/Str non-root-directory?))
+             [org.domaindrivenarchitecture.pallet.crate.base.version-model :as version]
+             [org.domaindrivenarchitecture.pallet.crate.base.directory-model :as directory]))
 
 (def DbConfig
   "Represents the database configuration."
@@ -46,7 +34,7 @@
 (def LiferayRelease
   "LiferayRelease relates a release name with specification of versioned apps."
   {:name s/Str
-   :version base/Version
+   :version version/Version
    :application LiferayApp
    :hooks [LiferayApp]
    :layouts [LiferayApp]
@@ -57,5 +45,5 @@
 
 (def LiferayReleaseConfig
   "The configuration for liferay release feature."
-  {:release-dir NonRootDirectory
+  {:release-dir directory/NonRootDirectory
    :releases [LiferayRelease]})

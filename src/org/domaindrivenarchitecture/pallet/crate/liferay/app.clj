@@ -21,6 +21,7 @@
      [schema-tools.core :as st]
      [pallet.actions :as actions]
      [schema.experimental.complete :as c]
+     [org.domaindrivenarchitecture.pallet.crate.base.directory-model :as dir-model]
      [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]
      [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as app-config]
      [org.domaindrivenarchitecture.pallet.crate.liferay.db-replace-scripts :as db-replace-scripts]
@@ -134,10 +135,10 @@
 
 (s/defn ^:always-validate install-do-rollout-script
   "Creates script for rolling liferay version. To be called by the admin connected to the server via ssh"
-  [liferay-home :- schema/NonRootDirectory
-   prepare-dir :- schema/NonRootDirectory 
-   deploy-dir :- schema/NonRootDirectory
-   tomcat-dir :- schema/NonRootDirectory]
+  [liferay-home :- dir-model/NonRootDirectory
+   prepare-dir :- dir-model/NonRootDirectory 
+   deploy-dir :- dir-model/NonRootDirectory
+   tomcat-dir :- dir-model/NonRootDirectory]
   (actions/remote-file
     (str liferay-home "do-rollout.sh")
     :owner "root"

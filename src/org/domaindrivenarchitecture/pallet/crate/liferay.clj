@@ -25,6 +25,7 @@
     [org.domaindrivenarchitecture.pallet.crate.versions :as versions]
     [org.domaindrivenarchitecture.pallet.crate.upgrade :as upgrade]
     [org.domaindrivenarchitecture.pallet.crate.config :as config]
+    [org.domaindrivenarchitecture.pallet.crate.base.directory-model :as dir-model]
     ; Liferay Dependecies
     [org.domaindrivenarchitecture.pallet.crate.liferay.db :as db]
     [org.domaindrivenarchitecture.pallet.crate.liferay.web :as web]
@@ -55,13 +56,13 @@
      :tomcat {:Xmx s/Str
               :Xms s/Str
               :MaxPermSize s/Str
-              :home-dir schema/NonRootDirectory
-              :webapps-dir schema/NonRootDirectory}
+              :home-dir dir-model/NonRootDirectory
+              :webapps-dir dir-model/NonRootDirectory}
      ; Liferay Configuration
      :instance-name s/Str   
-     :home-dir schema/NonRootDirectory
-     :lib-dir schema/NonRootDirectory
-     :deploy-dir schema/NonRootDirectory
+     :home-dir dir-model/NonRootDirectory
+     :lib-dir dir-model/NonRootDirectory
+     :deploy-dir dir-model/NonRootDirectory
      :third-party-download-root-dir s/Str
      (s/optional-key :fqdn-to-be-replaced) s/Str}
     schema/DbConfig

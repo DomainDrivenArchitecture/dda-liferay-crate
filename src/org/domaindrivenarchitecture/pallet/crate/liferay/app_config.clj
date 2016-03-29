@@ -22,6 +22,7 @@
     [pallet.stevedore :as stevedore]
     [pallet.script.scriptlib :as lib]
     [pallet.stevedore.bash :as bash]
+    [org.domaindrivenarchitecture.pallet.crate.base.directory-model :as dir-model]
     [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]))
 
 (defn usr-share-tomcat7-bin-setenv-sh
@@ -310,9 +311,9 @@
 
 (s/defn ^:always-validate do-deploy-script
   "Provides the do-deploy script content."
-  [prepare-dir :- schema/NonRootDirectory 
-   deploy-dir :- schema/NonRootDirectory
-   tomcat-dir :- schema/NonRootDirectory]
+  [prepare-dir :- dir-model/NonRootDirectory 
+   deploy-dir :- dir-model/NonRootDirectory
+   tomcat-dir :- dir-model/NonRootDirectory]
   (let [application-parts ["app" "hooks" "layouts" "portlets" "themes"]]
     (stevedore/with-script-language :pallet.stevedore.bash/bash
       (stevedore/with-source-line-comments false 
