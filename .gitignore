@@ -4,3 +4,4 @@
 /.settings/
 /pom.*
 /.lein-failures
+/.nrepl-port
