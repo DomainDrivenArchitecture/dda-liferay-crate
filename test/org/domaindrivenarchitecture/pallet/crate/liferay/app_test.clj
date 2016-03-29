@@ -68,7 +68,7 @@
     (is 
       (= 
         "dir/test-0.2.0"
-        (sut/release-dir "dir/" (c/complete {:name "test" :version [0 2 0]} schema/LiferayRelease))
+        (sut/release-dir "dir/"  (c/complete {:name "test" :version [0 2 0]} schema/LiferayRelease))
         ))
     ))
 
@@ -124,7 +124,7 @@
     (and (is (script= 
                (string/join
                  \newline
-                 ["ls /var/lib/liferay/prepare-rollout/ | grep -Ev test0.2.0 | xargs -I {} rm -r /var/lib/liferay/prepare-rollout/ {}"])
+                 ["ls /var/lib/liferay/prepare-rollout/ | grep -Ev test0.2.0 | xargs -I {} rm -r /var/lib/liferay/prepare-rollout/{}"])
                (stevedore/with-script-language :pallet.stevedore.bash/bash
                  (stevedore/with-source-line-comments false  
                    (sut/remove-all-but-specified-versions 
@@ -135,7 +135,7 @@
          (is (script=
                (string/join 
                  \newline
-                 ["ls /var/lib/liferay/prepare-rollout/test/ | grep -Ev test1.0.0|test-2.0.0 | xargs -I {} rm -r /var/lib/liferay/prepare-rollout/test/ {}"])
+                 ["ls /var/lib/liferay/prepare-rollout/test/ | grep -Ev test1.0.0|test-2.0.0 | xargs -I {} rm -r /var/lib/liferay/prepare-rollout/test/{}"])
                (stevedore/with-script-language :pallet.stevedore.bash/bash
                  (stevedore/with-source-line-comments false              
                    (sut/remove-all-but-specified-versions 

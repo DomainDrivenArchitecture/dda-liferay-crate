@@ -157,7 +157,7 @@
   [releases release-dir]
   (let [versions (string/join "|" (map #(str (st/get-in % [:name]) (string/join "." (st/get-in % [:version]))) releases))]
     (stevedore/script 
-      (pipe (pipe ("ls" ~release-dir) ("grep -Ev" ~versions)) ("xargs -I {} rm -r" ~release-dir "{}"))
+      (pipe (pipe ("ls" ~release-dir) ("grep -Ev" ~versions)) ("xargs -I {} rm -r" (str ~release-dir "{}")))
       )))
 
 (s/defn ^:always-validate prepare-rollout 
