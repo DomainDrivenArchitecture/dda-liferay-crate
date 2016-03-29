@@ -47,8 +47,9 @@
   "The configuration for liferay release feature." 
   (merge
     {:httpd {:fqdn s/Str
-             :domain-cert s/Str
-             :domain-key s/Str
+             (s/optional-key :letsencrypt) s/Bool ; TODO: schema validation
+             (s/optional-key :domain-cert) s/Str  ; validate that either :letsencrypt is set XOR (:domain-cert and :domain-key) 
+             (s/optional-key :domain-key) s/Str   ; is set
              (s/optional-key :ca-cert) s/Str
              (s/optional-key :app-port) s/Str
              (s/optional-key :google-id) s/Str
@@ -197,6 +198,7 @@
     (if (st/get-in config [:httpd :domain-key])
       (web/configure-webserver  ; use https
 		     :name (st/get-in config [:instance-name])
+         :letsencrypt (st/get-in config [:httpd :letsencrypt])
 		     :domain-name (st/get-in config [:httpd :fqdn])
 		     :domain-cert (st/get-in config [:httpd :domain-cert])
 		     :domain-key (st/get-in config [:httpd :domain-key])

@@ -33,6 +33,7 @@
 
 (defn liferay-vhost
   [& {:keys [domain-name
+             letsencrypt
              server-admin-email
              app-port
              google-id]}]
@@ -62,7 +63,10 @@
               :error-name "error.log"
               :log-name "ssl-access.log"
               :log-format "combined")
-            (gnutls/vhost-gnutls domain-name))))
+            (if letsencrypt
+              (gnutls/vhost-gnutls-letsencrypt domain-name)
+              (gnutls/vhost-gnutls domain-name))
+            )))
       vhost/vhost-tail
       )
     )
@@ -78,6 +82,7 @@
 
 (defn configure-webserver
   [& {:keys [name
+             letsencrypt
              domain-name 
              domain-cert 
              domain-key 
@@ -91,11 +96,12 @@
     :security 
     httpd-config/security)
   
-  (gnutls/configure-gnutls-credentials
-    :domain-name domain-name
-    :domain-cert domain-cert
-    :domain-key domain-key
-    :ca-cert ca-cert)
+  (if-not letsencrypt
+	  (gnutls/configure-gnutls-credentials
+	    :domain-name domain-name
+	    :domain-cert domain-cert
+	    :domain-key domain-key
+	    :ca-cert ca-cert))
   
   (jk/configure-mod-jk-worker)
   
@@ -110,6 +116,7 @@
   (apache2/configure-and-enable-vhost
     "000-default-ssl"
     (liferay-vhost
+      :letsencrypt letsencrypt
       :domain-name domain-name
       :server-admin-email (str "admin@" domain-name)
       :google-id google-id))
