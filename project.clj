@@ -9,6 +9,7 @@
                  [metosin/schema-tools "0.7.0"]
                  [com.palletops/pallet "0.8.11"]
                  [com.palletops/stevedore "0.8.0-beta.7"]
+                 [com.palletops/git-crate "0.8.0-alpha.2" :exclusions [org.clojure/clojure]]
                  [org.domaindrivenarchitecture/dda-basic-crate "0.3.0-SNAPSHOT"]
                  [org.domaindrivenarchitecture/dda-collected-crate "0.3.0-SNAPSHOT"]
                  [org.domaindrivenarchitecture/dda-backup-crate "0.2.2-SNAPSHOT"]
