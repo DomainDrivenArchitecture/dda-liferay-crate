@@ -33,6 +33,8 @@
     [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as liferay-config]
     [org.domaindrivenarchitecture.pallet.crate.liferay.backup :as liferay-backup]
     [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]
+    ; Webserver Dependecy
+    [httpd.crate.apache2 :as apache2]
     ; Backup Dependency
     [org.domaindrivenarchitecture.pallet.crate.backup :as backup]
     ; Tomcat Dependency
@@ -48,6 +50,7 @@
   (merge
     {:httpd {:fqdn s/Str
              (s/optional-key :letsencrypt) s/Bool ; TODO: schema validation
+             (s/optional-key :letsencrypt-mail) s/Str  ; 
              (s/optional-key :domain-cert) s/Str  ; validate that either :letsencrypt is set XOR (:domain-cert and :domain-key) 
              (s/optional-key :domain-key) s/Str   ; is set
              (s/optional-key :ca-cert) s/Str
@@ -148,6 +151,12 @@
     ; Webserver + Tomcat
     (web/install-webserver)
     (tomcat-app/install-tomcat7 :custom-java-version :6)
+    (when (st/get-in config [:httpd :letsencrypt])
+      (apache2/install-letsencrypt-action)
+      (apache2/install-letsencrypt-certs 
+        (st/get-in config [:httpd :fqdn])
+        :adminmail (st/get-in config [:httpd :letsencrypt-mail]))
+      )
     ; Liferay Package
     (liferay-app/install-liferay 
       (st/get-in config [:tomcat :home-dir])
@@ -158,7 +167,7 @@
       (st/get-in config [:third-party-download-root-dir])
       (st/select-schema config schema/LiferayReleaseConfig))
     ; Release Management
-;    (release/install-release-management)
+    (release/install-release-management)
     ; do the initial rollout
     (prepare-rollout app-name partial-config)
     ))
