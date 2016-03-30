@@ -77,7 +77,7 @@
   "The default release configuration."
  {:name "LiferayCE"
   :version [6 2 1]
-  :application ["ROOT" "http://sourceforge.net/projects/lportal/files/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"]
+  :application ["ROOT" "http://iweb.dl.sourceforge.net/project/lportal/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"]
   :hooks []
   :layouts []
   :themes []
@@ -151,6 +151,7 @@
     ; Webserver + Tomcat
     (web/install-webserver)
     (tomcat-app/install-tomcat7 :custom-java-version :6)
+    ; TODO: Move this to WebServer - install
     (when (st/get-in config [:httpd :letsencrypt])
       (apache2/install-letsencrypt-action)
       (apache2/install-letsencrypt-certs 
@@ -166,8 +167,6 @@
       (st/get-in config [:deploy-dir])
       (st/get-in config [:third-party-download-root-dir])
       (st/select-schema config schema/LiferayReleaseConfig))
-    ; Release Management
-    (release/install-release-management)
     ; do the initial rollout
     (prepare-rollout app-name partial-config)
     ))
