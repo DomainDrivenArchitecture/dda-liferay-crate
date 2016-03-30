@@ -203,7 +203,8 @@
   (let [config (merge-config partial-config)]
     ; Webserver
     ; TODO: review mje: if should reside in webserver ns & tested
-    (if (st/get-in config [:httpd :domain-key])
+    (if (or (st/get-in config [:httpd :domain-key])
+            (st/get-in config [:httpd :letsencrypt]))
       (web/configure-webserver  ; use https
 		     :name (st/get-in config [:instance-name])
          :letsencrypt (st/get-in config [:httpd :letsencrypt])
