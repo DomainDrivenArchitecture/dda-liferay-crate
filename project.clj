@@ -22,7 +22,7 @@
   :profiles {:dev
              {:dependencies
               [[org.clojure/test.check "0.9.0"]
-               [com.palletops/pallet "0.8.10" :classifier "tests"]
+               [com.palletops/pallet "0.8.11" :classifier "tests"]
                [org.domaindrivenarchitecture/dda-basic-crate "0.3.0-SNAPSHOT" :classifier "tests"]]
               :plugins
               [[com.palletops/pallet-lein "0.8.0-alpha.1"]]}
