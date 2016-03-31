@@ -48,15 +48,23 @@
 (def LiferayConfig
   "The configuration for liferay release feature." 
   (merge
-    {:httpd {:fqdn s/Str
-             (s/optional-key :letsencrypt) s/Bool ; TODO: schema validation
-             (s/optional-key :letsencrypt-mail) s/Str  ; 
-             (s/optional-key :domain-cert) s/Str  ; validate that either :letsencrypt is set XOR (:domain-cert and :domain-key) 
-             (s/optional-key :domain-key) s/Str   ; is set
-             (s/optional-key :ca-cert) s/Str
-             (s/optional-key :app-port) s/Str
-             (s/optional-key :google-id) s/Str
-             (s/optional-key :maintainance-page-content) [s/Str]}
+    {:httpd (s/conditional 
+              #(= (:letsencrypt %) true)
+              {:letsencrypt (s/eq true) 
+               :letsencrypt-mail s/Str
+               :fqdn s/Str
+               (s/optional-key :app-port) s/Str
+               (s/optional-key :google-id) s/Str
+               (s/optional-key :maintainance-page-content) [s/Str]}
+              #(= (:letsencrypt %) false)
+              {:letsencrypt (s/eq false) 
+               :domain-cert s/Str 
+               :domain-key s/Str 
+               (s/optional-key :ca-cert) s/Str
+               :fqdn s/Str
+               (s/optional-key :app-port) s/Str
+               (s/optional-key :google-id) s/Str
+               (s/optional-key :maintainance-page-content) [s/Str]})
      :tomcat {:Xmx s/Str
               :Xms s/Str
               :MaxPermSize s/Str
@@ -73,40 +81,42 @@
     schema/LiferayReleaseConfig))
 
 
-(def default-release
+(s/defn default-release
   "The default release configuration."
+  [db-config :- schema/DbConfig]
  {:name "LiferayCE"
   :version [6 2 1]
-  :application ["ROOT" "http://iweb.dl.sourceforge.net/project/lportal/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"]
-  :hooks []
-  :layouts []
-  :themes []
-  :portlets []})
+  :app ["ROOT" "http://iweb.dl.sourceforge.net/project/lportal/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"]
+  :config (liferay-config/portal-ext-properties db-config)})
 
-(def default-liferay-config
+(defn default-liferay-config
   "Liferay Crate Default Configuration"
-  {; Database Configuration
-   :db {:root-passwd "test1234"
-        :db-name "lportal"
-        :user-name "liferay_user"
-        :user-passwd "test1234"}
-   ; Webserver Configuration
-   :httpd {:fqdn "localhost.localdomain"
-           :app-port "8009"
-           :maintainance-page-content ["<h1>Webserver Maintainance Mode</h1>"]}
-   ; Tomcat Configuration
-   :tomcat {:Xmx "1024m"
-            :Xms "256m"
-            :MaxPermSize "512m"
-            :home-dir "/var/lib/tomcat7/"
-            :webapps-dir "/var/lib/tomcat7/webapps/"}
-   ; Liferay Configuration
-   :instance-name "default"   
-   :home-dir "/var/lib/liferay/"
-   :lib-dir "/var/lib/liferay/lib/"
-   :deploy-dir "/var/lib/liferay/deploy/"
-   :release-dir "/var/lib/liferay/prepare-rollout/"
-   :releases [default-release]})
+  []
+  (let [db-config {:root-passwd "test1234"
+                   :db-name "lportal"
+                   :user-name "liferay_user"
+                   :user-passwd "test1234"}
+        fqdn "localhost.localdomain"]
+    {; Database Configuration
+     :db db-config
+     ; Webserver Configuration
+     :httpd {:letsencrypt true
+             :fqdn fqdn
+             :app-port "8009"
+             :maintainance-page-content ["<h1>Webserver Maintainance Mode</h1>"]}
+     ; Tomcat Configuration
+     :tomcat {:Xmx "1024m"
+              :Xms "256m"
+              :MaxPermSize "512m"
+              :home-dir "/var/lib/tomcat7/"
+              :webapps-dir "/var/lib/tomcat7/webapps/"}
+     ; Liferay Configuration
+     :instance-name "default"   
+     :home-dir "/var/lib/liferay/"
+     :lib-dir "/var/lib/liferay/lib/"
+     :deploy-dir "/var/lib/liferay/deploy/"
+     :release-dir "/var/lib/liferay/prepare-rollout/"
+     :releases [(default-release db-config)]}))
 
 (defn deep-merge
   "Recursively merges maps. If keys are not maps, the last value wins."
@@ -118,7 +128,7 @@
 (s/defn ^:always-validate merge-config :- LiferayConfig
   "merges the partial config with default config & ensures that resulting config is valid."
   [partial-config]
-  (deep-merge default-liferay-config partial-config))
+  (deep-merge (default-liferay-config) partial-config))
 
 (defn prepare-rollout
   "Liferay: rollout preparation"

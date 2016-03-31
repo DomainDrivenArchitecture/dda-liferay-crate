@@ -67,7 +67,7 @@
   (testing 
     (is 
       (= 
-        "dir/test-0.2.0"
+        "dir/test-0.2.0/"
         (sut/release-dir "dir/"  (c/complete {:name "test" :version [0 2 0]} schema/LiferayRelease))
         ))
     ))
@@ -82,7 +82,9 @@
         (tu/extract-nth-action-command
           (build-actions/build-actions
             build-actions/ubuntu-session         
-            (sut/download-and-store-applications "dir" [["appname" "url"]]))
+            (sut/download-and-store-applications "/somedir/"
+                                                 (c/complete {:app ["appname" "http://url"]} schema/LiferayRelease) 
+                                                 :app))
              1)
         "appname.war"
         )))
@@ -90,8 +92,12 @@
     "multi app"
     (let [actions (build-actions/build-actions
             build-actions/ubuntu-session         
-            (sut/download-and-store-applications "dir" [["appname1" "url"]
-                                             ["appname2" "url"]]))]
+            (sut/download-and-store-applications "/somedir/" 
+                                                 (c/complete
+                                                   {:portlets [["appname1" "url"]
+                                                    ["appname2" "url"]]}
+                                                   schema/LiferayRelease) 
+                                                 :portlets))]
       (is 
         (.contains 
           (tu/extract-nth-action-command actions 1)
@@ -104,19 +110,6 @@
           ))
     ))
   )
-
-(deftest test-corner-cases-download-and-store
-  "test the corner case"
-  []
-  (testing 
-    "wrong schema"
-    (is
-      (thrown? clojure.lang.ExceptionInfo
-              (build-actions/build-actions
-                build-actions/ubuntu-session         
-                (sut/download-and-store-applications "dir" [["appname" "url" "unexpected"]]))
-          ))))
-
 
 (deftest remove-all-but-specified-versions
   (testing 

@@ -107,7 +107,7 @@
   (testing 
     "test the good case"
     (is (= portal-ext-properties-with-all-keys
-           (sut/var-lib-tomcat7-webapps-ROOT-WEB-INF-classes-portal-ext-properties 
+           (sut/portal-ext-properties 
              {:db {:db-name "my-db-name"
                    :user-name "my_db_user_name" 
                    :user-passwd "my_db_user_passwd"}})))

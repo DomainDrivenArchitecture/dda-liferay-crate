@@ -25,14 +25,17 @@
     ))
 
 (def release-definition
-  (c/complete {:application ["name" "download-url"]} schema/LiferayRelease))
+  (c/complete {:app ["name" "download-url"]} schema/LiferayRelease))
+
+(def db-definition
+  (c/complete {} schema/DbConfig))
  
  (deftest defaults
   (testing 
     "test the default release definition" 
       (is (s/validate
             schema/LiferayRelease
-            sut/default-release))
+            (sut/default-release db-definition)))
       (is (s/validate
             schema/LiferayRelease
            release-definition))
@@ -49,12 +52,14 @@
                    (let [config (sut/merge-config {:an-unexpected-key nil})])))
       (is (map? 
             (sut/merge-config {:third-party-download-root-dir "download root"
-                               :httpd {:fqdn "fqdn"
+                               :httpd {:letsencrypt false
+                                       :fqdn "fqdn"
                                        :domain-cert "cert"
                                        :domain-key "key"}})))
       (is (map? 
             (sut/merge-config {:third-party-download-root-dir "download root"
-                               :httpd {:fqdn "fqdn"
+                               :httpd {:letsencrypt false
+                                       :fqdn "fqdn"
                                        :domain-cert "cert"
                                        :domain-key "key"}
                                :tomcat {:Xmx "123"}})))

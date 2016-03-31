@@ -117,21 +117,36 @@
   [release :- schema/LiferayRelease ]
   (str (st/get-in release [:name]) "-" (string/join "." (st/get-in release [:version]))))
 
-(s/defn ^:allwas-validate release-dir :- s/Str
+(s/defn ^:allwas-validate release-dir :- dir-model/NonRootDirectory
   "get the release dir name"
-  [base-release-dir :- s/Str 
+  [base-release-dir :- dir-model/NonRootDirectory
    release :- schema/LiferayRelease ]
-  (str base-release-dir (release-name release)))
+  (str base-release-dir (release-name release) "/"))
 
-(s/defn ^:always-validate download-and-store-applications :- s/Any
+(s/defn ^:always-validate download-and-store-applications
   "download and store liferay applications in given directory"
-  [dir :- s/Str 
-   apps :- [schema/LiferayApp]]
-  (liferay-dir dir :owner "root")
-  (doseq [app apps]
-    (liferay-remote-file (str dir (first app) ".war") (second app) :owner "root")
-    )
-  )
+  [release-dir :- dir-model/NonRootDirectory
+   release :- schema/LiferayRelease
+   key :- s/Keyword]
+  (when 
+    (contains? release key)
+    (let [dir (str release-dir (name key) "/")]
+      (liferay-dir dir :owner "root")
+      (case key
+        :app (let [app (st/get-in release [:app])]
+               (liferay-remote-file 
+                 (str dir (first app) ".war") 
+                 (second app)
+                 :owner "root"))
+        :config (liferay-config-file
+                  (str dir "portal-ext.properties") 
+                  (st/get-in release [:config]))
+        (doseq [app (st/get-in release [key])]
+          (liferay-remote-file 
+            (str dir (first app) ".war") 
+            (second app)
+            :owner "root"))))
+    ))
 
 (s/defn ^:always-validate install-do-rollout-script
   "Creates script for rolling liferay version. To be called by the admin connected to the server via ssh"
@@ -148,13 +163,10 @@
     :content (app-config/do-deploy-script prepare-dir deploy-dir tomcat-dir)
     ))
 
-;(s/defn ^:allwas-validate remove-all-but-specified-versions
-;  "Removes all other Versions except the specifided Versions"
-;  [releases :- [schema/LiferayRelease] 
-;   release-dir :- schema/NonRootDirectory]
-(defn remove-all-but-specified-versions
+(s/defn ^:allwas-validate remove-all-but-specified-versions
   "Removes all other Versions except the specifided Versions"
-  [releases release-dir]
+  [releases :- [schema/LiferayRelease] 
+   release-dir :- dir-model/NonRootDirectory]
   (let [versions (string/join "|" (map #(str (st/get-in % [:name]) (string/join "." (st/get-in % [:version]))) releases))]
     (stevedore/script 
       (pipe (pipe ("ls" ~release-dir) ("grep -Ev" ~versions)) ("xargs -I {} rm -r" (str ~release-dir "{}")))
@@ -173,19 +185,13 @@
         (actions/plan-when-not
           (stevedore/script (directory? ~release-dir)) 
           (liferay-dir release-dir :owner "root")
-          (download-and-store-applications (str release-dir "/app/") [(st/get-in release [:application])])
-          (download-and-store-applications (str release-dir "/hooks/") (st/get-in release [:hooks]))
-          (download-and-store-applications (str release-dir "/layouts/") (st/get-in release [:layouts]))
-          (download-and-store-applications (str release-dir "/themes/") (st/get-in release [:themes]))
-          (download-and-store-applications (str release-dir "/portlets/") (st/get-in release [:portlets]))
-          (liferay-dir (str release-dir "/config/") :owner "root")
-          (if (contains? release :config)
-            (liferay-config-file (str release-dir "/config/portal-ext.properties") (st/get-in release [:config]))
-            (liferay-config-file 
-              (str release-dir "/config/portal-ext.properties")
-              (app-config/var-lib-tomcat7-webapps-ROOT-WEB-INF-classes-portal-ext-properties db-config)
-              ))
-            )))
+          (download-and-store-applications release-dir release :app)
+          (download-and-store-applications release-dir release :config)
+          (download-and-store-applications release-dir release :hooks)
+          (download-and-store-applications release-dir release :layouts)
+          (download-and-store-applications release-dir release :themes)
+          (download-and-store-applications release-dir release :portlets)
+          )))
     ))
 
 

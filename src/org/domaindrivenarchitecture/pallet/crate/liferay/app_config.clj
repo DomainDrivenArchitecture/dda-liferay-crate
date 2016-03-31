@@ -276,7 +276,7 @@
    ]
   )
 
-(s/defn var-lib-tomcat7-webapps-ROOT-WEB-INF-classes-portal-ext-properties
+(s/defn portal-ext-properties
   "creates the default portal-ext.properties for mySql."
   [db-config :- schema/DbConfig]
   ["#"

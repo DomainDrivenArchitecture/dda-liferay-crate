@@ -35,12 +35,12 @@
   "LiferayRelease relates a release name with specification of versioned apps."
   {:name s/Str
    :version version/Version
-   :application LiferayApp
-   :hooks [LiferayApp]
-   :layouts [LiferayApp]
-   :themes [LiferayApp]
-   :portlets [LiferayApp]
+   (s/optional-key :app) LiferayApp
    (s/optional-key :config) [s/Str]
+   (s/optional-key :hooks) [LiferayApp]
+   (s/optional-key :layouts) [LiferayApp]
+   (s/optional-key :themes) [LiferayApp]
+   (s/optional-key :portlets) [LiferayApp]
    })
 
 (def LiferayReleaseConfig
