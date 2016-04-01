@@ -46,7 +46,7 @@
 (def version [0 2 0])
 
 (def LiferayConfig
-  "The configuration for liferay release feature." 
+  "The configuration for liferay crate." 
   (merge
     {:httpd (s/conditional 
               #(= (:letsencrypt %) true)
