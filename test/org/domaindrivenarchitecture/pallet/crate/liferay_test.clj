@@ -64,3 +64,50 @@
                                        :domain-key "key"}
                                :tomcat {:Xmx "123"}})))
       ))
+ 
+(def release-test-a
+  {:name "release-test-a"
+   :version [1 2 3]
+   :app ["name" "url"]
+   :portlets [ ["portlet1" "url1a"] ["portlet2" "url2a"] ]
+   })
+ 
+(def release-test-b
+ {:name "release-test-b"
+  :version [1 2 4]
+  :app ["name" "url"]
+  :portlets [ ["portlet1" "url1b"] ["portlet3" "url3b"] ]
+  })
+
+(def release-test-merged-ab
+ {:name "release-test-b"
+  :version [1 2 4]
+  :app ["name" "url"]
+  :portlets [ ["portlet2" "url2a"] ["portlet1" "url1b"] ["portlet3" "url3b"]  ]
+  })
+
+
+(deftest release-tests-valid
+  (testing 
+    "test if test releases are valid"
+    (is (s/validate schema/LiferayRelease release-test-a))
+    (is (s/validate schema/LiferayRelease release-test-b))
+    (is (s/validate schema/LiferayRelease release-test-merged-ab))
+    ))
+ 
+(deftest merge-releaseapps
+  (testing
+    "merging releases"
+    
+    (is (= 
+          (sut/merge-releases release-test-a release-test-b) 
+          release-test-merged-ab))
+    
+    (is (= 
+          (sut/merge-releases release-test-a release-test-merged-ab) 
+          release-test-merged-ab))
+    
+    (is (= 
+          (sut/merge-releases release-test-a release-test-merged-ab release-test-merged-ab release-test-merged-ab) 
+          release-test-merged-ab))
+    ))
