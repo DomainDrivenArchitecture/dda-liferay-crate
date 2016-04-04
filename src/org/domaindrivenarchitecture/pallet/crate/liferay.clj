@@ -112,7 +112,7 @@ right-most app wins."
   "Merges multiple liferay releases into a combined one. All non-app keys are from the right-most
 release. Apps are merged from right to left. Duplicate apps (same name) are ignored and the
 right-most app wins." 
- [& vals :- [schema/LiferayRelease]]
+ [& vals]
  (apply merge-with 
         (fn [& args] 
           (if (and (every? vector? args) (vector? (ffirst args)))
