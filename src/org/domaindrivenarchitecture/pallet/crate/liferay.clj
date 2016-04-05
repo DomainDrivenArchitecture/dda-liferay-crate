@@ -210,6 +210,8 @@ right-most app wins."
       (st/get-in config [:deploy-dir])
       (st/get-in config [:third-party-download-root-dir])
       (st/select-schema config schema/LiferayReleaseConfig))
+    ; backup
+    (backup/install-backup-environment :app-name app-name)
     ; do the initial rollout
     (prepare-rollout app-name partial-config)
     ))
