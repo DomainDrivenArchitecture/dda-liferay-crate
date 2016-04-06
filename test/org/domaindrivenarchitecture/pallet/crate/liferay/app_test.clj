@@ -29,22 +29,6 @@
     [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]
     [org.domaindrivenarchitecture.pallet.crate.liferay.app :as sut]))
 
-(defn source-comment-re-str []
-  (str "(?sm) *# " (.getName (io/file *file*)) ":\\d+\n?"))
-
-;;; a test method that adds a check for source line comment
-(defmethod assert-expr 'script= [msg form]
-  (let [[_ expected expr] form]
-    `(let [re# (re-pattern ~(source-comment-re-str))
-           expected# (-> ~expected string/trim)
-           actual# (-> ~expr (string/replace re# "") string/trim)]
-       (if (= expected# actual#)
-         (do-report
-          {:type :pass :message ~msg :expected expected# :actual actual#})
-         (do-report
-          {:type :fail :message ~msg :expected expected# :actual actual#})))))
-
-
 (deftest test-release-name
   "test the release name generation"
   []

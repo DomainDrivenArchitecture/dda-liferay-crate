@@ -31,7 +31,6 @@
     [org.domaindrivenarchitecture.pallet.crate.liferay.web :as web]
     [org.domaindrivenarchitecture.pallet.crate.liferay.app :as liferay-app]
     [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as liferay-config]
-    [org.domaindrivenarchitecture.pallet.crate.liferay.backup :as liferay-backup]
     [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]
     ; Webserver Dependecy
     [httpd.crate.apache2 :as apache2]
@@ -44,6 +43,24 @@
 
 ; Crate Version
 (def version [0 2 0])
+
+(defn- app-in-vec? 
+  "Returns wheather a liferay app with specified name is in vector apps"
+  [apps name]
+  (if (empty? apps)
+    false
+    (if (= (first (last apps)) name)
+      true
+      (app-in-vec? (pop apps) name))
+    ))
+
+(defn- merge-apps
+  "Merge two vector of apps from right to left. Duplicate apps (same name) are ignored and the
+right-most app wins."
+  [p1 p2] 
+  (apply conj 
+         (vec (keep #(if-not (app-in-vec? p2 (first %)) %) p1))
+         p2))
 
 (def LiferayConfig
   "The configuration for liferay crate." 
@@ -70,6 +87,7 @@
               :MaxPermSize s/Str
               :home-dir dir-model/NonRootDirectory
               :webapps-dir dir-model/NonRootDirectory}
+     :backup backup/BackupConfig
      ; Liferay Configuration
      :instance-name s/Str   
      :home-dir dir-model/NonRootDirectory
@@ -88,39 +106,6 @@
   :version [6 2 1]
   :app ["ROOT" "http://iweb.dl.sourceforge.net/project/lportal/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"]
   :config (liferay-config/portal-ext-properties db-config)})
-
-
-(defn- app-in-vec? 
-  "Returns wheather a liferay app with specified name is in vector apps"
-  [apps name]
-  (if (empty? apps)
-    false
-    (if (= (first (last apps)) name)
-      true
-      (app-in-vec? (pop apps) name))
-    ))
-
-(defn- merge-apps
-  "Merge two vector of apps from right to left. Duplicate apps (same name) are ignored and the
-right-most app wins."
-  [p1 p2] 
-  (apply conj 
-         (vec (keep #(if-not (app-in-vec? p2 (first %)) %) p1))
-         p2))
-
-(s/defn ^:always-validate merge-releases :- schema/LiferayRelease
-  "Merges multiple liferay releases into a combined one. All non-app keys are from the right-most
-release. Apps are merged from right to left. Duplicate apps (same name) are ignored and the
-right-most app wins." 
- [& vals]
- (apply merge-with 
-        (fn [& args] 
-          (if (and (every? vector? args) (vector? (ffirst args)))
-            (apply merge-apps args)
-            (last args))
-          ) 
-        vals)
- )
 
 (defn default-liferay-config
   "Liferay Crate Default Configuration"
@@ -143,6 +128,27 @@ right-most app wins."
               :MaxPermSize "512m"
               :home-dir "/var/lib/tomcat7/"
               :webapps-dir "/var/lib/tomcat7/webapps/"}
+     :backup {:backup-name "service-name"
+              :script-path "/usr/lib/dda-backup/"
+              :gens-stored-on-source-system 1
+              :service-restart "tomcat7"
+              :elements [{:type :file-compressed
+                          :name "letsencrypt"
+                          :root-dir "/etc/letsencrypt/"
+                          :subdir-to-save "accounts csr keys renewal"}
+                         {:type :file-compressed
+                          :name "liferay"
+                          :root-dir "/var/lib/liferay/data/"
+                          :subdir-to-save "document_library images"
+                          :new-owner "tomcat7"}
+                         {:type :mysql
+                          :name "liferay"
+                          :db-user-name "db-user-name" 
+                          :db-user-passwd "db-pass"
+                          :db-name "db-name"
+                          :db-create-options "character set utf8"}]
+              :backup-user {:name "dataBackupSource"
+                            :encrypted-passwd "WIwn6jIUt2Rbc"}}
      ; Liferay Configuration
      :instance-name "default"   
      :home-dir "/var/lib/liferay/"
@@ -156,6 +162,20 @@ right-most app wins."
   [partial-config]
   (config/deep-merge (default-liferay-config) partial-config))
 
+(s/defn ^:always-validate merge-releases :- schema/LiferayRelease
+  "Merges multiple liferay releases into a combined one. All non-app keys are from the right-most
+release. Apps are merged from right to left. Duplicate apps (same name) are ignored and the
+right-most app wins." 
+ [& vals]
+ (apply merge-with 
+        (fn [& args] 
+          (if (and (every? vector? args) (vector? (ffirst args)))
+            (apply merge-apps args)
+            (last args))
+          ) 
+        vals)
+ )
+
 (defn prepare-rollout
   "Liferay: rollout preparation"
   [app-name partial-config]
@@ -168,7 +188,9 @@ right-most app wins."
 ; Liferay Backup: Install Routine
 (defn install-backup
   [app-name partial-config]
-  (backup/install-backup-environment :app-name app-name))
+  (let [config (merge-config partial-config)]
+    (backup/install app-name (get-in config [:backup]))
+    ))
 
 
 ; Liferay App: Install Routine
@@ -204,7 +226,7 @@ right-most app wins."
       (st/get-in config [:third-party-download-root-dir])
       (st/select-schema config schema/LiferayReleaseConfig))
     ; backup
-    (backup/install-backup-environment :app-name app-name)
+    (backup/install app-name (get-in config [:backup]))
     ; do the initial rollout
     (prepare-rollout app-name partial-config)
     ))
@@ -212,32 +234,9 @@ right-most app wins."
 (defn configure-backup
   "Liferay Backup: Configure Routine"
   [app-name partial-config]
-  (let [config (merge-config partial-config)
-        db-user-passwd (st/get-in config [:db :user-passwd])
-        db-user-name (st/get-in config [:db :user-named])
-        db-name (st/get-in config [:db :db-named])
-        instance-name (st/get-in config [:instance-name])
-        fqdn (st/get-in config [:httpd :fqdn])
-        available-releases (st/get-in config [:releases])]
-    (backup/install-backup-app-instance 
-      :app-name app-name 
-      :instance-name instance-name
-      :backup-lines
-      (liferay-backup/liferay-source-backup-script-lines 
-        instance-name 
-        db-name 
-        db-user-name 
-        db-user-passwd)
-      :source-transport-lines
-      (liferay-backup/liferay-source-transport-script-lines instance-name 1)
-      :restore-lines
-      (liferay-backup/liferay-restore-script-lines 
-        instance-name 
-        fqdn
-        db-name
-        db-user-name
-        db-user-passwd)
-      )))
+  (let [config (merge-config partial-config)]
+    (backup/configure app-name (get-in config [:backup]))
+    ))
 
 (defn configure
   "Liferay: Configure Routine"
@@ -284,8 +283,8 @@ right-most app wins."
       :db-user-passwd (st/get-in config [:db :user-passwd])
       :fqdn-to-be-replaced (st/get-in config [:fqdn-to-be-replaced])
       :fqdn-replacement (st/get-in config [:httpd :fqdn]))
-   
-    (configure-backup app-name partial-config)    
+    ; Config
+    (backup/configure app-name (get-in config [:backup]))  
     ))
 
 ; Pallet Server Specs >>liferay<<
