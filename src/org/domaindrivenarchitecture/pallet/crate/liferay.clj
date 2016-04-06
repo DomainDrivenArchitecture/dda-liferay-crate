@@ -151,17 +151,10 @@ right-most app wins."
      :release-dir "/var/lib/liferay/prepare-rollout/"
      :releases [(default-release db-config)]}))
 
-(defn deep-merge
-  "Recursively merges maps. If keys are not maps, the last value wins."
-  [& vals]
-  (if (every? map? vals)
-    (apply merge-with deep-merge vals)
-    (last vals)))
-
 (s/defn ^:always-validate merge-config :- LiferayConfig
   "merges the partial config with default config & ensures that resulting config is valid."
   [partial-config]
-  (deep-merge (default-liferay-config) partial-config))
+  (config/deep-merge (default-liferay-config) partial-config))
 
 (defn prepare-rollout
   "Liferay: rollout preparation"
@@ -230,7 +223,11 @@ right-most app wins."
       :app-name app-name 
       :instance-name instance-name
       :backup-lines
-      (liferay-backup/liferay-source-backup-script-lines instance-name db-user-passwd)
+      (liferay-backup/liferay-source-backup-script-lines 
+        instance-name 
+        db-name 
+        db-user-name 
+        db-user-passwd)
       :source-transport-lines
       (liferay-backup/liferay-source-transport-script-lines instance-name 1)
       :restore-lines
@@ -287,6 +284,8 @@ right-most app wins."
       :db-user-passwd (st/get-in config [:db :user-passwd])
       :fqdn-to-be-replaced (st/get-in config [:fqdn-to-be-replaced])
       :fqdn-replacement (st/get-in config [:httpd :fqdn]))
+   
+    (configure-backup app-name partial-config)    
     ))
 
 ; Pallet Server Specs >>liferay<<

@@ -23,7 +23,7 @@
 
 (defn liferay-source-backup-script-lines
   ""
-  [instance-name mysql-pwd]
+  [instance-name db-name db-user-name db-pass]
   (into [] 
         (concat 
           common-lib/head
@@ -34,10 +34,15 @@
             :subdir-to-save "document_library images"
             :app "liferay"
             :instance-name instance-name)
+          (backup-lib/backup-files-tar 
+            :root-dir "/etc/letsencrypt/"
+            :subdir-to-save "accounts csr keys renewal"
+            :app "letsencrypt"
+            :instance-name instance-name)
           (backup-lib/backup-mysql 
-            :db-user "liferay_user" 
-            :db-pass mysql-pwd 
-            :db-name "lportal" 
+            :db-user db-user-name 
+            :db-pass db-pass
+            :db-name db-name 
             :app "liferay"
             :instance-name instance-name)
           (common-lib/start-app-server "tomcat7")
@@ -107,6 +112,12 @@
               :restore-target-dir "/var/lib/liferay/data"
               :file-type :file-compressed
               :new-owner "tomcat7"))
+          (common-lib/prefix
+            "  "
+            (restore-lib/restore-tar
+              :restore-target-dir "/etc/letsencrypt/"
+              :file-type :file-compressed
+              :new-owner "root"))
           restore-lib/restore-file-tail
           restore-lib/restore-tail
           )
