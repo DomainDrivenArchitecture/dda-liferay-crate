@@ -192,6 +192,22 @@ right-most app wins."
     (backup/install app-name (get-in config [:backup]))
     ))
 
+(defn update-0-1-to-0-2
+  "updates the installation."
+  [app-name partial-config]
+  (let [config (merge-config partial-config)]
+    (liferay-app/install-do-rollout-script 
+      (st/get-in config [:home-dir])
+      (st/get-in config [:release-dir]) 
+      (st/get-in config [:deploy-dir])
+      (st/get-in config [:tomcat :webapps-dir]))
+    (when (st/get-in config [:httpd :letsencrypt])
+      (apache2/install-letsencrypt-action)
+      (apache2/install-letsencrypt-certs 
+        (st/get-in config [:httpd :fqdn])
+        :adminmail (st/get-in config [:httpd :letsencrypt-mail]))
+      )))
+    
 
 ; Liferay App: Install Routine
 (defn install 
