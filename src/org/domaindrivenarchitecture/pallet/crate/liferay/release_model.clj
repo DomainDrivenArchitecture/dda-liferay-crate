@@ -17,8 +17,8 @@
 (ns org.domaindrivenarchitecture.pallet.crate.liferay.release-model
    (:require [clojure.string :as string]
              [schema.core :as s :include-macros true]
-             [org.domaindrivenarchitecture.pallet.crate.base.version-model :as version]
-             [org.domaindrivenarchitecture.pallet.crate.base.directory-model :as directory]))
+             [org.domaindrivenarchitecture.config.commons.version-model :as version]
+             [org.domaindrivenarchitecture.config.commons.directory-model :as directory]))
 
 (def LiferayApp
   "Represents a liferay application (portlet, theme or the portal itself)."

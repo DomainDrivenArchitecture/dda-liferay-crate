@@ -26,7 +26,7 @@
     [org.domaindrivenarchitecture.pallet.crate.upgrade :as upgrade]
     [org.domaindrivenarchitecture.pallet.crate.config :as config]
     [org.domaindrivenarchitecture.pallet.crate.mysql :as mysql]
-    [org.domaindrivenarchitecture.pallet.crate.base.directory-model :as dir-model]
+    [org.domaindrivenarchitecture.config.commons.directory-model :as dir-model]
     ; Liferay Dependecies
     [org.domaindrivenarchitecture.pallet.crate.liferay.db :as db]
     [org.domaindrivenarchitecture.pallet.crate.liferay.web :as web]
@@ -38,6 +38,7 @@
     ; Backup Dependency
     [org.domaindrivenarchitecture.pallet.crate.backup :as backup]
     ; Tomcat Dependency
+    [org.domaindrivenarchitecture.pallet.crate.tomcat :as tomcat]
     [org.domaindrivenarchitecture.pallet.crate.tomcat.app :as tomcat-app]
     [org.domaindrivenarchitecture.pallet.crate.tomcat.app-config :as tomcat-config]
     ))
@@ -84,11 +85,7 @@ right-most app wins."
                (s/optional-key :app-port) s/Str
                (s/optional-key :google-id) s/Str
                (s/optional-key :maintainance-page-content) [s/Str]})
-     :tomcat {:Xmx s/Str
-              :Xms s/Str
-              :MaxPermSize s/Str
-              :home-dir dir-model/NonRootDirectory
-              :webapps-dir dir-model/NonRootDirectory}
+     :tomcat tomcat/TomcatConfig
      :backup backup/BackupConfig
      ; Liferay Configuration
      :instance-name s/Str   

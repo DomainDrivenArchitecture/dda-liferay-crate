@@ -22,7 +22,7 @@
     [pallet.stevedore :as stevedore]
     [pallet.script.scriptlib :as lib]
     [pallet.stevedore.bash :as bash]
-    [org.domaindrivenarchitecture.pallet.crate.base.directory-model :as dir-model]
+    [org.domaindrivenarchitecture.config.commons.directory-model :as dir-model]
     [org.domaindrivenarchitecture.pallet.crate.mysql :as mysql]
     [org.domaindrivenarchitecture.pallet.crate.liferay.release-model :as schema]))
 

@@ -21,7 +21,7 @@
      [schema-tools.core :as st]
      [pallet.actions :as actions]
      [schema.experimental.complete :as c]
-     [org.domaindrivenarchitecture.pallet.crate.base.directory-model :as dir-model]
+     [org.domaindrivenarchitecture.config.commons.directory-model :as dir-model]
      [org.domaindrivenarchitecture.pallet.crate.liferay.release-model :as schema]
      [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as app-config]
      [org.domaindrivenarchitecture.pallet.crate.liferay.db-replace-scripts :as db-replace-scripts]
