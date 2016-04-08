@@ -25,13 +25,14 @@
     [org.domaindrivenarchitecture.pallet.crate.versions :as versions]
     [org.domaindrivenarchitecture.pallet.crate.upgrade :as upgrade]
     [org.domaindrivenarchitecture.pallet.crate.config :as config]
+    [org.domaindrivenarchitecture.pallet.crate.mysql :as mysql]
     [org.domaindrivenarchitecture.pallet.crate.base.directory-model :as dir-model]
     ; Liferay Dependecies
     [org.domaindrivenarchitecture.pallet.crate.liferay.db :as db]
     [org.domaindrivenarchitecture.pallet.crate.liferay.web :as web]
     [org.domaindrivenarchitecture.pallet.crate.liferay.app :as liferay-app]
     [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as liferay-config]
-    [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]
+    [org.domaindrivenarchitecture.pallet.crate.liferay.release-model :as schema]
     ; Webserver Dependecy
     [httpd.crate.apache2 :as apache2]
     ; Backup Dependency
@@ -65,7 +66,8 @@ right-most app wins."
 (def LiferayConfig
   "The configuration for liferay crate." 
   (merge
-    {:httpd (s/conditional 
+    {:db mysql/DbConfig
+     :httpd (s/conditional 
               #(= (:letsencrypt %) true)
               {:letsencrypt (s/eq true) 
                :letsencrypt-mail s/Str
@@ -95,13 +97,12 @@ right-most app wins."
      :deploy-dir dir-model/NonRootDirectory
      :third-party-download-root-dir s/Str
      (s/optional-key :fqdn-to-be-replaced) s/Str}
-    schema/DbConfig
     schema/LiferayReleaseConfig))
 
 
 (s/defn default-release
   "The default release configuration."
-  [db-config :- schema/DbConfig]
+  [db-config :- mysql/DbConfig]
  {:name "LiferayCE"
   :version [6 2 1]
   :app ["ROOT" "http://iweb.dl.sourceforge.net/project/lportal/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"]
@@ -181,7 +182,6 @@ right-most app wins."
   [app-name partial-config]
   (let [config (merge-config partial-config)]
     (liferay-app/prepare-rollout
-      (st/select-schema config schema/DbConfig)
       (st/select-schema config schema/LiferayReleaseConfig))
   ))
 

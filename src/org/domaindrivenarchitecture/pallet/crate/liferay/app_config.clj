@@ -23,7 +23,8 @@
     [pallet.script.scriptlib :as lib]
     [pallet.stevedore.bash :as bash]
     [org.domaindrivenarchitecture.pallet.crate.base.directory-model :as dir-model]
-    [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]))
+    [org.domaindrivenarchitecture.pallet.crate.mysql :as mysql]
+    [org.domaindrivenarchitecture.pallet.crate.liferay.release-model :as schema]))
 
 (defn usr-share-tomcat7-bin-setenv-sh
   [&{:keys [Xmx MaxPermSize]
@@ -278,7 +279,7 @@
 
 (s/defn portal-ext-properties
   "creates the default portal-ext.properties for mySql."
-  [db-config :- schema/DbConfig]
+  [db-config :- mysql/DbConfig]
   ["#"
    "# Techbase"
    "#"
@@ -289,10 +290,10 @@
    "# MySQL"
    "#"
    "jdbc.default.driverClassName=com.mysql.jdbc.Driver"
-   (str "jdbc.default.url=jdbc:mysql://localhost:3306/" (st/get-in db-config [:db :db-name]) 
+   (str "jdbc.default.url=jdbc:mysql://localhost:3306/" (st/get-in db-config [:db-name]) 
         "?useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false")
-   (str "jdbc.default.username=" (st/get-in db-config [:db :user-name]))
-   (str "jdbc.default.password=" (st/get-in db-config [:db :user-passwd]))
+   (str "jdbc.default.username=" (st/get-in db-config [:user-name]))
+   (str "jdbc.default.password=" (st/get-in db-config [:user-passwd]))
    "#"
    "# C3PO" 
    "#"

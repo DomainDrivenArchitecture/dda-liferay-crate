@@ -26,7 +26,7 @@
     [pallet.stevedore :as stevedore]
     [pallet.actions :as actions]
     [org.domaindrivenarchitecture.pallet.plan-test-utils :as tu]
-    [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]
+    [org.domaindrivenarchitecture.pallet.crate.liferay.release-model :as schema]
     [org.domaindrivenarchitecture.pallet.crate.liferay.app :as sut]))
 
 (deftest test-release-name
@@ -127,8 +127,7 @@
     "test the good case"
     (let [plan (build-actions/build-actions
                  build-actions/ubuntu-session         
-                 (sut/prepare-rollout 
-                   (c/complete {} schema/DbConfig)
+                 (sut/prepare-rollout
                    {:release-dir "/somedir/"
                     :releases [(c/complete {:config ["123" "2" "3"]} schema/LiferayRelease)]}))]
       (is 

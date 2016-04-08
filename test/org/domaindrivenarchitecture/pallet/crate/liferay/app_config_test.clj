@@ -108,9 +108,9 @@
     "test the good case"
     (is (= portal-ext-properties-with-all-keys
            (sut/portal-ext-properties 
-             {:db {:db-name "my-db-name"
-                   :user-name "my_db_user_name" 
-                   :user-passwd "my_db_user_passwd"}})))
+             {:db-name "my-db-name"
+               :user-name "my_db_user_name" 
+               :user-passwd "my_db_user_passwd"})))
     )
   )
 

@@ -20,15 +20,16 @@
     [clojure.set :as cloj-set]
     [schema.core :as s]
     [schema.experimental.complete :as c]
+    [org.domaindrivenarchitecture.pallet.crate.mysql :as mysql]
+    [org.domaindrivenarchitecture.pallet.crate.liferay.release-model :as schema]
     [org.domaindrivenarchitecture.pallet.crate.liferay :as sut]
-    [org.domaindrivenarchitecture.pallet.crate.liferay.schema :as schema]
     ))
 
 (def release-definition
   (c/complete {:app ["name" "download-url"]} schema/LiferayRelease))
 
 (def db-definition
-  (c/complete {} schema/DbConfig))
+  (c/complete {} mysql/DbConfig))
  
  (deftest defaults
   (testing 

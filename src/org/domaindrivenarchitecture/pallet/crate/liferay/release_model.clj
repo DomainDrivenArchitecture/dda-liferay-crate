@@ -14,18 +14,11 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-(ns org.domaindrivenarchitecture.pallet.crate.liferay.schema
+(ns org.domaindrivenarchitecture.pallet.crate.liferay.release-model
    (:require [clojure.string :as string]
              [schema.core :as s :include-macros true]
              [org.domaindrivenarchitecture.pallet.crate.base.version-model :as version]
              [org.domaindrivenarchitecture.pallet.crate.base.directory-model :as directory]))
-
-(def DbConfig
-  "Represents the database configuration."
-  {:db {:root-passwd s/Str
-        :db-name s/Str
-        :user-name s/Str
-        :user-passwd s/Str}})
 
 (def LiferayApp
   "Represents a liferay application (portlet, theme or the portal itself)."
