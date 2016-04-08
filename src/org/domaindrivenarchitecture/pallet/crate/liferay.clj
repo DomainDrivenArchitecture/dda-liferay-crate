@@ -136,7 +136,7 @@ right-most app wins."
               :elements [{:type :file-compressed
                           :name "letsencrypt"
                           :root-dir "/etc/letsencrypt/"
-                          :subdir-to-save "accounts csr keys renewal"}
+                          :subdir-to-save "accounts csr keys renewal live"}
                          {:type :file-compressed
                           :name "liferay"
                           :root-dir "/var/lib/liferay/data/"
