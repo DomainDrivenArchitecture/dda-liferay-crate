@@ -10,7 +10,7 @@
                  [com.palletops/pallet "0.8.11"]
                  [com.palletops/stevedore "0.8.0-beta.7"]
                  [com.palletops/git-crate "0.8.0-alpha.2" :exclusions [org.clojure/clojure]]
-                 [org.domaindrivenarchitecture/dda-config-commons "0.1.0"]
+                 [org.domaindrivenarchitecture/dda-config-commons "0.1.1-SNAPSHOT"]
                  [org.domaindrivenarchitecture/dda-config-crate "0.3.1"]
                  [org.domaindrivenarchitecture/dda-basic-crate "0.3.0"]
                  [org.domaindrivenarchitecture/dda-collected-crate "0.3.0"]

@@ -27,6 +27,7 @@
     [org.domaindrivenarchitecture.pallet.crate.config :as config]
     [org.domaindrivenarchitecture.pallet.crate.mysql :as mysql]
     [org.domaindrivenarchitecture.config.commons.directory-model :as dir-model]
+    [org.domaindrivenarchitecture.config.commons.map-utils :as map-utils]
     ; Liferay Dependecies
     [org.domaindrivenarchitecture.pallet.crate.liferay.db :as db]
     [org.domaindrivenarchitecture.pallet.crate.liferay.web :as web]
@@ -158,7 +159,7 @@ right-most app wins."
 (s/defn ^:always-validate merge-config :- LiferayConfig
   "merges the partial config with default config & ensures that resulting config is valid."
   [partial-config]
-  (config/deep-merge (default-liferay-config) partial-config))
+  (map-utils/deep-merge (default-liferay-config) partial-config))
 
 (s/defn ^:always-validate merge-releases :- schema/LiferayRelease
   "Merges multiple liferay releases into a combined one. All non-app keys are from the right-most
