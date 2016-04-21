@@ -25,7 +25,8 @@
     [schema.experimental.complete :as c]
     [pallet.stevedore :as stevedore]
     [pallet.actions :as actions]
-    [org.domaindrivenarchitecture.pallet.plan-test-utils :as tu]
+    [org.domaindrivenarchitecture.pallet.commons.stevedore-test]
+    [org.domaindrivenarchitecture.pallet.commons.plan-test-utils :as tu]
     [org.domaindrivenarchitecture.pallet.crate.liferay.release-model :as schema]
     [org.domaindrivenarchitecture.pallet.crate.liferay.app :as sut]))
 
