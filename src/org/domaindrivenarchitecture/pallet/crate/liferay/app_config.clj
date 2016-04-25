@@ -315,7 +315,8 @@
   [prepare-dir :- dir-model/NonRootDirectory 
    deploy-dir :- dir-model/NonRootDirectory
    tomcat-dir :- dir-model/NonRootDirectory]
-  (let [application-parts ["app" "hooks" "layouts" "portlets" "themes"]]
+  (let [application-parts-hot ["hooks" "layouts" "portlets" "themes"]
+        application-parts-full ["app" "hooks" "layouts" "portlets" "themes"]]
     (stevedore/with-script-language :pallet.stevedore.bash/bash
       (stevedore/with-source-line-comments false 
         (stevedore/script 
@@ -339,13 +340,13 @@
           (if (directory? (str ~prepare-dir @1))
             (if (= @2 "hot") 
               (do
-                (doseq [part ~application-parts]
+                (doseq [part ~application-parts-hot]
                   ("cp" (str ~prepare-dir @1 "/" @part "/*") ~deploy-dir))
                 ("chown tomcat7" (str ~deploy-dir "*")))
               (do
                 ("service tomcat7 stop")
                 ("rm -rf" (str ~tomcat-dir "*"))
-                (doseq [part ~application-parts]
+                (doseq [part ~application-parts-full]
                   ("cp" (str ~prepare-dir @1 "/" @part "/*") ~tomcat-dir))
                 ("unzip" (str ~tomcat-dir "ROOT.war -d " ~tomcat-dir "ROOT/"))
                 ("cp" (str ~prepare-dir @1 "/config/portal-ext.properties") (str ~tomcat-dir "ROOT/WEB-INF/classes/"))

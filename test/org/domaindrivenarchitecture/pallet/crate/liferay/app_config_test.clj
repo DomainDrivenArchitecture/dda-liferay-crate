@@ -138,7 +138,7 @@
              "fi"
              "if [ -d /var/lib/liferay/prepare-rollout/${1} ]; then"
              "if [ \"${2}\" == \"hot\" ]; then"
-             "for part in app hooks layouts portlets themes; do"
+             "for part in hooks layouts portlets themes; do"
              "cp /var/lib/liferay/prepare-rollout/${1}/${part}/* /var/lib/liferay/deploy/"
              "done"
              "chown tomcat7 /var/lib/liferay/deploy/*"
