@@ -34,7 +34,7 @@
     [org.domaindrivenarchitecture.pallet.crate.liferay.app :as liferay-app]
     [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as liferay-config]
     [org.domaindrivenarchitecture.pallet.crate.liferay.release-model :as schema]
-    ; Webserver Dependecy
+    ; Webserver Dependency
     [httpd.crate.apache2 :as apache2]
     ; Backup Dependency
     [org.domaindrivenarchitecture.pallet.crate.backup :as backup]

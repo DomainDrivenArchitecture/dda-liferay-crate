@@ -133,9 +133,10 @@
     (let [dir (str release-dir (name key) "/")]
       (liferay-dir dir :owner "root")
       (case key
-        :app (let [app (st/get-in release [:app])]
+        :app (let [app (st/get-in release [:app])
+                   app-name (subs (second app) (+ 1 (.lastIndexOf (second app) "/")))]
                (liferay-remote-file 
-                 (str dir (first app) ".war") 
+                 app-name 
                  (second app)
                  :owner "root"))
         :config (liferay-config-file

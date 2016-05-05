@@ -68,10 +68,10 @@
           (build-actions/build-actions
             build-actions/ubuntu-session         
             (sut/download-and-store-applications "/somedir/"
-                                                 (c/complete {:app ["appname" "http://url"]} schema/LiferayRelease) 
+                                                 (c/complete {:app ["appId" "http://url/app.6.0.1.war"]} schema/LiferayRelease) 
                                                  :app))
              1)
-        "appname.war"
+        "app.6.0.1.war"
         )))
   (testing 
     "multi app"
@@ -79,19 +79,19 @@
             build-actions/ubuntu-session         
             (sut/download-and-store-applications "/somedir/" 
                                                  (c/complete
-                                                   {:portlets [["appname1" "url"]
-                                                    ["appname2" "url"]]}
+                                                   {:portlets [["appId1" "http://url/app1.6.0.1.war"]
+                                                    ["appId2" "http://urls/app2.6.0.2.war"]]}
                                                    schema/LiferayRelease) 
                                                  :portlets))]
       (is 
         (.contains 
           (tu/extract-nth-action-command actions 1)
-          "appname1.war"
+          "app1.6.0.1.war"
           ))
       (is 
         (.contains 
           (tu/extract-nth-action-command actions 2)
-          "appname2.war"
+          "app2.6.0.2.war"
           ))
     ))
   )
