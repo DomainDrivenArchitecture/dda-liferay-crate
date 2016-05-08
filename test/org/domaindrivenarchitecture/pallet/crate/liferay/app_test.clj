@@ -60,38 +60,54 @@
 (deftest test-good-download-and-store
   "test the good case"
   []
-  (testing 
-    "one app"
+   (testing 
+    "one app: portal - fixed name"
     (is 
       (.contains 
         (tu/extract-nth-action-command
           (build-actions/build-actions
             build-actions/ubuntu-session         
             (sut/download-and-store-applications "/somedir/"
-                                                 (c/complete {:app ["appId" "http://url/app.6.0.1.war"]} schema/LiferayRelease) 
+                                                 (c/complete {:app ["appname" "http://url"]} schema/LiferayRelease) 
                                                  :app))
              1)
-        "app.6.0.1.war"
+        "appname.war"
         )))
   (testing 
-    "multi app"
+    "one app: portlet - name by convention"
     (let [actions (build-actions/build-actions
             build-actions/ubuntu-session         
             (sut/download-and-store-applications "/somedir/" 
                                                  (c/complete
-                                                   {:portlets [["appId1" "http://url/app1.6.0.1.war"]
-                                                    ["appId2" "http://urls/app2.6.0.2.war"]]}
+                                                   {:portlets [["portletA" "url/portletA.6.2.0.1.war"]]}
                                                    schema/LiferayRelease) 
                                                  :portlets))]
       (is 
         (.contains 
           (tu/extract-nth-action-command actions 1)
-          "app1.6.0.1.war"
+          "portletA.6.2.0.1.war"
+          ))
+    ))
+  (testing 
+    "two apps: portlets - name by convention"
+    (let [actions (build-actions/build-actions
+            build-actions/ubuntu-session         
+            (sut/download-and-store-applications "/somedir/" 
+                                                 (c/complete
+                                                   {:portlets 
+                                                    [["portletA" "url/portletA.6.2.0.1.war"]
+                                                     ["portletB" "url/portletB.6.2.0.1.war"]]}
+                                                   schema/LiferayRelease) 
+                                                 :portlets))]
+      (is 
+        (.contains 
+          (tu/extract-nth-action-command actions 1)
+          "portletA.6.2.0.1.war"
           ))
       (is 
         (.contains 
           (tu/extract-nth-action-command actions 2)
-          "app2.6.0.2.war"
+          "portletB.6.2.0.1.war"
           ))
     ))
   )

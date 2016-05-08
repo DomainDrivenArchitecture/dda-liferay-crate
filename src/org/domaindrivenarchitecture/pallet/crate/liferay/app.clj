@@ -133,21 +133,23 @@
     (let [dir (str release-dir (name key) "/")]
       (liferay-dir dir :owner "root")
       (case key
-        :app (let [app (st/get-in release [:app])
-                   app-name (subs (second app) (+ 1 (.lastIndexOf (second app) "/")))]
+        :app (let [app (st/get-in release [:app])]
                (liferay-remote-file 
-                 app-name 
+                 (str dir (first app) ".war") 
                  (second app)
                  :owner "root"))
         :config (liferay-config-file
                   (str dir "portal-ext.properties") 
                   (st/get-in release [:config]))
-        (doseq [app (st/get-in release [key])]
-          (liferay-remote-file 
-            (str dir (first app) ".war") 
-            (second app)
-            :owner "root"))))
+        (:hooks :layouts :themes :portlets) (doseq [app (st/get-in release [key])]
+                                              (let [app-name (subs (second app) (+ 1 (.lastIndexOf (second app) "/")))]
+                                                (liferay-remote-file 
+                                                  app-name
+                                                  (second app)
+                                                  :owner "root")))
+        ))
     ))
+
 
 (s/defn ^:always-validate install-do-rollout-script
   "Creates script for rolling liferay version. To be called by the admin connected to the server via ssh"
