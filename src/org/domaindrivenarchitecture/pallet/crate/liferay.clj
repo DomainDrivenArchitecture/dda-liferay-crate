@@ -68,24 +68,25 @@ right-most app wins."
 (def LiferayConfig
   "The configuration for liferay crate." 
   (merge
-    {:db mysql/DbConfig
-     :httpd (s/conditional 
-              #(= (:letsencrypt %) true)
-              {:letsencrypt (s/eq true) 
-               :letsencrypt-mail s/Str
-               :fqdn s/Str
-               (s/optional-key :app-port) s/Str
-               (s/optional-key :google-id) s/Str
-               (s/optional-key :maintainance-page-content) [s/Str]}
-              #(= (:letsencrypt %) false)
-              {:letsencrypt (s/eq false) 
-               :domain-cert s/Str 
-               :domain-key s/Str 
-               (s/optional-key :ca-cert) s/Str
-               :fqdn s/Str
-               (s/optional-key :app-port) s/Str
-               (s/optional-key :google-id) s/Str
-               (s/optional-key :maintainance-page-content) [s/Str]})
+    {:db mysql/DbConfig 
+     (s/optional-key :httpd) 
+     (s/conditional
+       #(= (:letsencrypt %) true)
+       {:letsencrypt (s/eq true) 
+        :letsencrypt-mail s/Str
+        :fqdn s/Str
+        (s/optional-key :app-port) s/Str
+        (s/optional-key :google-id) s/Str
+        (s/optional-key :maintainance-page-content) [s/Str]}
+       #(= (:letsencrypt %) false)
+       {:letsencrypt (s/eq false) 
+        :domain-cert s/Str 
+        :domain-key s/Str 
+        (s/optional-key :ca-cert) s/Str
+        :fqdn s/Str
+        (s/optional-key :app-port) s/Str
+        (s/optional-key :google-id) s/Str
+        (s/optional-key :maintainance-page-content) [s/Str]})
      :tomcat tomcat/TomcatConfig
      :backup backup/BackupConfig
      ; Liferay Configuration
@@ -94,7 +95,8 @@ right-most app wins."
      :lib-dir dir-model/NonRootDirectory
      :deploy-dir dir-model/NonRootDirectory
      :third-party-download-root-dir s/Str
-     (s/optional-key :fqdn-to-be-replaced) s/Str}
+     (s/optional-key :fqdn-to-be-replaced) s/Str
+     (s/optional-key :disabled-tiers) [s/Keyword]}
     schema/LiferayReleaseConfig))
 
 
@@ -106,7 +108,7 @@ right-most app wins."
   :app ["ROOT" "http://iweb.dl.sourceforge.net/project/lportal/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"]
   :config (liferay-config/portal-ext-properties db-config)})
 
-(defn default-liferay-config
+(defn default-liferay-config-without-httpd
   "Liferay Crate Default Configuration"
   []
   (let [db-config {:root-passwd "test1234"
@@ -116,11 +118,6 @@ right-most app wins."
         fqdn "localhost.localdomain"]
     {; Database Configuration
      :db db-config
-     ; Webserver Configuration
-     :httpd {:letsencrypt true
-             :fqdn fqdn
-             :app-port "8009"
-             :maintainance-page-content ["<h1>Webserver Maintainance Mode</h1>"]}
      ; Tomcat Configuration
      :tomcat {:Xmx "1024m"
               :Xms "256m"
@@ -156,10 +153,24 @@ right-most app wins."
      :release-dir "/var/lib/liferay/prepare-rollout/"
      :releases [(default-release db-config)]}))
 
+(defn default-liferay-config
+  "Liferay Crate Default Configuration"
+  []
+  (let [fqdn "localhost.localdomain"]
+    (merge 
+      (default-liferay-config-without-httpd)
+      {; Webserver Configuration
+       :httpd {:letsencrypt true
+               :fqdn fqdn
+               :app-port "8009"
+               :maintainance-page-content ["<h1>Webserver Maintainance Mode</h1>"]}})))
+
 (s/defn ^:always-validate merge-config :- LiferayConfig
   "merges the partial config with default config & ensures that resulting config is valid."
-  [partial-config]
-  (map-utils/deep-merge (default-liferay-config) partial-config))
+  ([partial-config]
+    (map-utils/deep-merge (default-liferay-config) partial-config))
+  ([partial-config disable-httpd]
+    (map-utils/deep-merge (default-liferay-config-without-httpd) partial-config)))
 
 (s/defn ^:always-validate merge-releases :- schema/LiferayRelease
   "Merges multiple liferay releases into a combined one. All non-app keys are from the right-most

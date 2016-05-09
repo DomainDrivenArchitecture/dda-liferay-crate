@@ -31,7 +31,7 @@
 (def db-definition
   (c/complete {} mysql/DbConfig))
  
- (deftest defaults
+ (deftest test-liferay-release-schema
   (testing 
     "test the default release definition" 
       (is (s/validate
@@ -46,7 +46,7 @@
              :releases [release-definition]}))
       ))
  
- (deftest config-validation
+ (deftest test-liferay-schema
   (testing 
     "test wheter merged config are validated" 
       (is (thrown? clojure.lang.ExceptionInfo
@@ -64,6 +64,10 @@
                                        :domain-cert "cert"
                                        :domain-key "key"}
                                :tomcat {:Xmx "123"}})))
+      (is (map? 
+            (sut/merge-config {:third-party-download-root-dir "download root"
+                               :tomcat {:Xmx "123"}}
+                              true)))
       ))
  
 (def release-test-a
