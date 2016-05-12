@@ -204,7 +204,6 @@
   "creates liferay directories, copies liferay webapp into tomcat and loads dependencies into tomcat"
   (create-liferay-directories liferay-home-dir liferay-lib-dir (st/get-in liferay-release-config [:release-dir]) liferay-deploy-dir)
   (liferay-dependencies-into-tomcat liferay-lib-dir repo-download-source)
-  (liferay-dependencies-into-tomcat liferay-lib-dir repo-download-source)
   (install-do-rollout-script liferay-home-dir (st/get-in liferay-release-config [:release-dir]) liferay-deploy-dir tomcat-webapps-dir)
   )
 
