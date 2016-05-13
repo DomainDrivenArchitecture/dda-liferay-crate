@@ -144,7 +144,7 @@
         (:hooks :layouts :themes :portlets) (doseq [app (st/get-in release [key])]
                                               (let [app-name (subs (second app) (+ 1 (.lastIndexOf (second app) "/")))]
                                                 (liferay-remote-file 
-                                                  app-name
+                                                  (str dir app-name)
                                                   (second app)
                                                   :owner "root")))
         ))
