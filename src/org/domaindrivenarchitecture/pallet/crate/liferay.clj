@@ -24,7 +24,7 @@
     [org.domaindrivenarchitecture.pallet.crate.basecrate :refer :all]
     [org.domaindrivenarchitecture.pallet.crate.versions :as versions]
     [org.domaindrivenarchitecture.pallet.crate.upgrade :as upgrade]
-    [org.domaindrivenarchitecture.pallet.crate.config :as config]
+    [org.domaindrivenarchitecture.pallet.crate.config-0-3 :as config]
     [org.domaindrivenarchitecture.pallet.crate.mysql :as mysql]
     [org.domaindrivenarchitecture.config.commons.directory-model :as dir-model]
     [org.domaindrivenarchitecture.config.commons.map-utils :as map-utils]

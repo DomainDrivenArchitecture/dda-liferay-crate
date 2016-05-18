@@ -112,11 +112,13 @@
       (liferay-remote-file target-file download-location)))
   )
 
+;TODO: review 2016.05.17: move to release-model
 (s/defn ^:allwas-validate release-name :- s/Str
   "get the release dir name"
-  [release :- schema/LiferayRelease ]
+  [release :- schema/LiferayRelease]
   (str (st/get-in release [:name]) "-" (string/join "." (st/get-in release [:version]))))
 
+;TODO: review 2016.05.17: move to release-model
 (s/defn ^:allwas-validate release-dir :- dir-model/NonRootDirectory
   "get the release dir name"
   [base-release-dir :- dir-model/NonRootDirectory
