@@ -19,6 +19,7 @@
 
 (ns org.domaindrivenarchitecture.pallet.crate.liferay.web
   (:require
+    ; TODO: review jem: 2016_05_25: pls move all httpd.* dependencies to dda-httpd-crate    
     [httpd.crate.apache2 :as apache2]
     [httpd.crate.vhost :as vhost]
     [httpd.crate.config :as httpd-config]

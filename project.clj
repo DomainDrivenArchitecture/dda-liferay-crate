@@ -17,6 +17,7 @@
                  [org.domaindrivenarchitecture/dda-backup-crate "0.3.3-SNAPSHOT"]
                  [org.domaindrivenarchitecture/dda-tomcat-crate "0.1.4-SNAPSHOT"]
                  [org.domaindrivenarchitecture/dda-mysql-crate "0.1.3-SNAPSHOT"]
+                 ; TODO: review jem: 2016_05_25: pls move all httpd.* dependencies to dda-httpd-crate
                  [org.domaindrivenarchitecture/httpd "0.2.2"]]
   :repositories [["snapshots" :clojars]
                  ["releases" :clojars]]

@@ -40,6 +40,7 @@
     [org.domaindrivenarchitecture.pallet.crate.backup :as backup]
     ; Tomcat Dependency
     [org.domaindrivenarchitecture.pallet.crate.tomcat :as tomcat]
+    [org.domaindrivenarchitecture.pallet.crate.httpd :as httpd]
     [org.domaindrivenarchitecture.pallet.crate.tomcat.app :as tomcat-app]
     [org.domaindrivenarchitecture.pallet.crate.tomcat.app-config :as tomcat-config]
     ))
@@ -69,32 +70,14 @@ right-most app wins."
   "The configuration for liferay crate." 
   (merge
     {:db mysql/DbConfig 
-     (s/optional-key :httpd) 
-     (s/conditional
-       #(= (:letsencrypt %) true)
-       {:letsencrypt (s/eq true) 
-        :letsencrypt-mail s/Str
-        :fqdn s/Str
-        (s/optional-key :app-port) s/Str
-        (s/optional-key :google-id) s/Str
-        (s/optional-key :maintainance-page-content) [s/Str]}
-       #(= (:letsencrypt %) false)
-       {:letsencrypt (s/eq false) 
-        :domain-cert s/Str 
-        :domain-key s/Str 
-        (s/optional-key :ca-cert) s/Str
-        :fqdn s/Str
-        (s/optional-key :app-port) s/Str
-        (s/optional-key :google-id) s/Str
-        (s/optional-key :maintainance-page-content) [s/Str]})
      :tomcat tomcat/TomcatConfig
      :backup backup/BackupConfig
-     ; Liferay Configuration
      :instance-name s/Str   
      :home-dir dir-model/NonRootDirectory
      :lib-dir dir-model/NonRootDirectory
      :deploy-dir dir-model/NonRootDirectory
      :third-party-download-root-dir s/Str
+     (s/optional-key :httpd) httpd/HttpdConfig
      (s/optional-key :fqdn-to-be-replaced) s/Str
      (s/optional-key :disabled-tiers) [s/Keyword]}
     schema/LiferayReleaseConfig))
