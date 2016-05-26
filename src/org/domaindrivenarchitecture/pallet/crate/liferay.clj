@@ -142,11 +142,9 @@ right-most app wins."
   (let [fqdn "localhost.localdomain"]
     (merge 
       (default-liferay-config-without-httpd)
-      {; Webserver Configuration
-       :httpd {:letsencrypt true
-               :fqdn fqdn
-               :app-port "8009"
-               :maintainance-page-content ["<h1>Webserver Maintainance Mode</h1>"]}})))
+      ; Webserver Configuration
+      httpd/default-httpd-webserver-configuration
+      )))
 
 (s/defn ^:always-validate merge-config :- LiferayConfig
   "merges the partial config with default config & ensures that resulting config is valid."

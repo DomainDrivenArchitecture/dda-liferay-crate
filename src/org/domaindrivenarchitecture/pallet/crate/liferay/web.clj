@@ -30,101 +30,24 @@
     [httpd.crate.common :as httpd-common]
     [httpd.crate.mod-rewrite :as rewrite]
     [httpd.crate.webserver-maintainance :as maintainance]
+    [org.domaindrivenarchitecture.pallet.crate.httpd :as httpd]
+    [schema-tools.core :as st]
+    [schema.core :as s]
     ))
 
-(defn liferay-vhost
-  [& {:keys [domain-name
-             letsencrypt
-             server-admin-email
-             app-port
-             google-id]}]
+(s/defn ^:always-validate liferay-vhost
+  [config :- httpd/VhostConfig]
   (into 
     []
     (concat
-      (vhost/vhost-head 
-        :listening-port "443"
-        :domain-name domain-name 
-        :server-admin-email server-admin-email)
-      (httpd-common/prefix 
-        "  " 
-        (into 
-          []
-          (concat
-            ["Alias /quiz/ \"/var/www/static/quiz/\""
-             ""]
-            (jk/vhost-jk-mount :path "/*")
-            (jk/vhost-jk-unmount :path "/quiz/*")
-            [""]
-            (google/vhost-ownership-verification 
-              :id google-id
-              :consider-jk true)
-            (maintainance/vhost-service-unavailable-error-page
-              :consider-jk true)
-            (vhost/vhost-log 
-              :error-name "error.log"
-              :log-name "ssl-access.log"
-              :log-format "combined")
-            (if letsencrypt
-              (gnutls/vhost-gnutls-letsencrypt domain-name)
-              (gnutls/vhost-gnutls domain-name))
-            )))
-      vhost/vhost-tail
+      (httpd/vhost-head-wrapper config)
+      (httpd/prefix-wrapper config)
+      httpd/vhost-tail-wrapper
       )
     )
   )
 
-(defn install-webserver
-   []
-  (apache2/install-apache2-action)
-  (apache2/install-apachetop-action)
-  (gnutls/install-mod-gnutls)
-  (jk/install-mod-jk)
-  (rewrite/install-mod-rewrite))
 
-(defn configure-webserver
-  [& {:keys [name
-             letsencrypt
-             domain-name 
-             domain-cert 
-             domain-key 
-             ca-cert
-             user-credentials
-             app-port ;todo: this is not used...
-             google-id
-             maintainance-page-content]}]
-  
-  (apache2/config-apache2-production-grade
-    :security 
-    httpd-config/security)
-  
-  (if-not letsencrypt
-	  (gnutls/configure-gnutls-credentials
-	    :domain-name domain-name
-	    :domain-cert domain-cert
-	    :domain-key domain-key
-	    :ca-cert ca-cert))
-  
-  (jk/configure-mod-jk-worker)
-  
-  (google/configure-ownership-verification :id google-id)
-    
-  (apache2/configure-and-enable-vhost
-    "000-default"
-    (vhost/vhost-conf-default-redirect-to-https-only
-      :domain-name domain-name
-      :server-admin-email (str "admin@" domain-name)))
-  
-  (apache2/configure-and-enable-vhost
-    "000-default-ssl"
-    (liferay-vhost
-      :letsencrypt letsencrypt
-      :domain-name domain-name
-      :server-admin-email (str "admin@" domain-name)
-      :google-id google-id))
-  
-    (maintainance/write-maintainance-file :content maintainance-page-content)
-  
-  )
 
 (defn configure-webserver-local
   []
