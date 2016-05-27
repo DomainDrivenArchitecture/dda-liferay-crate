@@ -35,19 +35,6 @@
     [schema.core :as s]
     ))
 
-(s/defn ^:always-validate liferay-vhost
-  [config :- httpd/VhostConfig]
-  (into 
-    []
-    (concat
-      (httpd/vhost-head-wrapper config)
-      (httpd/prefix-wrapper config)
-      httpd/vhost-tail-wrapper
-      )
-    )
-  )
-
-
 
 (defn configure-webserver-local
   []
