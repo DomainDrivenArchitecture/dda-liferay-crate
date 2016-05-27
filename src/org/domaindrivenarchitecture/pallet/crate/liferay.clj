@@ -143,8 +143,8 @@ right-most app wins."
     (merge 
       (default-liferay-config-without-httpd)
       ; Webserver Configuration
-      httpd/default-httpd-webserver-configuration
-      )))
+      {:httpd httpd/default-config})
+  ))
 
 (s/defn ^:always-validate merge-config :- LiferayConfig
   "merges the partial config with default config & ensures that resulting config is valid."
