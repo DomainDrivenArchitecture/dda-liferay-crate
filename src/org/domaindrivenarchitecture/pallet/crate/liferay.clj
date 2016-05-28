@@ -102,9 +102,9 @@ right-most app wins."
     {; Database Configuration
      :db db-config
      ; Tomcat Configuration
-     :tomcat {:Xmx "1024m"
-              :Xms "256m"
-              :MaxPermSize "512m"
+     :tomcat {:xmx "1024m"
+              :xms "256m"
+              :max-perm-size "512m"
               :home-dir "/var/lib/tomcat7/"
               :webapps-dir "/var/lib/tomcat7/webapps/"}
      :backup {:backup-name "service-name"
@@ -270,13 +270,13 @@ right-most app wins."
       :lines-ROOT-xml liferay-config/etc-tomcat7-Catalina-localhost-ROOT-xml
       :lines-etc-default-tomcat7 (tomcat-config/default-tomcat7 
                                    :Xmx (st/get-in config [:tomcat :Xmx])
-                                   :Xms (st/get-in config [:tomcat :Xms])
+                                   :xms (st/get-in config [:tomcat :xms])
                                    :MaxPermSize (st/get-in config [:tomcat :MaxPermSize])
                                    :jdk6 true)
       :lines-server-xml liferay-config/etc-tomcat7-server-xml
       :lines-setenv-sh (tomcat-config/setenv-sh
                          :Xmx (st/get-in config [:tomcat :Xmx])
-                         :Xms (st/get-in config [:tomcat :Xms])
+                         :xms (st/get-in config [:tomcat :xms])
                          :MaxPermSize (st/get-in config [:tomcat :MaxPermSize])
                          :jdk6 true)
       )
