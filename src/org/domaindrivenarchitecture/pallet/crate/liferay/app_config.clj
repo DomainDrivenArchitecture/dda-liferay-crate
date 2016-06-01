@@ -316,6 +316,7 @@
    deploy-dir :- dir-model/NonRootDirectory
    tomcat-dir :- dir-model/NonRootDirectory]
   (let [application-parts-hot ["hooks" "layouts" "portlets" "themes"]
+        ;TODO ext muss hinzugefügt werden
         application-parts-full ["app" "hooks" "layouts" "portlets" "themes"]]
     (stevedore/with-script-language :pallet.stevedore.bash/bash
       (stevedore/with-source-line-comments false 

@@ -27,6 +27,7 @@
 (def LiferayRelease
   "LiferayRelease relates a release name with specification of versioned apps."
   {:name s/Str
+   ;TODO add ext schema
    :version version/Version
    (s/optional-key :app) LiferayApp
    (s/optional-key :config) [s/Str]
