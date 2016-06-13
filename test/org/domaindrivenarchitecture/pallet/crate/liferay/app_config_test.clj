@@ -145,7 +145,7 @@
              "else"
              "service tomcat7 stop"
              "rm -rf /var/lib/tomcat7/webapps/*"
-             "for part in app hooks layouts portlets themes; do"
+             "for part in app hooks layouts portlets themes ext; do"
              "cp /var/lib/liferay/prepare-rollout/${1}/${part}/* /var/lib/tomcat7/webapps/"
              "done"
              "unzip /var/lib/tomcat7/webapps/ROOT.war -d /var/lib/tomcat7/webapps/ROOT/"

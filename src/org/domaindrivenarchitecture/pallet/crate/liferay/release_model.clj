@@ -35,6 +35,7 @@
    (s/optional-key :layouts) [LiferayApp]
    (s/optional-key :themes) [LiferayApp]
    (s/optional-key :portlets) [LiferayApp]
+   (s/optional-key :ext) [LiferayApp]
    })
 
 (def LiferayReleaseConfig
