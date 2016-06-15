@@ -25,6 +25,20 @@
     [org.domaindrivenarchitecture.pallet.crate.liferay :as sut]
     ))
 
+(def partial-config 
+ {:custom-config {:with-manager-webapps false}})
+
+(deftest config-test
+  (testing 
+    "test if the default config is valid"
+    (is (sut/merge-config partial-config))))
+
+(deftest server-spec
+  (testing 
+    "test the server spec" 
+      (is (map? sut/with-liferay))
+      ))
+
 (def release-definition
   (c/complete {:app ["name" "download-url"]} schema/LiferayRelease))
 

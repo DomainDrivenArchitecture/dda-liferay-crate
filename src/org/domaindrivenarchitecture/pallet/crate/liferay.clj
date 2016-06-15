@@ -170,7 +170,7 @@ right-most app wins."
   [app-name partial-config]
   (let [config (merge-config partial-config)]
     (liferay-app/prepare-rollout
-      (select-schema config schema/LiferayReleaseConfig))
+      (map-utils/filter-for-target-schema schema/LiferayReleaseConfig config))
   ))
 
 ; Liferay Backup: Install Routine
@@ -219,7 +219,7 @@ right-most app wins."
       (get-in config [:lib-dir])
       (get-in config [:deploy-dir])
       (get-in config [:third-party-download-root-dir])
-      (select-schema config schema/LiferayReleaseConfig))
+      (map-utils/filter-for-target-schema schema/LiferayReleaseConfig config))
     ; backup
     (backup/install app-name (get-in config [:backup]))
     ; do the initial rollout

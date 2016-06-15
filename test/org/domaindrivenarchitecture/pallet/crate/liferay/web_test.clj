@@ -18,7 +18,7 @@
   (:require
     [clojure.test :refer :all]
     [pallet.actions :as actions]
-    [org.domaindrivenarchitecture.pallet.crate.liferay.web :as sut]
+    ;[org.domaindrivenarchitecture.pallet.crate.liferay.web :as sut]
     ))
 
 (def ^:private vhost-debit
@@ -51,17 +51,3 @@
    "  GnuTLSKeyFile /etc/apache2/ssl.key/intermediate.intra.politaktiv.org.key"
    "  "
    "</VirtualHost>"])
-
-
-
-(deftest liferay-vhost
-  (testing 
-    "test the good case"
-    (is (= vhost-debit
-           (sut/liferay-vhost
-             :domain-name "intermediate.intra.politaktiv.org"
-             :server-admin-email "admin@politaktiv.org"
-             :app-port "8080"
-             :google-id "xyz")))
-    )
-  )
