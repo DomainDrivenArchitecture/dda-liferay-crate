@@ -17,7 +17,6 @@
 (ns org.domaindrivenarchitecture.pallet.crate.liferay
   (:require
     [schema.core :as s]
-    [schema-tools.core :as st]
     ; pallet
     [pallet.api :as api]
     ; Generic Dependencies
@@ -30,17 +29,16 @@
     [org.domaindrivenarchitecture.config.commons.map-utils :as map-utils]
     ; Liferay Dependecies
     [org.domaindrivenarchitecture.pallet.crate.liferay.db :as db]
-    [org.domaindrivenarchitecture.pallet.crate.liferay.web :as web]
     [org.domaindrivenarchitecture.pallet.crate.liferay.app :as liferay-app]
     [org.domaindrivenarchitecture.pallet.crate.liferay.app-config :as liferay-config]
     [org.domaindrivenarchitecture.pallet.crate.liferay.release-model :as schema]
     ; Webserver Dependency
-    [httpd.crate.apache2 :as apache2]
+    [org.domaindrivenarchitecture.pallet.crate.httpd :as httpd]
     ; Backup Dependency
     [org.domaindrivenarchitecture.pallet.crate.backup :as backup]
     ; Tomcat Dependency
     [org.domaindrivenarchitecture.pallet.crate.tomcat :as tomcat]
-    [org.domaindrivenarchitecture.pallet.crate.httpd :as httpd]
+    ; TODO: review jem 2016_06_15: remove access to tomcats internals
     [org.domaindrivenarchitecture.pallet.crate.tomcat.app :as tomcat-app]
     [org.domaindrivenarchitecture.pallet.crate.tomcat.app-config :as tomcat-config]
     ))
@@ -172,7 +170,7 @@ right-most app wins."
   [app-name partial-config]
   (let [config (merge-config partial-config)]
     (liferay-app/prepare-rollout
-      (st/select-schema config schema/LiferayReleaseConfig))
+      (select-schema config schema/LiferayReleaseConfig))
   ))
 
 ; Liferay Backup: Install Routine
@@ -187,16 +185,13 @@ right-most app wins."
   [app-name partial-config]
   (let [config (merge-config partial-config)]
     (liferay-app/install-do-rollout-script 
-      (st/get-in config [:home-dir])
-      (st/get-in config [:release-dir]) 
-      (st/get-in config [:deploy-dir])
-      (st/get-in config [:tomcat :webapps-dir]))
-    (when (st/get-in config [:httpd :letsencrypt])
-      (apache2/install-letsencrypt-action)
-      (apache2/install-letsencrypt-certs 
-        (st/get-in config [:httpd :fqdn])
-        :adminmail (st/get-in config [:httpd :letsencrypt-mail]))
-      )))
+      (get-in config [:home-dir])
+      (get-in config [:release-dir]) 
+      (get-in config [:deploy-dir])
+      (get-in config [:tomcat :webapps-dir]))
+    (when (get-in config [:httpd])
+      (httpd/install (get-in config [:httpd])))
+    ))
     
 
 ; Liferay App: Install Routine
@@ -206,31 +201,25 @@ right-most app wins."
     ; Upgrade
     (upgrade/upgrade-all-packages)
     ; Database
-    (db/install-database (st/get-in config [:db :root-passwd]))
+    (db/install-database (get-in config [:db :root-passwd]))
     (db/install-db-instance
-      :db-root-passwd (st/get-in config [:db :root-passwd])
-      :db-name (st/get-in config [:db :db-name])
-      :db-user-name (st/get-in config [:db :user-name])
-      :db-user-passwd (st/get-in config [:db :user-passwd]))
+      :db-root-passwd (get-in config [:db :root-passwd])
+      :db-name (get-in config [:db :db-name])
+      :db-user-name (get-in config [:db :user-name])
+      :db-user-passwd (get-in config [:db :user-passwd]))
     ; Webserver + Tomcat
-    (web/install-webserver)
+    (when (get-in config [:httpd])
+      (httpd/install (get-in config [:httpd])))
     (tomcat-app/install-tomcat7 :custom-java-version :6)
-    ; TODO: Move this to WebServer - install
-    (when (st/get-in config [:httpd :letsencrypt])
-      (apache2/install-letsencrypt-action)
-      (apache2/install-letsencrypt-certs 
-        (st/get-in config [:httpd :fqdn])
-        :adminmail (st/get-in config [:httpd :letsencrypt-mail]))
-      )
     ; Liferay Package
     (liferay-app/install-liferay 
-      (st/get-in config [:tomcat :home-dir])
-      (st/get-in config [:tomcat :webapps-dir])
-      (st/get-in config [:home-dir])
-      (st/get-in config [:lib-dir])
-      (st/get-in config [:deploy-dir])
-      (st/get-in config [:third-party-download-root-dir])
-      (st/select-schema config schema/LiferayReleaseConfig))
+      (get-in config [:tomcat :home-dir])
+      (get-in config [:tomcat :webapps-dir])
+      (get-in config [:home-dir])
+      (get-in config [:lib-dir])
+      (get-in config [:deploy-dir])
+      (get-in config [:third-party-download-root-dir])
+      (select-schema config schema/LiferayReleaseConfig))
     ; backup
     (backup/install app-name (get-in config [:backup]))
     ; do the initial rollout
@@ -249,46 +238,34 @@ right-most app wins."
   [app-name partial-config]
   (let [config (merge-config partial-config)]
     ; Webserver
-    ; TODO: review mje: if should reside in webserver ns & tested
-    (if (or (st/get-in config [:httpd :domain-key])
-            (st/get-in config [:httpd :letsencrypt]))
-      (web/configure-webserver  ; use https
-		     :name (st/get-in config [:instance-name])
-         :letsencrypt (st/get-in config [:httpd :letsencrypt])
-		     :domain-name (st/get-in config [:httpd :fqdn])
-		     :domain-cert (st/get-in config [:httpd :domain-cert])
-		     :domain-key (st/get-in config [:httpd :domain-key])
-		     :ca-cert (st/get-in config [:httpd :ca-cert])
-		     :app-port (st/get-in config [:httpd :app-port])
-		     :google-id (st/get-in config [:httpd :google-id])
-		     :maintainance-page-content (st/get-in config [:httpd :maintainance-page-content]))
-      (web/configure-webserver-local))
+    (when (get-in config [:httpd])
+      (httpd/configure (get-in config [:httpd])))
     
     ; Tomcat
     (tomcat-app/configure-tomcat7
       :lines-catalina-properties liferay-config/etc-tomcat7-catalina-properties
       :lines-ROOT-xml liferay-config/etc-tomcat7-Catalina-localhost-ROOT-xml
       :lines-etc-default-tomcat7 (tomcat-config/default-tomcat7 
-                                   :Xmx (st/get-in config [:tomcat :Xmx])
-                                   :xms (st/get-in config [:tomcat :xms])
-                                   :MaxPermSize (st/get-in config [:tomcat :MaxPermSize])
+                                   :Xmx (get-in config [:tomcat :Xmx])
+                                   :xms (get-in config [:tomcat :xms])
+                                   :MaxPermSize (get-in config [:tomcat :MaxPermSize])
                                    :jdk6 true)
       :lines-server-xml liferay-config/etc-tomcat7-server-xml
       :lines-setenv-sh (tomcat-config/setenv-sh
-                         :Xmx (st/get-in config [:tomcat :Xmx])
-                         :xms (st/get-in config [:tomcat :xms])
-                         :MaxPermSize (st/get-in config [:tomcat :MaxPermSize])
+                         :Xmx (get-in config [:tomcat :Xmx])
+                         :xms (get-in config [:tomcat :xms])
+                         :MaxPermSize (get-in config [:tomcat :MaxPermSize])
                          :jdk6 true)
       )
     
     ; Liferay
     (liferay-app/configure-liferay
       false
-      :db-name (st/get-in config [:db :db-name])
-      :db-user-name (st/get-in config [:db :user-name])
-      :db-user-passwd (st/get-in config [:db :user-passwd])
-      :fqdn-to-be-replaced (st/get-in config [:fqdn-to-be-replaced])
-      :fqdn-replacement (st/get-in config [:httpd :fqdn]))
+      :db-name (get-in config [:db :db-name])
+      :db-user-name (get-in config [:db :user-name])
+      :db-user-passwd (get-in config [:db :user-passwd])
+      :fqdn-to-be-replaced (get-in config [:fqdn-to-be-replaced])
+      :fqdn-replacement (get-in config [:httpd :fqdn]))
     ; Config
     (backup/configure app-name (get-in config [:backup]))  
     ))
