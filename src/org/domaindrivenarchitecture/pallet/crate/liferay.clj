@@ -100,11 +100,11 @@ right-most app wins."
     {; Database Configuration
      :db db-config
      ; Tomcat Configuration
-     :tomcat {:xmx "1024m"
-              :xms "256m"
-              :max-perm-size "512m"
-              :home-dir "/var/lib/tomcat7/"
-              :webapps-dir "/var/lib/tomcat7/webapps/"}
+     :tomcat (tomcat/merge-config {:java-vm-config 
+                                   {:xms "256m"
+                                    :xmx "1024m"
+                                    :max-perm-size "512m"
+                                    :jdk6 true}})
      :backup {:backup-name "service-name"
               :script-path "/usr/lib/dda-backup/"
               :gens-stored-on-source-system 1
