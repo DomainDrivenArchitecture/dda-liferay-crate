@@ -67,16 +67,16 @@
                    (let [config (sut/merge-config {:an-unexpected-key nil})])))
       (is (map? 
             (sut/merge-config {:third-party-download-root-dir "download root"
-                               :httpd {:letsencrypt false
-                                       :fqdn "fqdn"
-                                       :domain-cert "cert"
-                                       :domain-key "key"}})))
+                               :httpd {:domain-name "fqdn"
+                                       :cert-manual
+                                       {:domain-cert "cert"
+                                        :domain-key "key"}}})))
       (is (map? 
             (sut/merge-config {:third-party-download-root-dir "download root"
-                               :httpd {:letsencrypt false
-                                       :fqdn "fqdn"
+                               :httpd {:domain-name "fqdn"
+                                       :cert-manual {
                                        :domain-cert "cert"
-                                       :domain-key "key"}
+                                       :domain-key "key"}}
                                :tomcat {:Xmx "123"}})))
       (is (map? 
             (sut/merge-config {:third-party-download-root-dir "download root"
