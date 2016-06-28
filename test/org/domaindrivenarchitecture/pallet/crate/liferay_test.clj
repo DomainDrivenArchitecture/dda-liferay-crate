@@ -26,7 +26,8 @@
     ))
 
 (def partial-config 
- {:custom-config {:with-manager-webapps false}})
+ {:third-party-download-root-dir "some dir"
+  :tomcat {:custom-config {:with-manager-webapps false}}})
 
 (deftest config-test
   (testing 
@@ -65,23 +66,23 @@
     "test wheter merged config are validated" 
       (is (thrown? clojure.lang.ExceptionInfo
                    (let [config (sut/merge-config {:an-unexpected-key nil})])))
-      (is (map? 
-            (sut/merge-config {:third-party-download-root-dir "download root"
-                               :httpd {:domain-name "fqdn"
+      (is (sut/merge-config {:third-party-download-root-dir "download root"
+                             :httpd {:vhosts
+                                     {:default 
+                                      {:domain-name "fqdn"
                                        :cert-manual
                                        {:domain-cert "cert"
-                                        :domain-key "key"}}})))
-      (is (map? 
-            (sut/merge-config {:third-party-download-root-dir "download root"
-                               :httpd {:domain-name "fqdn"
-                                       :cert-manual {
-                                       :domain-cert "cert"
-                                       :domain-key "key"}}
-                               :tomcat {:Xmx "123"}})))
-      (is (map? 
-            (sut/merge-config {:third-party-download-root-dir "download root"
-                               :tomcat {:Xmx "123"}}
-                              true)))
+                                        :domain-key "key"}}}}}))
+      (is (sut/merge-config {:third-party-download-root-dir "download root"
+                             :httpd {:vhosts
+                                     {:default 
+                                      {:domain-name "fqdn"
+                                       :cert-manual {:domain-cert "cert"
+                                                     :domain-key "key"}}}}
+                             :tomcat {:java-vm-config {:xmx "123"}}}))
+      (is (sut/merge-config {:third-party-download-root-dir "download root"
+                             :tomcat {:java-vm-config {:xmx "123"}}}
+                            true))
       ))
  
 (def release-test-a
