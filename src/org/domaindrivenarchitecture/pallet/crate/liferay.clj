@@ -22,7 +22,7 @@
     ; Generic Dependencies
     [org.domaindrivenarchitecture.pallet.crate.basecrate :refer :all]
     [org.domaindrivenarchitecture.pallet.crate.versions :as versions]
-    [org.domaindrivenarchitecture.pallet.crate.upgrade :as upgrade]
+    [org.domaindrivenarchitecture.pallet.crate.package :as package]
     [org.domaindrivenarchitecture.pallet.crate.config-0-3 :as config]
     [org.domaindrivenarchitecture.pallet.crate.mysql :as mysql]
     [org.domaindrivenarchitecture.config.commons.directory-model :as dir-model]
@@ -199,7 +199,7 @@ right-most app wins."
   [app-name partial-config]
   (let [config (merge-config partial-config)]
     ; Upgrade
-    (upgrade/upgrade-all-packages)
+    (package/update-and-upgrade)
     ; Database
     (db/install-database (get-in config [:db :root-passwd]))
     (db/install-db-instance
