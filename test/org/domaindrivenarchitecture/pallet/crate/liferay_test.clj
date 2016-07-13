@@ -21,7 +21,7 @@
     [schema.core :as s]
     [schema.experimental.complete :as c]
     [org.domaindrivenarchitecture.pallet.crate.mysql :as mysql]
-    [org.domaindrivenarchitecture.pallet.crate.liferay.release-model :as schema]
+    [org.domaindrivenarchitecture.pallet.crate.liferay.release-model :as release-model]
     [org.domaindrivenarchitecture.pallet.crate.liferay :as sut]
     ))
 
@@ -34,100 +34,38 @@
     "test if the default config is valid"
     (is (sut/merge-config partial-config))))
 
+(def release-definition
+  (c/complete {:app ["name" "download-url"]} release-model/LiferayRelease))
+
+(def db-definition
+  (c/complete {} mysql/DbConfig))
+  
+(deftest test-liferay-schema
+ (testing 
+   "test wheter merged config are validated" 
+     (is (thrown? clojure.lang.ExceptionInfo
+                  (let [config (sut/merge-config {:an-unexpected-key nil})])))
+     (is (sut/merge-config {:third-party-download-root-dir "download root"
+                            :httpd {:vhosts
+                                    {:default 
+                                     {:domain-name "fqdn"
+                                      :cert-manual
+                                      {:domain-cert "cert"
+                                       :domain-key "key"}}}}}))
+     (is (sut/merge-config {:third-party-download-root-dir "download root"
+                            :httpd {:vhosts
+                                    {:default 
+                                     {:domain-name "fqdn"
+                                      :cert-manual {:domain-cert "cert"
+                                                    :domain-key "key"}}}}
+                            :tomcat {:java-vm-config {:xmx "123"}}}))
+     (is (sut/merge-config {:third-party-download-root-dir "download root"
+                            :tomcat {:java-vm-config {:xmx "123"}}}
+                           true))
+     ))
+
 (deftest server-spec
   (testing 
     "test the server spec" 
       (is (map? sut/with-liferay))
       ))
-
-(def release-definition
-  (c/complete {:app ["name" "download-url"]} schema/LiferayRelease))
-
-(def db-definition
-  (c/complete {} mysql/DbConfig))
- 
- (deftest test-liferay-release-schema
-  (testing 
-    "test the default release definition" 
-      (is (s/validate
-            schema/LiferayRelease
-            (sut/default-release db-definition)))
-      (is (s/validate
-            schema/LiferayRelease
-           release-definition))
-      (is (s/validate
-            schema/LiferayReleaseConfig
-            {:release-dir "/prepare-rollout/"
-             :releases [release-definition]}))
-      ))
- 
- (deftest test-liferay-schema
-  (testing 
-    "test wheter merged config are validated" 
-      (is (thrown? clojure.lang.ExceptionInfo
-                   (let [config (sut/merge-config {:an-unexpected-key nil})])))
-      (is (sut/merge-config {:third-party-download-root-dir "download root"
-                             :httpd {:vhosts
-                                     {:default 
-                                      {:domain-name "fqdn"
-                                       :cert-manual
-                                       {:domain-cert "cert"
-                                        :domain-key "key"}}}}}))
-      (is (sut/merge-config {:third-party-download-root-dir "download root"
-                             :httpd {:vhosts
-                                     {:default 
-                                      {:domain-name "fqdn"
-                                       :cert-manual {:domain-cert "cert"
-                                                     :domain-key "key"}}}}
-                             :tomcat {:java-vm-config {:xmx "123"}}}))
-      (is (sut/merge-config {:third-party-download-root-dir "download root"
-                             :tomcat {:java-vm-config {:xmx "123"}}}
-                            true))
-      ))
- 
-(def release-test-a
-  {:name "release-test-a"
-   :version [1 2 3]
-   :app ["name" "url"]
-   :portlets [ ["portlet1" "url1a"] ["portlet2" "url2a"] ]
-   })
- 
-(def release-test-b
- {:name "release-test-b"
-  :version [1 2 4]
-  :app ["name" "url"]
-  :portlets [ ["portlet1" "url1b"] ["portlet3" "url3b"] ]
-  })
-
-(def release-test-merged-ab
- {:name "release-test-b"
-  :version [1 2 4]
-  :app ["name" "url"]
-  :portlets [ ["portlet2" "url2a"] ["portlet1" "url1b"] ["portlet3" "url3b"]  ]
-  })
-
-
-(deftest release-tests-valid
-  (testing 
-    "test if test releases are valid"
-    (is (s/validate schema/LiferayRelease release-test-a))
-    (is (s/validate schema/LiferayRelease release-test-b))
-    (is (s/validate schema/LiferayRelease release-test-merged-ab))
-    ))
- 
-(deftest merge-releaseapps
-  (testing
-    "merging releases"
-    
-    (is (= 
-          (sut/merge-releases release-test-a release-test-b) 
-          release-test-merged-ab))
-    
-    (is (= 
-          (sut/merge-releases release-test-a release-test-merged-ab) 
-          release-test-merged-ab))
-    
-    (is (= 
-          (sut/merge-releases release-test-a release-test-merged-ab release-test-merged-ab release-test-merged-ab) 
-          release-test-merged-ab))
-    ))
