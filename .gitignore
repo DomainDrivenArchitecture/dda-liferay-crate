@@ -5,3 +5,4 @@
 /pom.*
 /.lein-failures
 /.nrepl-port
+/classes/
