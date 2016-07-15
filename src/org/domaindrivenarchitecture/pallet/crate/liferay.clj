@@ -172,7 +172,8 @@
   ; backup
   (backup/install app-name (get-in config [:backup]))
   ; do the initial rollout
-  (liferay-app/prepare-rollout app-name config)
+  (liferay-app/prepare-rollout 
+    (map-utils/filter-for-target-schema release-model/LiferayReleaseConfig config))
   )
 
 (defmethod dda-pallet/dda-install 

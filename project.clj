@@ -8,23 +8,21 @@
                  [prismatic/schema "1.1.2"]
                  [com.palletops/pallet "0.8.12"]
                  [com.palletops/stevedore "0.8.0-beta.7"]
-                 ;[com.palletops/git-crate "0.8.0-alpha.2" :exclusions [org.clojure/clojure]]
                  [org.domaindrivenarchitecture/dda-config-commons "0.1.4"]
                  [org.domaindrivenarchitecture/dda-pallet "0.1.0-SNAPSHOT"]
-                 [org.domaindrivenarchitecture/dda-init-crate "0.1.0-SNAPSHOT"]
-                 [org.domaindrivenarchitecture/dda-hardening-crate "0.1.0-SNAPSHOT"]
-                 [org.domaindrivenarchitecture/dda-provider-crate "0.1.0-SNAPSHOT"]
                  [org.domaindrivenarchitecture/dda-backup-crate "0.3.3-SNAPSHOT"]
                  [org.domaindrivenarchitecture/dda-tomcat-crate "0.1.4-SNAPSHOT"]
-                 [org.domaindrivenarchitecture/dda-mysql-crate "0.1.3-SNAPSHOT"]
+                 [org.domaindrivenarchitecture/dda-mysql-crate "0.1.3-SNAPSHOT"]                 
                  [org.domaindrivenarchitecture/dda-httpd-crate "0.1.0-SNAPSHOT"]]
   :repositories [["snapshots" :clojars]
                  ["releases" :clojars]]
   :deploy-repositories [["snapshots" :clojars]
                         ["releases" :clojars]]
   :profiles {:dev
-             {:dependencies
-              [[org.clojure/test.check "0.9.0"]
+             {:source-paths ["src" "integration"]
+              :dependencies
+              [[org.clojure/test.check "0.9.0"]               
+               [org.clojure/tools.cli "0.3.5"]
                [com.palletops/pallet "0.8.12" :classifier "tests"]
                [org.domaindrivenarchitecture/dda-pallet-commons "0.1.3-SNAPSHOT" :classifier "tests"]]
               :plugins
@@ -33,5 +31,5 @@
                {:dependencies [[org.slf4j/jcl-over-slf4j "1.7.21"]]
                 :exclusions [commons-logging]}}
   :local-repo-classpath true
-  :classifiers {:tests {:source-paths ^:replace ["test"]
+  :classifiers {:tests {:source-paths ^:replace ["test" "integration"]
                         :resource-paths ^:replace []}})

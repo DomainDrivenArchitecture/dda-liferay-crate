@@ -33,7 +33,7 @@
 (defn install-database
   [db-root-passwd]
   (mysql/install-mysql :db-root-password db-root-passwd)
-  (actions/service "mysql" :action :start)
+  (actions/service "mysql" :action :restart)
 )
 
 (defn install-db-instance

@@ -78,6 +78,11 @@ This crate is working with:
 ### Run pallet  
 (-main liferay-group :phase '(:settings :install :configure :prepare-rollout))
 
+
+## Usage Examples
+(init-node :group-spec liferay-group :id :default-instance)
+(-main liferay-group :phase '(:settings :install :configure))
+
 ## License
 
 Copyright © 2016, meissa GmbH 

@@ -48,7 +48,7 @@
   [portal-ext-lines]
  {:name "LiferayCE"
   :version [6 2 1]
-  :app ["ROOT" "http://iweb.dl.sourceforge.net/project/lportal/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"]
+  :app ["ROOT" "http://ufpr.dl.sourceforge.net/project/lportal/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"]
   :config portal-ext-lines})
 
 (defn app-in-vec? 
