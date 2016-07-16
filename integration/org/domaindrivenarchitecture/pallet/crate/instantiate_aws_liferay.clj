@@ -54,14 +54,31 @@
 
 (defn aws-node-spec []
   (api/node-spec
+    :location {:location-id "eu-central-1a"
+               ;:location-id "eu-west-1b"
+               ;:location-id "us-east-1a"
+               }
     :image {:os-family :ubuntu 
-            :image-id "us-east-1/ami-3c994355"}))
+            ;eu-central-1 
+            :image-id "ami-87564feb"
+            ;us-east-1 :image-id "ami-2d39803a"
+            ;eu-west1 :image-id "ami-f95ef58a"
+            :os-version "14.04"
+            :login-user "ubuntu"}
+    :hardware {:hardware-id "t2.micro"}
+    :provider {:pallet-ec2 {:key-name "jem"}               
+               :network-interfaces [{:device-index 0
+                                     ;:groups ["sg-abcdef88"]
+                                     ;:subnet-id "subnet-7ec13616"
+                                     :associate-public-ip-address true
+                                     :delete-on-termination true}]}))
 
-(def service
+(defn service []
   (compute/instantiate-provider
-   "aws-ec2"
-   :identity "xxxxxxxxxxxx"
-   :credential "xxxxxxxxxx"))
+   :pallet-ec2
+   :identity "xxxxxxxxxxxxx"
+   :credential "xxxxxxxxxxxxx"
+   :endpoint "eu-central-1"))
 
 (defn liferay-group []
   (api/group-spec
@@ -76,5 +93,5 @@
 (defn startit [] 
   (api/converge
     (liferay-group)
-    :compute service
+    :compute (service)
     :phase '(:bootstrap :settings :init :install :configure)))
