@@ -66,19 +66,20 @@
             :os-version "14.04"
             :login-user "ubuntu"}
     :hardware {:hardware-id "t2.micro"}
-    :provider {:pallet-ec2 {:key-name "jem"}               
-               :network-interfaces [{:device-index 0
-                                     ;:groups ["sg-abcdef88"]
-                                     ;:subnet-id "subnet-7ec13616"
-                                     :associate-public-ip-address true
-                                     :delete-on-termination true}]}))
+    :provider {:pallet-ec2 {:key-name "jem"               
+                            :network-interfaces [{:device-index 0
+                                                  :groups ["sg-0606b16e"]
+                                                  :subnet-id "subnet-f929df91"
+                                                  :associate-public-ip-address true
+                                                  :delete-on-termination true}]}}))
 
 (defn service []
   (compute/instantiate-provider
    :pallet-ec2
-   :identity "xxxxxxxxxxxxx"
-   :credential "xxxxxxxxxxxxx"
-   :endpoint "eu-central-1"))
+   :identity "xxxxxxx"
+   :credential "xxxxxxx"
+   :endpoint "eu-central-1"
+   :subnet-ids ["subnet-f929df91"]))
 
 (defn liferay-group []
   (api/group-spec
@@ -88,7 +89,7 @@
      init/with-init
      liferay/with-liferay]
     :node-spec (aws-node-spec)
-    :count 1))
+    :count 0))
 
 (defn startit [] 
   (api/converge
