@@ -23,7 +23,7 @@
               :dependencies
               [[org.clojure/test.check "0.9.0"]               
                [org.clojure/tools.cli "0.3.5"]
-               [com.palletops/pallet-aws "0.2.8-SNAPSHOT"]
+               [org.domaindrivenarchitecture/pallet-aws "0.2.8-SNAPSHOT"]
                [org.slf4j/jcl-over-slf4j "1.7.21"]]
               :plugins
               [[lein-sub "0.3.0"]]}
