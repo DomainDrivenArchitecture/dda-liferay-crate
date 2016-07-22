@@ -20,13 +20,13 @@
     [clojure.test :refer :all]
     [clojure.java.io :as io]    
     [clojure.string :as string]
-    [pallet.build-actions :as build-actions]
     [schema.core :as s]
     [schema.experimental.complete :as c]
     [pallet.stevedore :as stevedore]
     [pallet.actions :as actions]
-    [org.domaindrivenarchitecture.pallet.commons.stevedore-test]
+    [pallet.build-actions :as build-actions]    
     [org.domaindrivenarchitecture.pallet.commons.plan-test-utils :as tu]
+    [org.domaindrivenarchitecture.pallet.commons.stevedore-test :as st]
     [org.domaindrivenarchitecture.pallet.crate.liferay.release-model :as schema]
     [org.domaindrivenarchitecture.pallet.crate.liferay.app :as sut]))
 
