@@ -131,8 +131,8 @@
                    :executor-daemon "false"
                    :executor-max-threads "151"
                    :executor-min-spare-threads "10"
-                   :connector-port "8080"
-                   :connector-protocol "HTTP/1.1"}
+                   :connector-port "8009"
+                   :connector-protocol "AJP/1.3"}
                   :java-vm-config 
                   {:xms "768m"
                    :xmx "1024m"
