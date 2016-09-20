@@ -245,3 +245,12 @@
     (dda-pallet/merge-config dda-liferay-crate partial-config))
   ([partial-config standalone]
     (dda-pallet/merge-config dda-liferay-crate-standalone partial-config)))
+   
+(s/defn merge-releases
+ "Merges multiple liferay releases into a combined one. All non-app keys are from the right-most
+ release. Apps are merged from right to left. Duplicate apps (same name) are ignored and the
+ right-most app wins." 
+ [& vals]
+ (apply release-model/merge-releases vals))
+
+
