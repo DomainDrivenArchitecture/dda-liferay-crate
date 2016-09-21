@@ -26,7 +26,6 @@
     [pallet.crate :as crate]
     [pallet.crate.service :as service]
     [pallet.stevedore :as stevedore]
-    [org.domaindrivenarchitecture.pallet.crate.config-0-3 :as config]
     [org.domaindrivenarchitecture.pallet.crate.mysql :as mysql]
     ))
 

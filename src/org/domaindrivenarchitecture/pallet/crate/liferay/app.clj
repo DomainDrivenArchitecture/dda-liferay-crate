@@ -196,7 +196,6 @@
           (download-and-store-applications release-dir release :themes)
           (download-and-store-applications release-dir release :portlets)
           (download-and-store-applications release-dir release :ext)
-          ;TODO add ext
           )))
     ))
 

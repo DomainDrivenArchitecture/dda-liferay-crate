@@ -39,6 +39,7 @@
    "#AUTHBIND=no"]
    )
 
+;this does not neet to be changed for LR7
 (def etc-tomcat7-Catalina-localhost-ROOT-xml
   ["<Context path=\"\" crossContext=\"true\">"
    ""
