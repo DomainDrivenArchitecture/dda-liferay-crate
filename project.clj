@@ -14,7 +14,7 @@
                  [org.domaindrivenarchitecture/dda-backup-crate "0.3.3-SNAPSHOT"]
                  [org.domaindrivenarchitecture/dda-tomcat-crate "0.1.4-SNAPSHOT"]
                  [org.domaindrivenarchitecture/dda-mysql-crate "0.1.3-SNAPSHOT"]                 
-                 [org.domaindrivenarchitecture/dda-httpd-crate "0.1.0-SNAPSHOT"]]
+                 [org.domaindrivenarchitecture/dda-httpd-crate "0.1.1-SNAPSHOT"]]
   :repositories [["snapshots" :clojars]
                  ["releases" :clojars]]
   :deploy-repositories [["snapshots" :clojars]
