@@ -1,4 +1,4 @@
-(defproject org.domaindrivenarchitecture/dda-liferay-crate "0.2.4-SNAPSHOT"
+(defproject org.domaindrivenarchitecture/dda-liferay-crate "0.2.4"
   :description "dda-liferay-crate"
   :url "https://www.domaindrivenarchitecture.org"
   :license {:name "Apache License, Version 2.0"
@@ -14,7 +14,7 @@
                  [org.domaindrivenarchitecture/dda-backup-crate "0.3.3"]
                  [org.domaindrivenarchitecture/dda-tomcat-crate "0.1.4"]
                  [org.domaindrivenarchitecture/dda-mysql-crate "0.1.3"]                 
-                 [org.domaindrivenarchitecture/dda-httpd-crate "0.1.2-SNAPSHOT"]]
+                 [org.domaindrivenarchitecture/dda-httpd-crate "0.1.2"]]
   :repositories [["snapshots" :clojars]
                  ["releases" :clojars]]
   :deploy-repositories [["snapshots" :clojars]
