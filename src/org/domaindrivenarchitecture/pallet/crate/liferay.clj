@@ -20,7 +20,7 @@
     ; pallet
     [pallet.api :as api]
     ; Generic Dependencies
-    [org.domaindrivenarchitecture.pallet.core.dda-crate :as dda-pallet]
+    [org.domaindrivenarchitecture.pallet.core.dda-crate :as dda-crate]
     [org.domaindrivenarchitecture.pallet.crate.package :as package]
     [org.domaindrivenarchitecture.pallet.crate.mysql :as mysql]
     [org.domaindrivenarchitecture.config.commons.directory-model :as dir-model]
@@ -33,7 +33,7 @@
     ; Webserver Dependency
     [org.domaindrivenarchitecture.pallet.crate.httpd :as httpd]
     ; Backup Dependency
-    [org.domaindrivenarchitecture.pallet.crate.backup :as backup]
+    [org.domaindrivenarchitecture.pallet.crate.backup-0-3 :as backup]
     ; Tomcat Dependency
     [org.domaindrivenarchitecture.pallet.crate.tomcat :as tomcat]
     ))
@@ -176,9 +176,10 @@
     (map-utils/filter-for-target-schema release-model/LiferayReleaseConfig config))
   )
 
-(defmethod dda-pallet/dda-install 
-  :dda-liferay [dda-crate config]
-    (install (name (get-in dda-crate [:facility])) config))
+(defmethod dda-crate/dda-install 
+  :dda-liferay [dda-crate partial-effective-config]
+  (let [config (dda-crate/merge-config dda-crate partial-effective-config)]
+    (install (name (get-in dda-crate [:facility])) config)))
 
 (defn configure
   "Liferay: Configure Routine"
@@ -202,9 +203,10 @@
   (backup/configure app-name (get-in config [:backup]))  
   )
 
-(defmethod dda-pallet/dda-configure 
-  :dda-liferay [dda-crate config]
-    (configure (name (get-in dda-crate [:facility])) config))
+(defmethod dda-crate/dda-configure 
+  :dda-liferay [dda-crate partial-effective-config]
+  (let [config (dda-crate/merge-config dda-crate partial-effective-config)]
+    (configure (name (get-in dda-crate [:facility])) config)))
 
 (defn prepare-rollout
   "Liferay: rollout preparation"
@@ -213,12 +215,13 @@
     (map-utils/filter-for-target-schema release-model/LiferayReleaseConfig config))
   )
 
-(defmethod dda-pallet/dda-app-rollout 
-  :dda-liferay [dda-crate config]
-    (prepare-rollout config))
+(defmethod dda-crate/dda-app-rollout 
+  :dda-liferay [dda-crate partial-effective-config]
+  (let [config (dda-crate/merge-config dda-crate partial-effective-config)]
+    (prepare-rollout config)))
 
 (def dda-liferay-crate 
-  (dda-pallet/make-dda-crate
+  (dda-crate/make-dda-crate
     :facility :dda-liferay
     :version [0 2 2]
     :config-schema LiferayConfig
@@ -226,10 +229,10 @@
     ))
 
 (def with-liferay
-  (dda-pallet/create-server-spec dda-liferay-crate))
+  (dda-crate/create-server-spec dda-liferay-crate))
 
 (def dda-liferay-crate-standalone 
-  (dda-pallet/make-dda-crate
+  (dda-crate/make-dda-crate
     :facility :dda-liferay
     :version [0 2 2]
     :config-schema LiferayConfig
@@ -237,14 +240,14 @@
     ))
 
 (def with-liferay-standalone
-  (dda-pallet/create-server-spec dda-liferay-crate-standalone))
+  (dda-crate/create-server-spec dda-liferay-crate-standalone))
 
 (s/defn ^:always-validate merge-config :- LiferayConfig
   "merges the partial config with default config & ensures that resulting config is valid."
   ([partial-config]
-    (dda-pallet/merge-config dda-liferay-crate partial-config))
+    (dda-crate/merge-config dda-liferay-crate partial-config))
   ([partial-config standalone]
-    (dda-pallet/merge-config dda-liferay-crate-standalone partial-config)))
+    (dda-crate/merge-config dda-liferay-crate-standalone partial-config)))
    
 (s/defn merge-releases
  "Merges multiple liferay releases into a combined one. All non-app keys are from the right-most
