@@ -29,7 +29,7 @@
 (def etc-default-tomcat7
   ["TOMCAT7_USER=tomcat7"
    "TOMCAT7_GROUP=tomcat7"
-   "JAVA_HOME=/usr/lib/jvm/openjdk-6-jdk"
+   "JAVA_HOME=/usr/lib/jvm/java-1.6.0-openjdk-amd64"
    (str "JAVA_OPTS=\"-Dfile.encoding=UTF8 -Djava.net.preferIPv4Stack=true " 
         "-Dorg.apache.catalina.loader.WebappClassLoader.ENABLE_CLEAR_REFERENCES=false "
         "-Duser.timezone=GMT"
