@@ -140,6 +140,7 @@
                    :jdk6 true}
                   :catalina-properties-lines liferay-config/etc-tomcat7-catalina-properties
                   :root-xml-lines liferay-config/etc-tomcat7-Catalina-localhost-ROOT-xml
+                  :default-lines liferay-config/etc-default-tomcat7
                   })
        })
   ))
