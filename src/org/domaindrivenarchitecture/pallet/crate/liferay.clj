@@ -33,7 +33,7 @@
     ; Webserver Dependency
     [org.domaindrivenarchitecture.pallet.crate.httpd :as httpd]
     ; Backup Dependency
-    [org.domaindrivenarchitecture.pallet.crate.backup-0-3 :as backup]
+    [org.domaindrivenarchitecture.pallet.crate.backup :as backup]
     ; Tomcat Dependency
     [org.domaindrivenarchitecture.pallet.crate.tomcat :as tomcat]
     ))
@@ -171,7 +171,7 @@
     (get-in config [:third-party-download-root-dir])
     (map-utils/filter-for-target-schema release-model/LiferayReleaseConfig config))
   ; backup
-  (backup/install app-name (get-in config [:backup]))
+  (backup/install (get-in config [:backup]))
   ; do the initial rollout
   (liferay-app/prepare-rollout 
     (map-utils/filter-for-target-schema release-model/LiferayReleaseConfig config))
@@ -201,7 +201,7 @@
     :fqdn-to-be-replaced (get-in config [:fqdn-to-be-replaced])
     :fqdn-replacement (get-in config [:httpd :fqdn]))
   ; Config
-  (backup/configure app-name (get-in config [:backup]))  
+  (backup/configure (get-in config [:backup]))  
   )
 
 (defmethod dda-crate/dda-configure 

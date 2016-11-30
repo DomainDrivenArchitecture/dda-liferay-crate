@@ -18,7 +18,7 @@
       [pallet.api :as api]      
       [pallet.compute :as compute]
       [pallet.compute.node-list :as node-list]
-      [org.domaindrivenarchitecture.pallet.crate.config-0-3 :as config]
+      [org.domaindrivenarchitecture.pallet.crate.config :as config]
       [org.domaindrivenarchitecture.pallet.crate.init :as init]
       [org.domaindrivenarchitecture.pallet.crate.liferay :as liferay]
       [org.domaindrivenarchitecture.pallet.core.cli-helper :as cm-base])
