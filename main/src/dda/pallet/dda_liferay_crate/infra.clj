@@ -32,7 +32,7 @@
 
 (s/defmethod dda-crate/dda-install facility
   [dda-crate config]
-  (liferay/install config))
+  (liferay/install-liferay config))
 
 (s/defmethod dda-crate/dda-configure facility
   [dda-crate config])

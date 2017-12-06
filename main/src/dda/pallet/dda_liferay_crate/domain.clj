@@ -18,10 +18,8 @@
     [schema.core :as s]
     [dda.config.commons.map-utils :as mu]
     [dda.pallet.commons.secret :as secret]
-    [dda.pallet.dda-liferay-crate.infra :as infra]))
-    ;[dda.pallet.dda-liferay-crate.domain.backup :as backup]))
-
-; ???(def InfraResult {infra/facility infra/LiferayCrateConfig})
+    [dda.pallet.dda-liferay-crate.infra :as infra]
+    [dda.pallet.dda-liferay-crate.domain.backup :as backup]))
 
 (def DomainConfig
   "The high-level domain configuration for the liferay-crate."
@@ -30,7 +28,6 @@
    :db-user-name s/Str
    :db-user-passwd secret/Secret
    ;if :test is specified in :settings, snakeoil certificates will be used
-   :settings (hash-set (s/enum :test))
    :settings (hash-set (s/enum :test))
    (s/optional-key :backup) {:bucket-name s/Str
                              :gpg {:gpg-public-key  secret/Secret
@@ -64,8 +61,8 @@
 
 (s/defn ^:always-validate httpd-domain-configuration
   [domain-config :- DomainConfigResolved]
-  (let [{:keys [fqdn settings]} domain-config]
-    {:domain-name fqdn
+  (let [{:keys [fq-domain-name settings]} domain-config]
+    {:domain-name fq-domain-name
      :settings (clojure.set/union
                  #{:with-php}
                  settings)}))
@@ -77,9 +74,8 @@
 
 (s/defn ^:always-validate liferay-infra-configuration :- infra/LiferayCrateConfig
   [domain-config :- DomainConfigResolved]
-  (let [{:keys [fqdn cron-job-mail]} domain-config]
-    {:fqdn fqdn
-     :cron-job-mail cron-job-mail}))
+  (let [{:keys [fq-domain-name]} domain-config]
+    {:fq-domain-name fq-domain-name}))
 
 (s/defn ^:always-validate infra-configuration :- infra/InfraResult
   [domain-config :- DomainConfigResolved]
