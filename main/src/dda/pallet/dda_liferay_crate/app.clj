@@ -55,13 +55,15 @@
     (merge
       domain-config
       {:db-root-passwd (secret/resolve-secret db-root-passwd)
-       :db-user-passwd (secret/resolve-secret db-user-passwd)
-       :backup {:bucket-name bucket-name
-                :gpg {:gpg-public-key  (secret/resolve-secret (:gpg-public-key gpg))
-                      :gpg-private-key (secret/resolve-secret (:gpg-private-key gpg))
-                      :gpg-passphrase  (secret/resolve-secret (:gpg-passphrase gpg))}
-                :aws {:aws-access-key-id (secret/resolve-secret (:aws-access-key-id aws))
-                      :aws-secret-access-key (secret/resolve-secret (:aws-secret-access-key aws))}}})))
+       :db-user-passwd (secret/resolve-secret db-user-passwd)}
+      (when (contains? domain-config :backup)
+        {:backup {:bucket-name bucket-name
+                  :gpg {:gpg-public-key  (secret/resolve-secret (:gpg-public-key gpg))
+                        :gpg-private-key (secret/resolve-secret (:gpg-private-key gpg))
+                        :gpg-passphrase  (secret/resolve-secret (:gpg-passphrase gpg))}
+                  :aws {:aws-access-key-id (secret/resolve-secret (:aws-access-key-id aws))
+                        :aws-secret-access-key (secret/resolve-secret (:aws-secret-access-key aws))}}}))))
+
 
 (s/defn ^:always-validate app-configuration :- LiferayCrateAppConfig
   "Generates the AppConfig from a smaller domain-config."

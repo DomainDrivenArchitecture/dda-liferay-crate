@@ -21,7 +21,7 @@
     [dda.pallet.dda-liferay-crate.app :as sut]))
 
 
-; *** Test configs ***
+; --------------------------- Test configs ---------------------------
 (def config-resolved
   "domainConfig resolved"
   {:fq-domain-name "liferay.example.de"
@@ -30,13 +30,21 @@
    :db-user-passwd "test1234"
    :settings #{ :test}})
 
+(def config-unresolved-min
+  "domainConfig unresolved"
+  {:fq-domain-name "liferay.example.de"
+   :db-root-passwd {:plain "test1234"}
+   :db-user-name "dbtestuser"
+   :db-user-passwd {:plain "test1234"}
+   :settings #{:test}})
+
 (def config-unresolved-full
   "domainConfig unresolved"
   {:fq-domain-name "liferay.example.de"
    :db-root-passwd {:plain "test1234"}
    :db-user-name "dbtestuser"
    :db-user-passwd {:plain "test1234"}
-   :settings #{ :test}
+   :settings #{:test}
    :backup {:ssh {:ssh-public-key {:plain "rsa-ssh kfjri5r8irohgn...test.key comment"}
                   :ssh-private-key {:plain "123Test"}}
             :gpg {:gpg-public-key
@@ -48,7 +56,7 @@
                   :gpg-passphrase {:plain "passphrase"}}}})
 
 
-; *** Tests ***
+; -------------------------------- Tests ------------------------------
 (deftest test-resolved-config
   (testing
     (is (= (-> config-resolved :db-root-passwd)

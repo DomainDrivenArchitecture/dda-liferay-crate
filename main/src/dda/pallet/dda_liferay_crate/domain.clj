@@ -37,7 +37,7 @@
                                    :aws-secret-access-key secret/Secret}}})
 
 (def DomainConfigResolved
-  "The high-level domain configuration for the liferay-crate with passwords resolved."
+  "The high-level domain configuration for the liferay-crate with secrets resolved."
   {:fq-domain-name s/Str
    :db-root-passwd s/Str
    :db-user-name s/Str
