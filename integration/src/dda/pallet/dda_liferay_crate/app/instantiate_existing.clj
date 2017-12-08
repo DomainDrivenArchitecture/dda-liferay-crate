@@ -40,7 +40,7 @@
 (defn apply-install
   [& options]
   (let [{:keys [domain targets]
-         :or {domain "vm.edn"
+         :or {domain "liferay.edn"
               targets "targets.edn"}} options
         target-config (existing/load-targets targets)
         domain-config (app/load-domain domain)]
@@ -52,7 +52,7 @@
 (defn apply-configure
   [& options]
   (let [{:keys [domain targets]
-         :or {domain "vm.edn"
+         :or {domain "liferay.edn"
               targets "targets.edn"}} options
         target-config (existing/load-targets targets)
         domain-config (app/load-domain domain)]
@@ -64,7 +64,7 @@
 (defn test
   [& options]
   (let [{:keys [domain targets]
-         :or {domain "vm.edn"
+         :or {domain "liferay.edn"
               targets "targets.edn"}} options
         target-config (existing/load-targets targets)
         domain-config (app/load-domain domain)]
