@@ -24,7 +24,7 @@
     [dda.pallet.dda-liferay-crate.infra.liferay :as liferay]))
 
 (def facility :dda-liferay-crate)
-(def version  [0 0 0])
+(def version  [0 3 0])
 
 (def LiferayCrateConfig schema/LiferayCrateConfig)
 
