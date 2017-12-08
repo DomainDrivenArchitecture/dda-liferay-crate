@@ -24,7 +24,7 @@
 
 (defn provisioning-spec [domain-config target-config count]
   (merge
-    (app/vm-group-spec
+    (app/liferay-group-spec
       (app/app-configuration domain-config))
     (cloud-target/node-spec target-config)
     {:count count}))

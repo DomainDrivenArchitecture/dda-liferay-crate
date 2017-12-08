@@ -28,7 +28,7 @@
 (defn provisioning-spec [target-config domain-config]
   (let [{:keys [provisioning-user]} target-config]
     (merge
-      (app/vm-group-spec
+      (app/liferay-group-spec
         (app/app-configuration domain-config))
       (existing/node-spec provisioning-user))))
 
