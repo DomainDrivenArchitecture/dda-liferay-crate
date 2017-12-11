@@ -64,27 +64,7 @@
                   :aws {:aws-access-key-id (secret/resolve-secret (:aws-access-key-id aws))
                         :aws-secret-access-key (secret/resolve-secret (:aws-secret-access-key aws))}}}))))
 
-
 (s/defn ^:always-validate app-configuration :- LiferayCrateAppConfig
-  "Generates the AppConfig from a smaller domain-config."
-  [domain-config :- domain/DomainConfig
-   & options]
-  (let [{:keys [group-key] :or {group-key infra/facility}} options
-        resolved-domain-config (resolve-secrets domain-config)]
-    (mu/deep-merge (db/app-configuration
-                     (domain/db-domain-configuration resolved-domain-config)
-                     :group-key group-key)
-                   (httpd/single-app-configuration
-                     (domain/httpd-domain-configuration resolved-domain-config)
-                     :group-key group-key)
-                   (backup/app-configuration
-                     (domain/backup-domain-configuration resolved-domain-config)
-                     :group-key group-key)
-                   {:group-specific-config
-                    {group-key
-                     (domain/infra-configuration resolved-domain-config)}})))
-
-(s/defn ^:always-validate app-configuration-secrets-resolved :- LiferayCrateAppConfig
   "Generates the AppConfig from a smaller domain-config."
   [resolved-domain-config :- domain/DomainConfigResolved
    & options]

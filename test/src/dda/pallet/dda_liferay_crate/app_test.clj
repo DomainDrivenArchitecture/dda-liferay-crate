@@ -38,34 +38,24 @@
    :db-user-passwd {:plain "test1234"}
    :settings #{:test}})
 
-(def config-unresolved-full
+(def config-unresolved
   "domainConfig unresolved"
   {:fq-domain-name "liferay.example.de"
    :db-root-passwd {:plain "test1234"}
    :db-user-name "dbtestuser"
    :db-user-passwd {:plain "test1234"}
-   :settings #{:test}
-   :backup {:ssh {:ssh-public-key {:plain "rsa-ssh kfjri5r8irohgn...test.key comment"}
-                  :ssh-private-key {:plain "123Test"}}
-            :gpg {:gpg-public-key
-                  {:plain "-----BEGIN PGP PUBLIC KEY BLOCK-----
-         ..."}
-                  :gpg-private-key
-                  {:plain "-----BEGIN PGP PRIVATE KEY BLOCK-----
-         ..."}
-                  :gpg-passphrase {:plain "passphrase"}}}})
+   :settings #{:test}})
 
 
 ; -------------------------------- Tests ------------------------------
 (deftest test-resolved-config
   (testing
     (is (= (-> config-resolved :db-root-passwd)
-           (-> (sut/app-configuration-secrets-resolved config-resolved) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)))))
+           (-> (sut/app-configuration config-resolved) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)))))
 
-(deftest test-unresolved-secrets-full
-  ; todo
+(deftest test-unresolved-config
+  ; todo: improve test
   (testing
-    (is (sut/resolve-secrets config-unresolved-full))
-    (is (=
-         "xxx"
-         (get-in (sut/resolve-secrets config-unresolved-full) [:user :password])))))
+    (is (sut/resolve-secrets config-unresolved))
+    (is (= (-> config-unresolved :db-root-passwd :plain)
+           (-> (sut/app-configuration (sut/resolve-secrets config-unresolved)) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)))))

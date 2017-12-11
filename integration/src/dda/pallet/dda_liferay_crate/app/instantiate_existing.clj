@@ -29,7 +29,8 @@
   (let [{:keys [provisioning-user]} target-config]
     (merge
       (app/liferay-group-spec
-        (app/app-configuration domain-config))
+        (app/app-configuration
+          (app/resolve-secrets domain-config)))
       (existing/node-spec provisioning-user))))
 
 (defn provider [target-config]
@@ -61,7 +62,7 @@
       (provisioning-spec target-config domain-config)
       :summarize-session true)))
 
-(defn test
+(defn test-install
   [& options]
   (let [{:keys [domain targets]
          :or {domain "liferay.edn"
