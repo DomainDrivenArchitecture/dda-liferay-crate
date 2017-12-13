@@ -4,10 +4,10 @@
   :license {:name "Apache License, Version 2.0"
             :url "https://www.apache.org/licenses/LICENSE-2.0.html"}
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [dda/dda-pallet "0.6.3-SNAPSHOT"]
-                 [dda/dda-httpd-crate "0.2.4-SNAPSHOT"]
-                 [dda/dda-mariadb-crate "0.2.1-SNAPSHOT"]
-                 [dda/dda-backup-crate "0.7.0-SNAPSHOT"]]
+                 [dda/dda-pallet "0.6.5"]
+                 [dda/dda-httpd-crate "0.2.4"]
+                 [dda/dda-mariadb-crate "0.2.2"]
+                 [dda/dda-backup-crate "0.7.1"]]
   :source-paths ["main/src"]
   :resource-paths ["main/resources"]
   :repositories [["snapshots" :clojars]
