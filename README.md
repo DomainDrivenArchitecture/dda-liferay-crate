@@ -1,5 +1,11 @@
 # dda-liferay-crate
 
+[![Clojars Project](https://img.shields.io/clojars/v/dda/dda-liferay-crate.svg)](https://clojars.org/dda/dda-liferay-crate)
+[![Build Status](https://travis-ci.org/DomainDrivenArchitecture/dda-liferay-crate.svg?branch=master)](https://travis-ci.org/DomainDrivenArchitecture/dda-liferay-crate)
+
+[![Slack](https://img.shields.io/badge/chat-clojurians-green.svg?style=flat)](https://clojurians.slack.com/messages/#dda-pallet/) | [<img src="https://domaindrivenarchitecture.org/img/meetup.svg" width=50 alt="DevOps Hacking with Clojure Meetup"> DevOps Hacking with Clojure](https://www.meetup.com/de-DE/preview/dda-pallet-DevOps-Hacking-with-Clojure) | [Website & Blog](https://domaindrivenarchitecture.org)
+
+
 This is a crate to install, configure and run a full blown 3 tier liferay server via Pallet.
 
 Currently this crate uses Apache2 as httpd, mysql as db and tomcat7 as web applicatin server on Ubuntu.
@@ -23,7 +29,7 @@ This crate is working with:
 ## Features
  * comunicate using https
  * integrate with backup
- 
+
 ## Usage Examples
 
 ### Configuration
@@ -38,11 +44,11 @@ This crate is working with:
   (let [db-user-passwd "userpwd"
         db-name "lportal"
         db-user-name "liferay_user"]
-    (node-record/new-node 
+    (node-record/new-node
       :host-name "www"  
       :pallet-cm-user-name "root"
-      :additional-config 
-      {:dda-liferay 
+      :additional-config
+      {:dda-liferay
        {:db {:root-passwd "rootpwd"
              :db-name db-name
              :user-name db-user-name
@@ -67,8 +73,8 @@ This crate is working with:
 (def ^:dynamic liferay-group
   (api/group-spec
     "liferay-group"
-    :extends 
-    [(config/with-config meissa-config/config) 
+    :extends
+    [(config/with-config meissa-config/config)
     liferay/with-liferay]))
 
 (defn -main
@@ -85,7 +91,6 @@ This crate is working with:
 
 ## License
 
-Copyright © 2016, meissa GmbH 
+Copyright © 2016, meissa GmbH
 
 Distributed under the Apache2 License.
-
