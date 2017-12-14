@@ -25,16 +25,16 @@
 (defn provisioning-spec [domain-config target-config count]
   (merge
     (app/liferay-group-spec
-      (app/app-configuration domain-config))
+      (app/app-configuration (app/resolve-secrets domain-config)))
     (cloud-target/node-spec target-config)
     {:count count}))
 
 (defn converge-install
   [count & options]
-  (let [{:keys [gpg-key-id gpg-passphrase domain targets]
-         :or {domain "integration/resources/snakeoil-vm-remote.edn"
-              targets "integration/resources/jem-aws-target-external.edn"}} options
-        target-config (cloud-target/load-targets targets)
+  (let [{:keys [gpg-key-id gpg-passphrase domain target]
+         :or {domain "liferay.edn"
+              target "integration/resources/jem-aws-target.edn"}} options
+        target-config (cloud-target/load-targets target)
         domain-config (app/load-domain domain)]
    (operation/do-converge-install
      (cloud-target/provider (:context target-config))
@@ -43,10 +43,10 @@
 
 (defn configure
  [& options]
- (let [{:keys [gpg-key-id gpg-passphrase domain targets]
-        :or {domain "integration/resources/snakeoil-vm-remote.edn"
-             targets "integration/resources/jem-aws-target-external.edn"}} options
-       target-config (cloud-target/load-targets targets)
+ (let [{:keys [gpg-key-id gpg-passphrase domain target]
+        :or {domain "liferay.edn"
+             target "integration/resources/jem-aws-target.edn"}} options
+       target-config (cloud-target/load-targets target)
        domain-config (app/load-domain domain)]
   (operation/do-apply-configure
     (cloud-target/provider (:context target-config))
@@ -55,10 +55,10 @@
 
 (defn serverspec
   [& options]
-  (let [{:keys [gpg-key-id gpg-passphrase domain targets]
-         :or {domain "integration/resources/snakeoil-vm-remote.edn"
-              targets "integration/resources/jem-aws-target-external.edn"}} options
-        target-config (cloud-target/load-targets targets)
+  (let [{:keys [gpg-key-id gpg-passphrase domain target]
+         :or {domain "liferay.edn"
+              target "integration/resources/jem-aws-target.edn"}} options
+        target-config (cloud-target/load-targets target)
         domain-config (app/load-domain domain)]
    (operation/do-server-test
      (cloud-target/provider (:context target-config))
