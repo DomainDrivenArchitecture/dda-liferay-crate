@@ -35,9 +35,8 @@
 
 (def LiferayCrateAppConfig
  {:group-specific-config
-  {s/Keyword s/Any}})
-            ;(merge db/InfraResult
-                    ;httpd/InfraResult
+   {s/Keyword (merge db/InfraResult
+                     httpd/InfraResult)}})
                     ;infra/InfraResult
                     ;backup/InfraResult)}})
 
@@ -71,12 +70,12 @@
   [resolved-domain-config :- domain/DomainConfigResolved
    & options]
   (let [{:keys [group-key] :or {group-key infra/facility}} options]
-    (mu/deep-merge ;(db/app-configuration
-                    ; (domain/db-domain-configuration resolved-domain-config)
-                    ; :group-key group-key
-                   ;(httpd/single-app-configuration
-                    ; (domain/httpd-domain-configuration resolved-domain-config)
-                     ;:group-key group-key
+    (mu/deep-merge (db/app-configuration
+                     (domain/db-domain-configuration resolved-domain-config)
+                     :group-key group-key)
+                   (httpd/single-app-configuration
+                     (domain/httpd-domain-configuration resolved-domain-config)
+                     :group-key group-key)
                    ;(backup/app-configuration
                     ; (domain/backup-domain-configuration resolved-domain-config)
                      ;:group-key group-key
@@ -87,8 +86,8 @@
 (s/defn ^:always-validate liferay-group-spec
  [app-config :- LiferayCrateAppConfig]
  (group/group-spec
-   app-config [(config/with-config app-config)]))
-               ;db/with-mariadb
-               ;httpd/with-httpd
+   app-config [(config/with-config app-config)
+               db/with-mariadb
+               httpd/with-httpd]))
                ;backup/with-backup
                ;with-liferay]))
