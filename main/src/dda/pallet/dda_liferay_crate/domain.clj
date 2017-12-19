@@ -24,6 +24,7 @@
 (def DomainConfig
   "The high-level domain configuration for the liferay-crate."
   {:fq-domain-name s/Str
+   (s/optional-key :google-id) s/Str
    :db-root-passwd secret/Secret
    :db-user-name s/Str
    :db-user-passwd secret/Secret
@@ -39,6 +40,7 @@
 (def DomainConfigResolved
   "The high-level domain configuration for the liferay-crate with secrets resolved."
   {:fq-domain-name s/Str
+   (s/optional-key :google-id) s/Str
    :db-root-passwd s/Str
    :db-user-name s/Str
    :db-user-passwd s/Str
@@ -61,11 +63,14 @@
 
 (s/defn ^:always-validate httpd-domain-configuration
   [domain-config :- DomainConfigResolved]
-  (let [{:keys [fq-domain-name settings]} domain-config]
-    {:domain-name fq-domain-name
-     :settings (clojure.set/union
-                 #{:with-php}
-                 settings)}))
+  (let [{:keys [fq-domain-name google-id settings]} domain-config]
+    (merge
+      {:domain-name fq-domain-name}
+      (when (contains? domain-config :google-id)
+        {:google-id google-id})
+      {:settings (clojure.set/union
+                   #{:with-php}
+                   settings)})))
 
 (s/defn ^:always-validate backup-domain-configuration
   [domain-config :- DomainConfigResolved]

@@ -1,5 +1,6 @@
 ; specification of installation and configuration for liferay and required SW
 {:fq-domain-name "liferay.example.de"
+ :google-id "xxxxxxxxxxxxxxxxxxxxx"
  :db-root-passwd {:plain "test1234"}
  :db-user-name "dbtestuser"
  :db-user-passwd {:plain "test1234"}

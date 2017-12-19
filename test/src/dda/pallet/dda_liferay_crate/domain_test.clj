@@ -14,14 +14,14 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-
 (ns dda.pallet.dda-liferay-crate.domain-test
   (:require
     [clojure.test :refer :all]
     [schema.core :as s]
     [dda.pallet.dda-liferay-crate.domain :as sut]))
 
-(def config-1
+; --------------------------- Test configs ---------------------------
+(def config-simple
   "domainConfigResolved"
   {:fq-domain-name "liferay.example.de"
    :db-root-passwd "test1234"
@@ -29,21 +29,28 @@
    :db-user-passwd "test1234"
    :settings #{ :test}})
 
-(def config-2
-  {:user {:name  "test"
-          :password "pwd"}
-   :type :desktop-office})
+(def config-full
+  "domainConfigResolved"
+  {:fq-domain-name "liferay.example.de"
+   :google-id "xxxxxxxxxxxxxxxxxxxxx"
+   :db-root-passwd "test1234"
+   :db-user-name "dbtestuser"
+   :db-user-passwd "test1234"
+   :settings #{ :test}})
 
-;(deftest test-serverspec-config
-;  (testing
-;    "test the serverspec config creation"
-;    (is (thrown? Exception (sut/vm-serverspec-config {})))
-;    (is (sut/vm-serverspec-config config-1))
-;    (is (sut/vm-serverspec-config config-2))})
+; -------------------------------- Tests ------------------------------})
+(deftest test-httpd-configuration
+  (testing
+    "test the httpd config creation"
+    (is (thrown? Exception (sut/httpd-domain-configuration {})))
+    (is (= "liferay.example.de"
+          (:domain-name (sut/httpd-domain-configuration config-simple))))
+    (is (= "xxxxxxxxxxxxxxxxxxxxx"
+          (:google-id (sut/httpd-domain-configuration config-full))))))
 
 (deftest test-infra-configuration
   (testing
     "test the infra config creation"
     (is (thrown? Exception (sut/infra-configuration {})))
     (is (= {:dda-liferay-crate {:fq-domain-name "liferay.example.de"}}
-          (sut/infra-configuration config-1)))))
+          (sut/infra-configuration config-full)))))
