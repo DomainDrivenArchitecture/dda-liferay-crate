@@ -28,6 +28,7 @@
                     [org.slf4j/jcl-over-slf4j "1.8.0-beta0"]]
                    :plugins
                    [[lein-sub "0.3.0"]]
+                   :repl-options {:init-ns dda.pallet.dda-liferay-crate.app.instantiate-aws}
                    :leiningen/reply
                    {:dependencies [[org.slf4j/jcl-over-slf4j "1.8.0-beta0"]]
                     :exclusions [commons-logging]}}
