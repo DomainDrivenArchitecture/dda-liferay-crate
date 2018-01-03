@@ -19,7 +19,7 @@ contributions are welcome!
 This crate is working with:
  * clojure 1.7
  * pallet 0.8
- * ubuntu 14.04
+ * ubuntu 16.04
  * apache httpd 2.4
  * apache tomcat7
  * oracle java1.6 as specified by liferay 6.2
