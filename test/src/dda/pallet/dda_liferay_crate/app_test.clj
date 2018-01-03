@@ -24,7 +24,7 @@
 ; --------------------------- Test configs ---------------------------
 (def config-resolved
   "domainConfig resolved"
-  {:fq-domain-name "liferay.example.de"
+  {:fq-domain-name "example.de"
    :db-root-passwd "test1234"
    :db-user-name "dbtestuser"
    :db-user-passwd "test1234"
@@ -32,7 +32,7 @@
 
 (def config-unresolved-min
   "domainConfig unresolved"
-  {:fq-domain-name "liferay.example.de"
+  {:fq-domain-name "example.de"
    :db-root-passwd {:plain "test1234"}
    :db-user-name "dbtestuser"
    :db-user-passwd {:plain "test1234"}
@@ -40,7 +40,7 @@
 
 (def config-unresolved
   "domainConfig unresolved"
-  {:fq-domain-name "liferay.example.de"
+  {:fq-domain-name "example.de"
    :db-root-passwd {:plain "test1234"}
    :db-user-name "dbtestuser"
    :db-user-passwd {:plain "test1234"}
@@ -54,7 +54,6 @@
            (-> (sut/app-configuration config-resolved) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)))))
 
 (deftest test-unresolved-config
-  ; todo: improve test
   (testing
     (is (sut/resolve-secrets config-unresolved))
     (is (= (-> config-unresolved :db-root-passwd :plain)

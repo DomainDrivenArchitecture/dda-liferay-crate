@@ -68,9 +68,10 @@
       {:domain-name fq-domain-name}
       (when (contains? domain-config :google-id)
         {:google-id google-id})
-      {:settings (clojure.set/union
-                   #{:with-php}
-                   settings)})))
+      (when (contains? domain-config settings)
+        {:settings settings})
+      {:alias [{:url "/quiz/" :path "/var/www/static/quiz/"}]
+       :jk-unmount [{:path "/quiz/*" :worker "mod_jk_www"}]})))
 
 (s/defn ^:always-validate backup-domain-configuration
   [domain-config :- DomainConfigResolved]

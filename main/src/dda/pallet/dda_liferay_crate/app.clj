@@ -73,7 +73,7 @@
     (mu/deep-merge (db/app-configuration
                      (domain/db-domain-configuration resolved-domain-config)
                      :group-key group-key)
-                   (httpd/single-app-configuration
+                   (httpd/tomcat-app-configuration
                      (domain/httpd-domain-configuration resolved-domain-config)
                      :group-key group-key)
                    ;(backup/app-configuration
