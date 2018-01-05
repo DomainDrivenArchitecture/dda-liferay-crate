@@ -36,8 +36,8 @@
 (def LiferayCrateAppConfig
  {:group-specific-config
    {s/Keyword (merge db/InfraResult
-                     httpd/InfraResult)}})
-                    ;infra/InfraResult
+                     httpd/InfraResult
+                     infra/InfraResult)}})
                     ;backup/InfraResult)}})
 
 (s/defn ^:always-validate load-targets :- existing/Targets
@@ -64,8 +64,7 @@
                   :aws {:aws-access-key-id (secret/resolve-secret (:aws-access-key-id aws))}
                   :aws-secret-access-key (secret/resolve-secret (:aws-secret-access-key aws))}}))))
 
-(s/defn ^:always-validate
-  app-configuration :- LiferayCrateAppConfig
+(s/defn ^:always-validate app-configuration :- LiferayCrateAppConfig
   "Generates the AppConfig from a smaller domain-config."
   [resolved-domain-config :- domain/DomainConfigResolved
    & options]
@@ -76,18 +75,18 @@
                    (httpd/tomcat-app-configuration
                      (domain/httpd-domain-configuration resolved-domain-config)
                      :group-key group-key)
-                   ;(backup/app-configuration
+                   ;(backup/app-configuration)
                     ; (domain/backup-domain-configuration resolved-domain-config)
-                     ;:group-key group-key
+                     ;:group-key group-key)
                    {:group-specific-config
-                    {group-key {}}})))
-                     ;(domain/infra-configuration resolved-domain-config)}})))
+                    {group-key
+                     (domain/infra-configuration resolved-domain-config)}})))
 
 (s/defn ^:always-validate liferay-group-spec
  [app-config :- LiferayCrateAppConfig]
  (group/group-spec
    app-config [(config/with-config app-config)
                db/with-mariadb
-               httpd/with-httpd]))
+               httpd/with-httpd
                ;backup/with-backup
-               ;with-liferay]))
+               with-liferay]))
