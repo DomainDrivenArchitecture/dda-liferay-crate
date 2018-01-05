@@ -15,6 +15,37 @@
 ; limitations under the License.
 (ns dda.pallet.dda-liferay-crate.infra.schema
   (:require
-   [schema.core :as s]))
+   [schema.core :as s]
+   [dda.config.commons.version-model :as version]
+   [dda.config.commons.directory-model :as directory]))
 
-(def LiferayCrateConfig {:fq-domain-name s/Str})
+(def LiferayApp
+  "Represents a liferay application (portlet, theme or the portal itself)."
+  [(s/one s/Str "name") (s/one s/Str "url")])
+
+(def LiferayRelease
+  "LiferayRelease contains a release name with specification of versioned apps."
+  {:name s/Str
+   :version version/Version
+   (s/optional-key :app) LiferayApp
+   (s/optional-key :config) [s/Str]
+   (s/optional-key :hooks) [LiferayApp]
+   (s/optional-key :layouts) [LiferayApp]
+   (s/optional-key :themes) [LiferayApp]
+   (s/optional-key :portlets) [LiferayApp]
+   (s/optional-key :ext) [LiferayApp]})
+
+(def LiferayReleaseConfig
+  "The configuration schema for liferay release feature."
+  {:release-dir directory/NonRootDirectory
+   :releases [LiferayRelease]})
+
+(def LiferayCrateConfig
+  "The infra config schema."
+  {:tomcat-root-dir s/Str
+   :tomcat-webapps-dir s/Str
+   :liferay-home-dir s/Str
+   :liferay-lib-dir s/Str
+   :liferay-deploy-dir s/Str
+   :repo-download-source s/Str
+   :liferay-release-config LiferayReleaseConfig})

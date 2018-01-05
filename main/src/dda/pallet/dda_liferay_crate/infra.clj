@@ -35,7 +35,8 @@
   (liferay/install-liferay config))
 
 (s/defmethod dda-crate/dda-configure facility
-  [dda-crate config])
+  [dda-crate config]
+  (liferay/configure-liferay config))
 
 (def liferay-crate
   (dda-crate/make-dda-crate

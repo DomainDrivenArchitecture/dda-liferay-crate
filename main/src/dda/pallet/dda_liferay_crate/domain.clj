@@ -19,39 +19,16 @@
     [dda.config.commons.map-utils :as mu]
     [dda.pallet.commons.secret :as secret]
     [dda.pallet.dda-liferay-crate.infra :as infra]
+    [dda.pallet.dda-liferay-crate.domain.schema :as schema]
+    [dda.pallet.dda-liferay-crate.domain.liferay-config :as liferay-config]
     [dda.pallet.dda-liferay-crate.domain.backup :as backup]))
 
-(def DomainConfig
-  "The high-level domain configuration for the liferay-crate."
-  {:fq-domain-name s/Str
-   (s/optional-key :google-id) s/Str
-   :db-root-passwd secret/Secret
-   :db-user-name s/Str
-   :db-user-passwd secret/Secret
-   ;if :test is specified in :settings, snakeoil certificates will be used
-   :settings (hash-set (s/enum :test))
-   (s/optional-key :backup) {:bucket-name s/Str
-                             :gpg {:gpg-public-key  secret/Secret
-                                   :gpg-private-key secret/Secret
-                                   :gpg-passphrase  secret/Secret}
-                             :aws {:aws-access-key-id secret/Secret
-                                   :aws-secret-access-key secret/Secret}}})
+; ----- schemas for the high-level domain configuration ----------
+(def DomainConfig schema/DomainConfig)
 
-(def DomainConfigResolved
-  "The high-level domain configuration for the liferay-crate with secrets resolved."
-  {:fq-domain-name s/Str
-   (s/optional-key :google-id) s/Str
-   :db-root-passwd s/Str
-   :db-user-name s/Str
-   :db-user-passwd s/Str
-   :settings (hash-set (s/enum :test))
-   (s/optional-key :backup) {:bucket-name s/Str
-                             :gpg {:gpg-public-key s/Str
-                                   :gpg-private-key s/Str
-                                   :gpg-passphrase s/Str}
-                             :aws {:aws-access-key-id s/Str
-                                   :aws-secret-access-key s/Str}}})
+(def DomainConfigResolved schema/DomainConfigResolved)
 
+;  functions to create other domain configs from the liferay domain config
 (s/defn ^:always-validate db-domain-configuration
   [domain-config :- DomainConfigResolved]
   (let [{:keys [db-root-passwd db-user-name db-user-passwd]} domain-config]
@@ -78,10 +55,26 @@
   (let [{:keys []} domain-config]
     (backup/backup-domain-config domain-config)))
 
+(s/defn default-lr-release-config
+  [domain-config :- DomainConfigResolved]
+  {:instance-name "default"
+   :home-dir "/var/lib/liferay/"
+   :lib-dir "/var/lib/liferay/lib/"
+   :deploy-dir "/var/lib/liferay/deploy/"
+   :release-dir "/var/lib/liferay/prepare-rollout/"
+   :releases [(liferay-config/default-release-config domain-config)]})
+
 (s/defn ^:always-validate liferay-infra-configuration :- infra/LiferayCrateConfig
   [domain-config :- DomainConfigResolved]
   (let [{:keys [fq-domain-name]} domain-config]
-    {:fq-domain-name fq-domain-name}))
+    ;TODO replace hard coded values of tomcat ?
+    {:tomcat-root-dir "/usr/share/tomcat7/"
+     :tomcat-webapps-dir "webapps/"
+     :liferay-home-dir "/var/lib/liferay/"
+     :liferay-lib-dir "/var/lib/liferay/lib/"
+     :liferay-deploy-dir "/var/lib/liferay/deploy/"
+     :repo-download-source "http://ufpr.dl.sourceforge.net/project/lportal/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"
+     :liferay-release-config (default-lr-release-config domain-config)}))
 
 (s/defn ^:always-validate infra-configuration :- infra/InfraResult
   [domain-config :- DomainConfigResolved]
