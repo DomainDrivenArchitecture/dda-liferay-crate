@@ -26,6 +26,7 @@
   "domainConfig resolved"
   {:fq-domain-name "example.de"
    :db-root-passwd "test1234"
+   :db-name "lportal"
    :db-user-name "dbtestuser"
    :db-user-passwd "test1234"
    :settings #{ :test}})
@@ -34,6 +35,7 @@
   "domainConfig unresolved"
   {:fq-domain-name "example.de"
    :db-root-passwd {:plain "test1234"}
+   :db-name "lportal"
    :db-user-name "dbtestuser"
    :db-user-passwd {:plain "test1234"}
    :settings #{:test}})
@@ -42,6 +44,7 @@
   "domainConfig unresolved"
   {:fq-domain-name "example.de"
    :db-root-passwd {:plain "test1234"}
+   :db-name "lportal"
    :db-user-name "dbtestuser"
    :db-user-passwd {:plain "test1234"}
    :settings #{:test}})

@@ -55,7 +55,8 @@
   (let [{:keys []} domain-config]
     (backup/backup-domain-config domain-config)))
 
-(s/defn default-lr-release-config
+; deprecated
+(s/defn default-infra-config
   [domain-config :- DomainConfigResolved]
   {:instance-name "default"
    :home-dir "/var/lib/liferay/"
@@ -68,13 +69,14 @@
   [domain-config :- DomainConfigResolved]
   (let [{:keys [fq-domain-name]} domain-config]
     ;TODO replace hard coded values of tomcat ?
-    {:tomcat-root-dir "/usr/share/tomcat7/"
-     :tomcat-webapps-dir "webapps/"
-     :liferay-home-dir "/var/lib/liferay/"
-     :liferay-lib-dir "/var/lib/liferay/lib/"
-     :liferay-deploy-dir "/var/lib/liferay/deploy/"
+    {:home-dir "/var/lib/liferay/"
+     :lib-dir "/var/lib/liferay/lib/"
+     :deploy-dir "/var/lib/liferay/deploy/"
      :repo-download-source "http://ufpr.dl.sourceforge.net/project/lportal/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"
-     :liferay-release-config (default-lr-release-config domain-config)}))
+     :release-dir "/var/lib/liferay/prepare-rollout/"
+     :releases [(liferay-config/default-release-config domain-config)]
+     :tomcat-root-dir "/usr/share/tomcat7/"
+     :tomcat-webapps-dir "webapps/"}))
 
 (s/defn ^:always-validate infra-configuration :- infra/InfraResult
   [domain-config :- DomainConfigResolved]
