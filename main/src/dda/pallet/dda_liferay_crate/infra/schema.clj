@@ -42,10 +42,11 @@
 
 (def LiferayCrateConfig
   "The infra config schema."
-  {:tomcat-root-dir s/Str
-   :tomcat-webapps-dir s/Str
-   :liferay-home-dir s/Str
-   :liferay-lib-dir s/Str
-   :liferay-deploy-dir s/Str
-   :repo-download-source s/Str
-   :liferay-release-config LiferayReleaseConfig})
+  (merge
+    {:home-dir s/Str
+     :lib-dir s/Str
+     :deploy-dir s/Str
+     :repo-download-source s/Str
+     :tomcat-root-dir s/Str
+     :tomcat-webapps-dir s/Str}
+    LiferayReleaseConfig))
