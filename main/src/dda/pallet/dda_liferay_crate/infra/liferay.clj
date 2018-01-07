@@ -13,13 +13,16 @@
 ; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
+
 (ns dda.pallet.dda-liferay-crate.infra.liferay
   (:require
-   [schema.core :as s]
-   [pallet.actions :as actions]
-   [pallet.stevedore :as stevedore]
-   [dda.config.commons.directory-model :as dir-model]
-   [dda.pallet.dda-liferay-crate.infra.schema :as schema]))
+    [clojure.string :as string]
+    [schema.core :as s]
+    [schema-tools.core :as st]
+    [pallet.actions :as actions]
+    [pallet.stevedore :as stevedore]
+    [dda.config.commons.directory-model :as dir-model]
+    [dda.pallet.dda-liferay-crate.infra.schema :as schema]))
 
 ; ----------------  functions for the installation   -------------
 (defn- liferay-dir
@@ -48,6 +51,18 @@
     (liferay-dir lib-dir)
     (liferay-dir release-dir :owner "root")))
 
+(defn- liferay-config-file
+  "Create and upload a config file"
+  [file-name content  & {:keys [owner mode]
+                         :or {owner "tomcat7" mode "644"}}]
+  (actions/remote-file
+    file-name
+    :owner owner
+    :group owner
+    :mode mode
+    :literal true
+    :content (string/join \newline content)))
+
 (defn- liferay-remote-file
   "Create and upload a config file"
   [file-name url & {:keys [owner mode]
@@ -61,16 +76,19 @@
     :literal true
     :url url))
 
-(defn liferay-dependencies-into-tomcat
-  [liferay-lib-dir repo-download-source]
+(s/defn liferay-dependencies-into-tomcat
   "get dependency files"
-  (doseq [jar ["activation" "ccpp" "hsql" "jms"
-               "jta" "jtds" "junit" "jutf7" "mail"
-               "mysql" "persistence" "portal-service"
-               "portlet" "postgresql" "support-tomcat"]]
-    (let [download-location (str repo-download-source jar ".jar")
-          target-file (str liferay-lib-dir jar ".jar")]
-      (liferay-remote-file target-file download-location))))
+  ;[liferay-lib-dir repo-download-source]
+  [config :- schema/LiferayCrateConfig]
+  (let [{:keys [lib-dir
+                repo-download-source]} config]
+    (doseq [jar ["activation" "ccpp" "hsql" "jms"
+                 "jta" "jtds" "junit" "jutf7" "mail"
+                 "mysql" "persistence" "portal-service"
+                 "portlet" "postgresql" "support-tomcat"]]
+      (let [download-location (str repo-download-source jar ".jar")
+            target-file (str lib-dir jar ".jar")]
+        (liferay-remote-file target-file download-location)))))
 
 (s/defn ^:always-validate do-deploy-script
   "Provides the do-deploy script content."
@@ -116,11 +134,35 @@
                 ("cp" (str ~prepare-dir @1 "/config/portal-ext.properties") (str ~tomcat-dir "ROOT/WEB-INF/classes/"))
                 ("chown tomcat7" (str ~tomcat-dir "*"))
                 ("service tomcat7 start")))
-
             (do
               (println "\"\"")
               (println "\"ERROR: Specified release does not exist or you don't have the permission for it! Please run again as root! For a list of the available releases, run this script without parameters in order to show the available releases!\" ;")
               (println "\"\""))))))))
+
+(s/defn ^:always-validate download-and-store-applications
+  "download and store liferay applications in given directory"
+  [release-dir :- dir-model/NonRootDirectory
+   release :- schema/LiferayRelease
+   key :- s/Keyword]
+  (when
+    (contains? release key)
+    (let [dir (str release-dir (name key) "/")]
+      (liferay-dir dir :owner "root")
+      (case key
+        :app (let [app (st/get-in release [:app])]
+               (liferay-remote-file
+                 (str dir (first app) ".war")
+                 (second app)
+                 :owner "root"))
+        :config (liferay-config-file
+                  (str dir "portal-ext.properties")
+                  (:config release))
+        (:hooks :layouts :themes :portlets) (doseq [app (st/get-in release [key])]
+                                              (let [app-name (subs (second app) (+ 1 (.lastIndexOf (second app) "/")))]
+                                                (liferay-remote-file
+                                                  (str dir app-name)
+                                                  (second app)
+                                                  :owner "root")))))))
 
 (s/defn ^:always-validate install-do-rollout-script
   "Creates script for rolling liferay version. To be called by the admin connected to the server via ssh"
@@ -134,13 +176,58 @@
       :literal true
       :content (do-deploy-script prepare-dir deploy-dir tomcat-webapps))))
 
+(s/defn ^:always-validate remove-all-but-specified-versions
+  "Removes all other Versions except the specifided Versions"
+  [releases :- [schema/LiferayRelease]
+   release-dir :- dir-model/NonRootDirectory]
+  (let [versions (string/join "|" (map #(str (st/get-in % [:name]) (string/join "." (st/get-in % [:version]))) releases))]))
+    ;TODO (stevedore/script
+    ;       (pipe (pipe ("ls" ~release-dir) ("grep -Ev" ~versions)) ("xargs -I {} rm -r" (str ~release-dir "{}")))))
+
+;TODO: review 2016.05.17: move to release-model
+(s/defn ^:allwas-validate release-name :- s/Str
+  "get the release dir name"
+  [release :- schema/LiferayRelease]
+  (str (st/get-in release [:name]) "-" (string/join "." (st/get-in release [:version]))))
+
+;TODO: review 2016.05.17: move to release-model
+(s/defn ^:allwas-validate release-dir-name :- dir-model/NonRootDirectory
+  "get the release dir name"
+  [base-release-dir :- dir-model/NonRootDirectory
+   release :- schema/LiferayRelease]
+  (str base-release-dir (release-name release) "/"))
+
+(s/defn ^:always-validate prepare-rollout
+  "prepare the rollout of all liferay releases, i.e. download required libraries"
+  [config :- schema/LiferayCrateConfig]
+;  (let [base-release-dir (st/get-in release-config [:release-dir])
+;        releases (st/get-in release-config [:releases])
+  (let [{:keys [release-dir releases]} config]
+    (println "*********----PREP ROLLOUT ----" release-dir)
+    (actions/exec-script*
+      (remove-all-but-specified-versions releases release-dir))
+    (doseq [release releases]
+      (let [release-subdir (release-dir-name release-dir release)]
+        (println "*********----PREP ROLLOUT ----" release-subdir "----" release-dir "----" release)
+        (actions/plan-when-not
+          (stevedore/script (directory? ~release-dir))
+          (liferay-dir release-dir :owner "root")
+          (download-and-store-applications release-subdir release :app)
+          (download-and-store-applications release-subdir release :config)
+          (download-and-store-applications release-subdir release :hooks)
+          (download-and-store-applications release-subdir release :layouts)
+          (download-and-store-applications release-subdir release :themes)
+          (download-and-store-applications release-subdir release :portlets)
+          (download-and-store-applications release-subdir release :ext))))))
+
 (s/defn install-liferay
   "dda liferay crate: install routine, creates liferay directories,
   copies liferay webapp into tomcat and loads dependencies into tomcat"
   [config :- schema/LiferayCrateConfig]
   (create-liferay-directories config)
-  ;(liferay-dependencies-into-tomcat lib-dir repo-download-source)
-  (install-do-rollout-script config))
+  ;TODO required or already covered by tomcat?? (liferay-dependencies-into-tomcat config)
+  (install-do-rollout-script config)
+  (prepare-rollout config))
 
 
 ; ----------------  functions for the configuration   -------------

@@ -23,13 +23,18 @@
     [dda.pallet.dda-liferay-crate.infra.schema :as schema]
     [dda.pallet.dda-liferay-crate.infra.liferay :as liferay]))
 
+; -------------  facility and version  ------------------
 (def facility :dda-liferay-crate)
 (def version  [0 3 0])
 
+; -------------  schemas  ------------------
 (def LiferayCrateConfig schema/LiferayCrateConfig)
+
+(def LiferayRelease schema/LiferayRelease)
 
 (def InfraResult {facility LiferayCrateConfig})
 
+; -------------  methods and definitions  ------------------
 (s/defmethod dda-crate/dda-install facility
   [dda-crate config]
   (liferay/install-liferay config))
