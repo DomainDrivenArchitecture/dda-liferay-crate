@@ -184,14 +184,12 @@
     ;TODO (stevedore/script
     ;       (pipe (pipe ("ls" ~release-dir) ("grep -Ev" ~versions)) ("xargs -I {} rm -r" (str ~release-dir "{}")))))
 
-;TODO: review 2016.05.17: move to release-model
-(s/defn ^:allwas-validate release-name :- s/Str
-  "get the release dir name"
+(s/defn ^:always-validate release-name :- s/Str
+  "get the release name"
   [release :- schema/LiferayRelease]
   (str (st/get-in release [:name]) "-" (string/join "." (st/get-in release [:version]))))
 
-;TODO: review 2016.05.17: move to release-model
-(s/defn ^:allwas-validate release-dir-name :- dir-model/NonRootDirectory
+(s/defn ^:always-validate release-dir-name :- dir-model/NonRootDirectory
   "get the release dir name"
   [base-release-dir :- dir-model/NonRootDirectory
    release :- schema/LiferayRelease]
@@ -203,12 +201,10 @@
 ;  (let [base-release-dir (st/get-in release-config [:release-dir])
 ;        releases (st/get-in release-config [:releases])
   (let [{:keys [release-dir releases]} config]
-    (println "*********----PREP ROLLOUT ----" release-dir)
     (actions/exec-script*
       (remove-all-but-specified-versions releases release-dir))
     (doseq [release releases]
       (let [release-subdir (release-dir-name release-dir release)]
-        (println "*********----PREP ROLLOUT ----" release-subdir "----" release-dir "----" release)
         (actions/plan-when-not
           (stevedore/script (directory? ~release-dir))
           (liferay-dir release-dir :owner "root")
