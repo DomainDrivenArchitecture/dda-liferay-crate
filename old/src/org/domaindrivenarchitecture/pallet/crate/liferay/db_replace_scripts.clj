@@ -17,7 +17,7 @@
 
 (ns org.domaindrivenarchitecture.pallet.crate.liferay.db-replace-scripts)
 
-(def var-lib-liferay-rsync-sh 
+(def var-lib-liferay-rsync-sh
   ["#!/bin/bash"
    ""
    "####"
@@ -29,7 +29,7 @@
    "echo \"$(date): syncing this files:\" >> $LOGFILE"
    "echo \"$(ssh portalbackup@83.169.4.222 'find /home/portalbackup/portal/ -ctime -1 -type f')\" >> $LOGFILE"
    ""
-   "#only sync files one day old" 
+   "#only sync files one day old"
    "ssh portalbackup@83.169.4.222 'cd /home/portalbackup/portal/"
    "find . -ctime -1 -type f'  \\"
    "| rsync \\"
@@ -42,17 +42,17 @@
    "        --files-from=- \\"
    "        --log-file=$LOGFILE \\"
    "         portalbackup@83.169.4.222:/home/portalbackup/portal/ \\"
-   "        /var/lib/liferay/synced_prodbackup"]
-  )
+   "        /var/lib/liferay/synced_prodbackup"])
+
 
 (def var-lib-liferay-resetTermsOfUse-sh
   ["#!/bin/bash"
    ""
    (str "mysql lportal_staging --batch --skip-column-names"
         " -hlocalhost -uprod -p2iojl343sv84k -Dlportal"
-        " -e \"UPDATE User_ SET agreedToTermsOfUse=0 WHERE agreedToTermsOfUse=1\"") 
-   "echo \"...Nutzungsbedingungen muessen nun von allen Buergern wieder bestaetigt werden!\""]
-  )
+        " -e \"UPDATE User_ SET agreedToTermsOfUse=0 WHERE agreedToTermsOfUse=1\"")
+   "echo \"...Nutzungsbedingungen muessen nun von allen Buergern wieder bestaetigt werden!\""])
+
 
 (defn var-lib-liferay-prodDataReplacements-sh
   [fqdn-to-be-replaced fqdn-replacement db-name db-user-name db-user-passwd]
@@ -67,8 +67,8 @@
    "cd /home/dataBackupSource/restore"
    ""
    "# als root auf dev:"
-   (str "mysql -hlocalhost -u" db-user-name 
-        " -p" db-user-passwd 
+   (str "mysql -hlocalhost -u" db-user-name
+        " -p" db-user-passwd
         " -e \"drop database " db-name "\";")
    ""
    "# SQL"
@@ -87,29 +87,28 @@
    "sed -e \"$sedHttp\" output1.sql > output2.sql"
    ""
    "# Datenbank laden und anpassen"
-   (str "mysql -hlocalhost -u" db-user-name 
-        " -p" db-user-passwd 
+   (str "mysql -hlocalhost -u" db-user-name
+        " -p" db-user-passwd
         " -e \"create database " db-name
         " character set utf8\";")
-    (str "mysql -hlocalhost -u" db-user-name 
-        " -p" db-user-passwd " " db-name " < output2.sql")
-    (str "mysql -hlocalhost -u" db-user-name 
-        " -p" db-user-passwd 
-        " -D" db-name
-        " -e \"update Company set "
-        "webId = 'intermediate.intra.politaktiv.org', mx = 'intermediate.intra.politaktiv.org' "
-        "where companyId = 10132;\"")
-    (str "mysql -hlocalhost -u" db-user-name 
-        " -p" db-user-passwd
-        " -D" db-name
-        " -e \"update VirtualHost set hostname = 'intermediate.intra.politaktiv.org'"
-        " where virtualHostId = 35337;\"")
-    "echo \"db finished\""
-    ""
-    "# File"
-    "most_recent_file_dump=$(ls -t1 ./liferay_pa-prod_file_* | head -n1)"
-    "rm -r /var/lib/liferay/data/*"
-    "tar -xzf ${most_recent_file_dump} -C /var/lib/liferay/data"
-    "chown -R tomcat7:tomcat7 /var/lib/liferay/data"
-    "echo \"file finished\""]
-  )
+   (str "mysql -hlocalhost -u" db-user-name
+       " -p" db-user-passwd " " db-name " < output2.sql")
+   (str "mysql -hlocalhost -u" db-user-name
+       " -p" db-user-passwd
+       " -D" db-name
+       " -e \"update Company set "
+       "webId = 'intermediate.intra.politaktiv.org', mx = 'intermediate.intra.politaktiv.org' "
+       "where companyId = 10132;\"")
+   (str "mysql -hlocalhost -u" db-user-name
+       " -p" db-user-passwd
+       " -D" db-name
+       " -e \"update VirtualHost set hostname = 'intermediate.intra.politaktiv.org'"
+       " where virtualHostId = 35337;\"")
+   "echo \"db finished\""
+   ""
+   "# File"
+   "most_recent_file_dump=$(ls -t1 ./liferay_pa-prod_file_* | head -n1)"
+   "rm -r /var/lib/liferay/data/*"
+   "tar -xzf ${most_recent_file_dump} -C /var/lib/liferay/data"
+   "chown -R tomcat7:tomcat7 /var/lib/liferay/data"
+   "echo \"file finished\""])

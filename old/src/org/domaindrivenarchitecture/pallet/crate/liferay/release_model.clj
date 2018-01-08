@@ -15,7 +15,7 @@
 ; limitations under the License.
 
 (ns org.domaindrivenarchitecture.pallet.crate.liferay.release-model
-  (:require 
+  (:require
     [clojure.string :as string]
     [schema.core :as s :include-macros true]
     [org.domaindrivenarchitecture.config.commons.version-model :as version]
@@ -35,8 +35,8 @@
    (s/optional-key :layouts) [LiferayApp]
    (s/optional-key :themes) [LiferayApp]
    (s/optional-key :portlets) [LiferayApp]
-   (s/optional-key :ext) [LiferayApp]
-   })
+   (s/optional-key :ext) [LiferayApp]})
+
 
 (def LiferayReleaseConfig
   "The configuration for liferay release feature."
@@ -51,34 +51,33 @@
   :app ["ROOT" "http://ufpr.dl.sourceforge.net/project/lportal/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"]
   :config portal-ext-lines})
 
-(defn app-in-vec? 
+(defn app-in-vec?
   "Returns wheather a liferay app with specified name is in vector apps"
   [apps name]
   (if (empty? apps)
     false
     (if (= (first (last apps)) name)
       true
-      (app-in-vec? (pop apps) name))
-    ))
+      (app-in-vec? (pop apps) name))))
+
 
 (defn merge-apps
   "Merge two vector of apps from right to left. Duplicate apps (same name) are ignored and the
 right-most app wins."
-  [p1 p2] 
-  (apply conj 
+  [p1 p2]
+  (apply conj
          (vec (keep #(if-not (app-in-vec? p2 (first %)) %) p1))
          p2))
 
 (s/defn ^:always-validate merge-releases :- LiferayRelease
   "Merges multiple liferay releases into a combined one. All non-app keys are from the right-most
 release. Apps are merged from right to left. Duplicate apps (same name) are ignored and the
-right-most app wins." 
+right-most app wins."
  [& vals]
- (apply merge-with 
-        (fn [& args] 
+ (apply merge-with
+        (fn [& args]
           (if (and (every? vector? args) (vector? (ffirst args)))
             (apply merge-apps args)
-            (last args))
-          ) 
-        vals)
- )
+            (last args)))
+
+        vals))

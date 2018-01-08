@@ -30,15 +30,15 @@
   ["TOMCAT7_USER=tomcat7"
    "TOMCAT7_GROUP=tomcat7"
    "JAVA_HOME=/usr/lib/jvm/java-1.6.0-openjdk-amd64"
-   (str "JAVA_OPTS=\"-Dfile.encoding=UTF8 -Djava.net.preferIPv4Stack=true " 
+   (str "JAVA_OPTS=\"-Dfile.encoding=UTF8 -Djava.net.preferIPv4Stack=true "
         "-Dorg.apache.catalina.loader.WebappClassLoader.ENABLE_CLEAR_REFERENCES=false "
         "-Duser.timezone=GMT"
         "-Xms1536m -Xmx2560m -XX:MaxPermSize=512m -XX:+UseConcMarkSweepGC\"")
    "#JAVA_OPTS=\"${JAVA_OPTS} -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n\""
    "CATALINA_OPTS=\"-Dcustom.lr.dir=/var/lib/liferay\""
    "TOMCAT7_SECURITY=no"
-   "#AUTHBIND=no"]
-   )
+   "#AUTHBIND=no"])
+
 
 ;this does not neet to be changed for LR7
 (def etc-tomcat7-Catalina-localhost-ROOT-xml
@@ -66,8 +66,8 @@
    " "
    "  <!--<Manager className=\"com.liferay.support.tomcat.session.SessionLessManagerBase\" />-->"
    ""
-   "</Context>"]
-  )
+   "</Context>"])
+
 
 (def etc-tomcat7-catalina-properties
   [
@@ -191,9 +191,9 @@
    "tomcat.util.buf.StringCache.byte.enabled=true"
    "#tomcat.util.buf.StringCache.char.enabled=true"
    "#tomcat.util.buf.StringCache.trainThreshold=500000"
-   "#tomcat.util.buf.StringCache.cacheSize=5000"
-   ]
-  )
+   "#tomcat.util.buf.StringCache.cacheSize=5000"])
+
+
 
 (s/defn portal-ext-properties
   "creates the default portal-ext.properties for mySql."
@@ -208,12 +208,12 @@
    "# MySQL"
    "#"
    "jdbc.default.driverClassName=com.mysql.jdbc.Driver"
-   (str "jdbc.default.url=jdbc:mysql://localhost:3306/" (st/get-in db-config [:db-name]) 
+   (str "jdbc.default.url=jdbc:mysql://localhost:3306/" (st/get-in db-config [:db-name])
         "?useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false")
    (str "jdbc.default.username=" (st/get-in db-config [:user-name]))
    (str "jdbc.default.password=" (st/get-in db-config [:user-passwd]))
    "#"
-   "# C3PO" 
+   "# C3PO"
    "#"
    "#jdbc.default.acquireIncrement=2"
    "#jdbc.default.idleConnectionTestPeriod=60"
@@ -230,15 +230,15 @@
 
 (s/defn ^:always-validate do-deploy-script
   "Provides the do-deploy script content."
-  [prepare-dir :- dir-model/NonRootDirectory 
+  [prepare-dir :- dir-model/NonRootDirectory
    deploy-dir :- dir-model/NonRootDirectory
    tomcat-dir :- dir-model/NonRootDirectory]
   (let [application-parts-hot ["hooks" "layouts" "portlets" "themes"]
         ;TODO ext muss hinzugefügt werden
         application-parts-full ["app" "hooks" "layouts" "portlets" "themes" "ext"]]
     (stevedore/with-script-language :pallet.stevedore.bash/bash
-      (stevedore/with-source-line-comments false 
-        (stevedore/script 
+      (stevedore/with-source-line-comments false
+        (stevedore/script
           ;(~lib/declare-arguments [release-dir hot-or-cold])
           ("if [ \"$#\" -eq 0 ]; then")
           (println "\"\"")
@@ -251,13 +251,13 @@
           ("exit 1")
           ("fi")
           ("if [ \"$#\" -ge 3 ]; then")
-          (println "\"\"") 
+          (println "\"\"")
           (println "\"Please specify 2 parameters only!\"")
           (println "\"\"")
           ("exit 1")
           ("fi")
           (if (directory? (str ~prepare-dir @1))
-            (if (= @2 "hot") 
+            (if (= @2 "hot")
               (do
                 (doseq [part ~application-parts-hot]
                   ("cp" (str ~prepare-dir @1 "/" @part "/*") ~deploy-dir))
@@ -270,12 +270,9 @@
                 ("unzip" (str ~tomcat-dir "ROOT.war -d " ~tomcat-dir "ROOT/"))
                 ("cp" (str ~prepare-dir @1 "/config/portal-ext.properties") (str ~tomcat-dir "ROOT/WEB-INF/classes/"))
                 ("chown tomcat7" (str ~tomcat-dir "*"))
-                ("service tomcat7 start")
-                ))
-            (do 
+                ("service tomcat7 start")))
+
+            (do
               (println "\"\"")
               (println "\"ERROR: Specified release does not exist or you don't have the permission for it! Please run again as root! For a list of the available releases, run this script without parameters in order to show the available releases!\" ;")
-              (println "\"\"")))
-          ))))
-  )
-
+              (println "\"\""))))))))

@@ -26,33 +26,32 @@
     [pallet.crate :as crate]
     [pallet.crate.service :as service]
     [pallet.stevedore :as stevedore]
-    [org.domaindrivenarchitecture.pallet.crate.mysql :as mysql]
-    ))
+    [org.domaindrivenarchitecture.pallet.crate.mysql :as mysql]))
+
 
 (defn install-database
   [db-root-passwd]
   (mysql/install-mysql :db-root-password db-root-passwd)
-  (actions/service "mysql" :action :restart)
-)
+  (actions/service "mysql" :action :restart))
+
 
 (defn install-db-instance
-  [& {:keys [db-root-passwd 
-             db-name 
-             db-user-name 
+  [& {:keys [db-root-passwd
+             db-name
+             db-user-name
              db-user-passwd]}]
-  (mysql/create-database 
+  (mysql/create-database
     :db-user-name "root"
     :db-passwd db-root-passwd
     :db-name db-name
     :create-options "CHARACTER SET utf8")
-  (mysql/grant 
+  (mysql/grant
     :db-root-user-name "root"
-    :db-root-passwd db-root-passwd 
+    :db-root-passwd db-root-passwd
     :db-user-name db-user-name
     :db-user-passwd db-user-passwd
-    :grant-level (str "`" db-name "`.*" ))
-  (mysql/mysql-script 
-    :db-user-name "root" 
+    :grant-level (str "`" db-name "`.*"))
+  (mysql/mysql-script
+    :db-user-name "root"
     :db-passwd db-root-passwd
-    :sql-script "flush privileges;")
-  )
+    :sql-script "flush privileges;"))
