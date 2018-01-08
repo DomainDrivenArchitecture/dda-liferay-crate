@@ -208,8 +208,8 @@
     (doseq [release releases]
       (let [release-subdir (release-dir-name release-dir release)]
         (actions/plan-when-not
-          (stevedore/script (directory? ~release-dir))
-          (liferay-dir release-dir :owner "root")
+          (stevedore/script (directory? ~release-subdir))
+          (liferay-dir release-subdir :owner "root")
           (download-and-store-applications release-subdir release :app)
           (download-and-store-applications release-subdir release :config)
           (download-and-store-applications release-subdir release :hooks)
