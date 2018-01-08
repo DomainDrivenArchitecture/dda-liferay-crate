@@ -38,14 +38,15 @@
            :db-user-name db-user-name
            :db-user-passwd db-user-passwd}]}))
 
-(s/defn ^:always-validate httpd-domain-configuration
+(s/defn ^:always-validate
+  httpd-domain-configuration
   [domain-config :- DomainConfigResolved]
   (let [{:keys [fq-domain-name google-id settings]} domain-config]
     (merge
       {:domain-name fq-domain-name}
       (when (contains? domain-config :google-id)
         {:google-id google-id})
-      (when (contains? domain-config settings)
+      (when (contains? domain-config :settings)
         {:settings settings})
       {:alias [{:url "/quiz/" :path "/var/www/static/quiz/"}]
        :jk-unmount [{:path "/quiz/*" :worker "mod_jk_www"}]})))
