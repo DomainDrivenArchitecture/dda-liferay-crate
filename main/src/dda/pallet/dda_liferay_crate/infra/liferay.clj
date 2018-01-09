@@ -152,8 +152,6 @@
 ;  (let [base-release-dir (st/get-in release-config [:release-dir])
 ;        releases (st/get-in release-config [:releases])
   (let [{:keys [release-dir releases]} config]
-    ; TODO: remove as soon as tomcat-crate is integrated
-    (actions/package "tomcat7")
     (actions/exec-script*
       (remove-all-but-specified-versions releases release-dir))
     (doseq [release releases]

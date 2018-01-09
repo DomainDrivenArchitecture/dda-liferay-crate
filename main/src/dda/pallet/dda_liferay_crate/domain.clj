@@ -51,12 +51,20 @@
       {:alias [{:url "/quiz/" :path "/var/www/static/quiz/"}]
        :jk-unmount [{:path "/quiz/*" :worker "mod_jk_www"}]})))
 
-(s/defn ^:always-validate backup-domain-configuration
+(s/defn ^:always-validate
+  tomcat-domain-configuration
+  [domain-config :- DomainConfigResolved]
+  {:lr-6x {:xmx-megabbyte 2560            ; e.g. 6072 or 2560
+           :lr-home "/var/lib/liferay/"}}) ; e.g. /var/lib/liferay
+
+(s/defn ^:always-validate
+  backup-domain-configuration
   [domain-config :- DomainConfigResolved]
   (let [{:keys []} domain-config]
     (backup/backup-domain-config domain-config)))
 
-(s/defn ^:always-validate liferay-infra-configuration :- infra/LiferayCrateConfig
+(s/defn ^:always-validate
+  liferay-infra-configuration :- infra/LiferayCrateConfig
   [domain-config :- DomainConfigResolved]
   (let [{:keys [fq-domain-name db-name db-user-name db-user-passwd]} domain-config]
     ;TODO replace hard coded values of tomcat ?

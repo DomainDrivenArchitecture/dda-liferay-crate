@@ -22,6 +22,7 @@
     [dda.pallet.dda-config-crate.infra :as config]
     [dda.pallet.dda-httpd-crate.app :as httpd]
     [dda.pallet.dda-mariadb-crate.app :as db]
+    [dda.pallet.dda-tomcat-crate.app :as tomcat]
     [dda.pallet.dda-backup-crate.app :as backup]
     [dda.pallet.dda-user-crate.app :as user]
     [dda.pallet.commons.existing :as existing]
@@ -37,6 +38,7 @@
  {:group-specific-config
    {s/Keyword (merge db/InfraResult
                      httpd/InfraResult
+                     tomcat/InfraResult
                      infra/InfraResult)}})
                     ;backup/InfraResult)}})
 
@@ -75,6 +77,9 @@
                    (httpd/tomcat-app-configuration
                      (domain/httpd-domain-configuration resolved-domain-config)
                      :group-key group-key)
+                   (tomcat/app-configuration
+                     (domain/tomcat-domain-configuration resolved-domain-config)
+                     :group-key group-key)
                    ;(backup/app-configuration)
                     ; (domain/backup-domain-configuration resolved-domain-config)
                      ;:group-key group-key)
@@ -88,5 +93,6 @@
    app-config [(config/with-config app-config)
                db/with-mariadb
                httpd/with-httpd
+               tomcat/with-tomcat
                ;backup/with-backup
                with-liferay]))

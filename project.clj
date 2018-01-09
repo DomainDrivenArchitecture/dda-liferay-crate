@@ -7,6 +7,7 @@
                  [dda/dda-pallet "0.6.5"]
                  [dda/dda-httpd-crate "0.2.6-SNAPSHOT"]
                  [dda/dda-mariadb-crate "0.2.2"]
+                 [dda/dda-tomcat-crate "0.3.0-SNAPSHOT"]
                  [dda/dda-backup-crate "0.7.1"]]
   :source-paths ["main/src"]
   :resource-paths ["main/resources"]
