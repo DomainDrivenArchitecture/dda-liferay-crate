@@ -71,6 +71,13 @@
               (println "\"ERROR: Specified release does not exist or you don't have the permission for it! Please run again as root! For a list of the available releases, run this script without parameters in order to show the available releases!\" ;")
               (println "\"\""))))))))
 
+(s/defn ^:always-validate remove-all-but-specified-versions
+  "Removes all other Versions except the specifided Versions"
+  [releases :- [schema/LiferayRelease]
+   release-dir :- dir-model/NonRootDirectory]
+  (let [versions (string/join "|" (map #(str (st/get-in % [:name]) (string/join "." (st/get-in % [:version]))) releases))]
+    (stevedore/script
+      (pipe (pipe ("ls" ~release-dir) ("grep" "-Ev" ~versions)) ("xargs" "-I {} rm -r" (str ~release-dir "{}"))))))
 
 ; -------------------- db replace scripts  ---------------------
 (def var-lib-liferay-rsync-sh

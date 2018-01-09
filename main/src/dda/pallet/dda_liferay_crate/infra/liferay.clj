@@ -127,14 +127,6 @@
       :literal true
       :content (liferay-scripts/do-deploy-script release-dir deploy-dir (:tomcat-webapps-dir tomcat)))))
 
-(s/defn ^:always-validate remove-all-but-specified-versions
-  "Removes all other Versions except the specifided Versions"
-  [releases :- [schema/LiferayRelease]
-   release-dir :- dir-model/NonRootDirectory]
-  (let [versions (string/join "|" (map #(str (st/get-in % [:name]) (string/join "." (st/get-in % [:version]))) releases))]))
-    ;TODO (stevedore/script
-    ;       (pipe (pipe ("ls" ~release-dir) ("grep -Ev" ~versions)) ("xargs -I {} rm -r" (str ~release-dir "{}")))))
-
 (s/defn ^:always-validate release-name :- s/Str
   "get the release name"
   [release :- schema/LiferayRelease]
@@ -149,11 +141,9 @@
 (s/defn ^:always-validate prepare-rollout
   "prepare the rollout of all liferay releases, i.e. download required libraries"
   [config :- schema/LiferayCrateConfig]
-;  (let [base-release-dir (st/get-in release-config [:release-dir])
-;        releases (st/get-in release-config [:releases])
   (let [{:keys [release-dir releases]} config]
     (actions/exec-script*
-      (remove-all-but-specified-versions releases release-dir))
+      (liferay-scripts/remove-all-but-specified-versions releases release-dir))
     (doseq [release releases]
       (let [release-subdir (release-dir-name release-dir release)]
         (actions/plan-when-not
