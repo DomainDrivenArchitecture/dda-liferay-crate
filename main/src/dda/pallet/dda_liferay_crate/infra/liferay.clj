@@ -22,7 +22,8 @@
     [pallet.actions :as actions]
     [pallet.stevedore :as stevedore]
     [dda.config.commons.directory-model :as dir-model]
-    [dda.pallet.dda-liferay-crate.infra.schema :as schema]))
+    [dda.pallet.dda-liferay-crate.infra.schema :as schema]
+    [dda.pallet.dda-liferay-crate.infra.liferay-scripts :as liferay-scripts]))
 
 ; ----------------  functions for the installation   -------------
 (defn- liferay-dir
@@ -78,7 +79,6 @@
 
 (s/defn liferay-dependencies-into-tomcat
   "get dependency files"
-  ;[liferay-lib-dir repo-download-source]
   [config :- schema/LiferayCrateConfig]
   (let [{:keys [lib-dir
                 repo-download-source]} config]
@@ -89,55 +89,6 @@
       (let [download-location (str repo-download-source jar ".jar")
             target-file (str lib-dir jar ".jar")]
         (liferay-remote-file target-file download-location)))))
-
-(s/defn ^:always-validate do-deploy-script
-  "Provides the do-deploy script content."
-  [prepare-dir ;:- dir-model/NonRootDirectory
-   deploy-dir ;:- dir-model/NonRootDirectory
-   tomcat-dir] ;:- dir-model/NonRootDirectory]
-
-  (let [application-parts-hot ["hooks" "layouts" "portlets" "themes"]
-        ;TODO ext muss hinzugefügt werden
-        application-parts-full ["app" "hooks" "layouts" "portlets" "themes" "ext"]]
-    (stevedore/with-script-language :pallet.stevedore.bash/bash
-      (stevedore/with-source-line-comments false
-        (stevedore/script
-          ;(~lib/declare-arguments [release-dir hot-or-cold])
-          ("if [ \"$#\" -eq 0 ]; then")
-          (println "\"\"")
-          (println "\"Usage is: prepare-rollout [release] [deployment-mode].\"")
-          (println "\"  deployment-mode:      [hot|full] hot uses the liferay hot deployment mechanism for deploying portlets, themes, a.s.o.\"")
-          (println "\"                                   full restarts tomcat and rolles out the liferay app itself, the configuration and portlets ...\"")
-          (println "\"  Available Releases are:\"")
-          (pipe (pipe ("find" ~prepare-dir "-mindepth 2 -type d") ("cut -d/ -f6")) ("sort -u"))
-          (println "\"\"")
-          ("exit 1")
-          ("fi")
-          ("if [ \"$#\" -ge 3 ]; then")
-          (println "\"\"")
-          (println "\"Please specify 2 parameters only!\"")
-          (println "\"\"")
-          ("exit 1")
-          ("fi")
-          (if (directory? (str ~prepare-dir @1))
-            (if (= @2 "hot")
-              (do
-                (doseq [part ~application-parts-hot]
-                  ("cp" (str ~prepare-dir @1 "/" @part "/*") ~deploy-dir))
-                ("chown tomcat7" (str ~deploy-dir "*")))
-              (do
-                ("service tomcat7 stop")
-                ("rm -rf" (str ~tomcat-dir "*"))
-                (doseq [part ~application-parts-full]
-                  ("cp" (str ~prepare-dir @1 "/" @part "/*") ~tomcat-dir))
-                ("unzip" (str ~tomcat-dir "ROOT.war -d " ~tomcat-dir "ROOT/"))
-                ("cp" (str ~prepare-dir @1 "/config/portal-ext.properties") (str ~tomcat-dir "ROOT/WEB-INF/classes/"))
-                ("chown tomcat7" (str ~tomcat-dir "*"))
-                ("service tomcat7 start")))
-            (do
-              (println "\"\"")
-              (println "\"ERROR: Specified release does not exist or you don't have the permission for it! Please run again as root! For a list of the available releases, run this script without parameters in order to show the available releases!\" ;")
-              (println "\"\""))))))))
 
 (s/defn ^:always-validate download-and-store-applications
   "download and store liferay applications in given directory"
@@ -167,14 +118,14 @@
 (s/defn ^:always-validate install-do-rollout-script
   "Creates script for rolling liferay version. To be called by the admin connected to the server via ssh"
   [config :- schema/LiferayCrateConfig]
-  (let [{:keys [home-dir prepare-dir deploy-dir tomcat-webapps]} config]
+  (let [{:keys [home-dir deploy-dir release-dir tomcat]} config]
     (actions/remote-file
       (str home-dir "do-rollout.sh")
       :owner "root"
       :group "root"
       :mode "0744"
       :literal true
-      :content (do-deploy-script prepare-dir deploy-dir tomcat-webapps))))
+      :content (liferay-scripts/do-deploy-script release-dir deploy-dir (:tomcat-webapps-dir tomcat)))))
 
 (s/defn ^:always-validate remove-all-but-specified-versions
   "Removes all other Versions except the specifided Versions"
@@ -223,13 +174,18 @@
   copies liferay webapp into tomcat and loads dependencies into tomcat"
   [config :- schema/LiferayCrateConfig]
   (create-liferay-directories config)
-  ;TODO required or already covered by tomcat?? (liferay-dependencies-into-tomcat config)
+  ;TODO from archiva (liferay-dependencies-into-tomcat config)
   (install-do-rollout-script config)
   (prepare-rollout config))
 
-
-; ----------------  functions for the configuration   -------------
+; ----------------  configure functions  -------------
 (s/defn configure-liferay
+  "dda liferay crate: configure routine"
   [config :- schema/LiferayCrateConfig]
-  "dda liferay crate: configure routine")
-  ;TODO
+  (let [{:keys [fq-domain-name home-dir db-name db-user-name db-user-passwd]}
+        config fqdn-to-be-replaced "fqdn-to-be-replaced"] ;TODO resolve fqdn-to-be-replaced
+    (liferay-config-file
+      (str home-dir "prodDataReplacements.sh")
+      (liferay-scripts/var-lib-liferay-prodDataReplacements-sh
+        fqdn-to-be-replaced fq-domain-name db-name db-user-name db-user-passwd)
+      :owner "root" :mode "744")))

@@ -56,28 +56,22 @@
   (let [{:keys []} domain-config]
     (backup/backup-domain-config domain-config)))
 
-; deprecated
-(s/defn default-infra-config
-  [domain-config :- DomainConfigResolved]
-  {:instance-name "default"
-   :home-dir "/var/lib/liferay/"
-   :lib-dir "/var/lib/liferay/lib/"
-   :deploy-dir "/var/lib/liferay/deploy/"
-   :release-dir "/var/lib/liferay/prepare-rollout/"
-   :releases [(liferay-config/default-release-config domain-config)]})
-
 (s/defn ^:always-validate liferay-infra-configuration :- infra/LiferayCrateConfig
   [domain-config :- DomainConfigResolved]
-  (let [{:keys [fq-domain-name]} domain-config]
+  (let [{:keys [fq-domain-name db-name db-user-name db-user-passwd]} domain-config]
     ;TODO replace hard coded values of tomcat ?
-    {:home-dir "/var/lib/liferay/"
+    {:fq-domain-name fq-domain-name
+     :home-dir "/var/lib/liferay/"
      :lib-dir "/var/lib/liferay/lib/"
      :deploy-dir "/var/lib/liferay/deploy/"
      :repo-download-source "http://ufpr.dl.sourceforge.net/project/lportal/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"
      :release-dir "/var/lib/liferay/prepare-rollout/"
      :releases [(liferay-config/default-release-config domain-config)]
-     :tomcat-root-dir "/usr/share/tomcat7/"
-     :tomcat-webapps-dir "webapps/"}))
+     :tomcat {:tomcat-root-dir "/usr/share/tomcat7/"
+              :tomcat-webapps-dir "webapps/"}
+     :db {:db-name db-name
+          :db-user-name db-user-name
+          :db-user-passwd db-user-passwd}}))
 
 (s/defn ^:always-validate infra-configuration :- infra/InfraResult
   [domain-config :- DomainConfigResolved]

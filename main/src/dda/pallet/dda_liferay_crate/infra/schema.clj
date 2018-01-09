@@ -35,19 +35,17 @@
    (s/optional-key :portlets) [LiferayApp]
    (s/optional-key :ext) [LiferayApp]})
 
-;TODO deprecated
-(def LiferayReleaseConfig-depr
-  "The configuration schema for liferay release feature."
-  {:release-dir directory/NonRootDirectory
-   :releases [LiferayRelease]})
-
 (def LiferayCrateConfig
   "The infra config schema."
-  {:home-dir s/Str
+  {:fq-domain-name s/Str
+   :home-dir s/Str
    :lib-dir s/Str
    :deploy-dir s/Str
    :repo-download-source s/Str
-   :tomcat-root-dir s/Str
-   :tomcat-webapps-dir s/Str
    :release-dir directory/NonRootDirectory
-   :releases [LiferayRelease]})
+   :releases [LiferayRelease]
+   :tomcat {:tomcat-root-dir s/Str
+            :tomcat-webapps-dir s/Str}
+   :db {:db-name s/Str
+        :db-user-name s/Str
+        :db-user-passwd s/Str}})
