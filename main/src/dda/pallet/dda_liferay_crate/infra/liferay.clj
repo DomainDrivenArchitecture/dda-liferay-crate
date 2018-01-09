@@ -162,7 +162,7 @@
   copies liferay webapp into tomcat and loads dependencies into tomcat"
   [config :- schema/LiferayCrateConfig]
   (create-liferay-directories config)
-  ;TODO from archiva (liferay-dependencies-into-tomcat config)
+  (liferay-dependencies-into-tomcat config)
   (install-do-rollout-script config)
   (prepare-rollout config))
 
