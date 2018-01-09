@@ -25,7 +25,6 @@
   "domainConfigResolved"
   {:fq-domain-name "liferay.example.de"
    :db-root-passwd "test1234"
-   :db-name "lportal"
    :db-user-name "dbtestuser"
    :db-user-passwd "test1234"
    :settings #{ :test}})
@@ -35,7 +34,6 @@
   {:fq-domain-name "liferay.example.de"
    :google-id "xxxxxxxxxxxxxxxxxxxxx"
    :db-root-passwd "test1234"
-   :db-name "lportal"
    :db-user-name "dbtestuser"
    :db-user-passwd "test1234"
    :settings #{ :test}})
@@ -54,5 +52,5 @@
   (testing
     "test the infra config creation"
     (is (thrown? Exception (sut/infra-configuration {})))
-    (is (= {:dda-liferay-crate {:fq-domain-name "liferay.example.de"}}
-          (sut/infra-configuration config-full)))))
+    (is (= "liferay.example.de"
+           (:fq-domain-name (:dda-liferay-crate (sut/infra-configuration config-full)))))))

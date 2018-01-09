@@ -2,7 +2,6 @@
 {:fq-domain-name "example.de"
  :google-id "xxxxxxxxxxxxxxxxxxxxx"
  :db-root-passwd {:plain "test1234"}
- :db-name "lportal"
  :db-user-name "dbtestuser"
  :db-user-passwd {:plain "test1234"}
  :settings #{:test}}

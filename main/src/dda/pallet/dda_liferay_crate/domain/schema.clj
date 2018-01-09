@@ -23,7 +23,6 @@
   {:fq-domain-name s/Str
    (s/optional-key :google-id) s/Str
    :db-root-passwd secret/Secret
-   :db-name s/Str
    :db-user-name s/Str
    :db-user-passwd secret/Secret
    ;if :test is specified in :settings, snakeoil certificates will be used
@@ -40,7 +39,6 @@
   {:fq-domain-name s/Str
    (s/optional-key :google-id) s/Str
    :db-root-passwd s/Str
-   :db-name s/Str
    :db-user-name s/Str
    :db-user-passwd s/Str
    :settings (hash-set (s/enum :test))

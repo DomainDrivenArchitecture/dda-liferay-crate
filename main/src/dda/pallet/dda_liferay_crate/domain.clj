@@ -23,18 +23,23 @@
     [dda.pallet.dda-liferay-crate.domain.liferay-config :as liferay-config]
     [dda.pallet.dda-liferay-crate.domain.backup :as backup]))
 
+; --------------  standard configuration values   -----------------------
+(def db-name "lportal")
+(def tomcat-version "7")
+(def tomcat-user "tomcat7")
+
 ; ----- schemas for the high-level domain configuration ----------
 (def DomainConfig schema/DomainConfig)
 
 (def DomainConfigResolved schema/DomainConfigResolved)
 
-;  functions to create other domain configs from the liferay domain config
+; ---  functions to create other configs from the liferay domain config  --
 (s/defn ^:always-validate db-domain-configuration
   [domain-config :- DomainConfigResolved]
   (let [{:keys [db-root-passwd db-user-name db-user-passwd]} domain-config]
     {:root-passwd db-root-passwd
      :settings #{}
-     :db [{:db-name backup/db-name
+     :db [{:db-name db-name
            :db-user-name db-user-name
            :db-user-passwd db-user-passwd}]}))
 
@@ -66,13 +71,13 @@
 (s/defn ^:always-validate
   liferay-infra-configuration :- infra/LiferayCrateConfig
   [domain-config :- DomainConfigResolved]
-  (let [{:keys [fq-domain-name db-name db-user-name db-user-passwd]} domain-config]
+  (let [{:keys [fq-domain-name db-user-name db-user-passwd]} domain-config]
     ;TODO replace hard coded values of tomcat ?
     {:fq-domain-name fq-domain-name
      :home-dir "/var/lib/liferay/"
      :lib-dir "/var/lib/liferay/lib/"
      :deploy-dir "/var/lib/liferay/deploy/"
-     :repo-download-source "http://ufpr.dl.sourceforge.net/project/lportal/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"
+     :repo-download-source "https://github.com/PolitAktiv/liferay-portal/releases/tag/6.2.1-ga2"
      :release-dir "/var/lib/liferay/prepare-rollout/"
      :releases [(liferay-config/default-release-config domain-config)]
      :tomcat {:tomcat-root-dir "/usr/share/tomcat7/"
