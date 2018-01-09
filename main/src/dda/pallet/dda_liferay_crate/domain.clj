@@ -24,7 +24,10 @@
     [dda.pallet.dda-liferay-crate.domain.backup :as backup]))
 
 ; --------------  standard configuration values   -----------------------
+(def liferay-home-dir "/var/lib/liferay/")
+
 (def db-name "lportal")
+
 (def tomcat-version "7")
 (def tomcat-user "tomcat7")
 
@@ -60,7 +63,7 @@
   tomcat-domain-configuration
   [domain-config :- DomainConfigResolved]
   {:lr-6x {:xmx-megabbyte 2560            ; e.g. 6072 or 2560
-           :lr-home "/var/lib/liferay/"}}) ; e.g. /var/lib/liferay
+           :lr-home liferay-home-dir}}) ; e.g. /var/lib/liferay
 
 (s/defn ^:always-validate
   backup-domain-configuration
@@ -74,11 +77,11 @@
   (let [{:keys [fq-domain-name db-user-name db-user-passwd]} domain-config]
     ;TODO replace hard coded values of tomcat ?
     {:fq-domain-name fq-domain-name
-     :home-dir "/var/lib/liferay/"
-     :lib-dir "/var/lib/liferay/lib/"
-     :deploy-dir "/var/lib/liferay/deploy/"
+     :home-dir liferay-home-dir
+     :lib-dir (str liferay-home-dir "lib/")
+     :deploy-dir (str liferay-home-dir "deploy/")
      :repo-download-source "https://github.com/PolitAktiv/releases/tree/master/liferay/3rd/6.2.1-ce-ga2"
-     :release-dir "/var/lib/liferay/prepare-rollout/"
+     :release-dir (str liferay-home-dir "prepare-rollout/")
      :releases [(liferay-config/default-release-config domain-config)]
      :tomcat {:tomcat-root-dir "/usr/share/tomcat7/"
               :tomcat-webapps-dir "webapps/"}
