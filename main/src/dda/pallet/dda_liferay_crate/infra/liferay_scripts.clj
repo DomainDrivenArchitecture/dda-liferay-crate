@@ -16,7 +16,9 @@
 
 (ns dda.pallet.dda-liferay-crate.infra.liferay-scripts
   (:require
+    [clojure.string :as string]
     [schema.core :as s]
+    [schema-tools.core :as st]
     [pallet.stevedore :as stevedore]
     [dda.config.commons.directory-model :as dir-model]
     [dda.pallet.dda-liferay-crate.infra.schema :as schema]))
