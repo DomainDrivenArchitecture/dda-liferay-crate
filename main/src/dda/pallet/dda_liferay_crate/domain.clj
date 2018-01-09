@@ -77,7 +77,7 @@
      :home-dir "/var/lib/liferay/"
      :lib-dir "/var/lib/liferay/lib/"
      :deploy-dir "/var/lib/liferay/deploy/"
-     :repo-download-source "https://github.com/PolitAktiv/liferay-portal/releases/tag/6.2.1-ga2"
+     :repo-download-source "https://github.com/PolitAktiv/releases/tree/master/liferay/3rd/6.2.1-ce-ga2"
      :release-dir "/var/lib/liferay/prepare-rollout/"
      :releases [(liferay-config/default-release-config domain-config)]
      :tomcat {:tomcat-root-dir "/usr/share/tomcat7/"
