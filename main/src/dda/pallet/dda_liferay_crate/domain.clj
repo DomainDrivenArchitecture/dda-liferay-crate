@@ -84,7 +84,7 @@
      :release-dir (str liferay-home-dir "prepare-rollout/")
      :releases [(liferay-config/default-release-config domain-config)]
      :tomcat {:tomcat-root-dir "/usr/share/tomcat7/"
-              :tomcat-webapps-dir "webapps/"}
+              :tomcat-webapps-dir "/var/lib/tomcat7/webapps/"}
      :db {:db-name db-name
           :db-user-name db-user-name
           :db-user-passwd db-user-passwd}}))
