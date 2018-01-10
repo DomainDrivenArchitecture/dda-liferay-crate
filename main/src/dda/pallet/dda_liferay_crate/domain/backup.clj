@@ -18,9 +18,6 @@
     [schema.core :as s]
     [dda.pallet.commons.secret :as secret]))
 
-(def db-name
-    "liferaydb")
-
 (def os-user
   {:hashed-password "kpwejjj0r04u09rg90rfj"
    :authorized-keys []
@@ -28,7 +25,7 @@
 
 (defn backup-domain-config
   [domain-config]
-  (let [{:keys [backup db-root-passwd]} domain-config
+  (let [{:keys [backup db-root-passwd db-name]} domain-config
         {:keys [bucket-name  gpg aws]} backup]
     (merge
       {:backup-name "liferay"
