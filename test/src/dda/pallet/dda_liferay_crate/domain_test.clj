@@ -23,7 +23,8 @@
 ; --------------------------- Test configs ---------------------------
 (def config-simple
   "domainConfigResolved"
-  {:fq-domain-name "liferay.example.de"
+  {:liferay-version :LR6
+   :fq-domain-name "liferay.example.de"
    :db-root-passwd "test1234"
    :db-user-name "dbtestuser"
    :db-user-passwd "test1234"
@@ -31,7 +32,8 @@
 
 (def config-full
   "domainConfigResolved"
-  {:fq-domain-name "liferay.example.de"
+  {:liferay-version :LR6
+   :fq-domain-name "liferay.example.de"
    :google-id "xxxxxxxxxxxxxxxxxxxxx"
    :db-root-passwd "test1234"
    :db-user-name "dbtestuser"

@@ -18,9 +18,12 @@
     [schema.core :as s]
     [dda.pallet.commons.secret :as secret]))
 
+(def LiferayVersion (s/enum :LR6 :LR7))
+
 (def DomainConfig
   "The high-level domain configuration for the liferay-crate."
-  {:fq-domain-name s/Str
+  {:liferay-version LiferayVersion
+   :fq-domain-name s/Str
    (s/optional-key :google-id) s/Str
    :db-root-passwd secret/Secret
    :db-user-name s/Str
@@ -36,7 +39,8 @@
 
 (def DomainConfigResolved
   "The high-level domain configuration for the liferay-crate with secrets resolved."
-  {:fq-domain-name s/Str
+  {:liferay-version LiferayVersion
+   :fq-domain-name s/Str
    (s/optional-key :google-id) s/Str
    :db-root-passwd s/Str
    :db-user-name s/Str

@@ -39,12 +39,12 @@
 
 (def config-unresolved
   "domainConfig unresolved"
-  {:fq-domain-name "example.de"
+  {:liferay-version :LR6
+   :fq-domain-name "example.de"
    :db-root-passwd {:plain "test1234"}
    :db-user-name "dbtestuser"
    :db-user-passwd {:plain "test1234"}
    :settings #{:test}})
-
 
 ; -------------------------------- Tests ------------------------------
 (deftest test-resolved-config
