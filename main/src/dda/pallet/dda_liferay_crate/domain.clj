@@ -37,7 +37,8 @@
 (def DomainConfigResolved schema/DomainConfigResolved)
 
 ; ---  functions to create other configs from the liferay domain config  --
-(s/defn ^:always-validate db-domain-configuration
+(s/defn ^:always-validate
+  db-domain-configuration
   [domain-config :- DomainConfigResolved]
   (let [{:keys [db-root-passwd db-user-name db-user-passwd]} domain-config]
     {:root-passwd db-root-passwd
