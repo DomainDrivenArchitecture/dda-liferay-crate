@@ -90,7 +90,7 @@
             target-file (str lib-dir jar ".jar")]
         (liferay-remote-file target-file download-location)))))
 
-(s/defn ^:always-validate download-and-store-applications
+(s/defn download-and-store-applications
   "download and store liferay applications in given directory"
   [release-dir :- dir-model/NonRootDirectory
    release :- schema/LiferayRelease
@@ -115,7 +115,7 @@
                                                   (second app)
                                                   :owner "root")))))))
 
-(s/defn ^:always-validate install-do-rollout-script
+(s/defn install-do-rollout-script
   "Creates script for rolling liferay version. To be called by the admin connected to the server via ssh"
   [config :- schema/LiferayCrateConfig]
   (let [{:keys [home-dir deploy-dir release-dir tomcat]} config]
@@ -127,18 +127,18 @@
       :literal true
       :content (liferay-scripts/do-deploy-script release-dir deploy-dir (:tomcat-webapps-dir tomcat)))))
 
-(s/defn ^:always-validate release-name :- s/Str
+(s/defn release-name :- s/Str
   "get the release name"
   [release :- schema/LiferayRelease]
   (str (st/get-in release [:name]) "-" (string/join "." (st/get-in release [:version]))))
 
-(s/defn ^:always-validate release-dir-name :- dir-model/NonRootDirectory
+(s/defn release-dir-name :- dir-model/NonRootDirectory
   "get the release dir name"
   [base-release-dir :- dir-model/NonRootDirectory
    release :- schema/LiferayRelease]
   (str base-release-dir (release-name release) "/"))
 
-(s/defn ^:always-validate prepare-rollout
+(s/defn prepare-rollout
   "prepare the rollout of all liferay releases, i.e. download required libraries"
   [config :- schema/LiferayCrateConfig]
   (let [{:keys [release-dir releases]} config]
