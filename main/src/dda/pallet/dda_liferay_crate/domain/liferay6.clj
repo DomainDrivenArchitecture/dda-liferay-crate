@@ -81,7 +81,8 @@
      :home-dir liferay-home-dir
      :lib-dir (str liferay-home-dir "lib/")
      :deploy-dir (str liferay-home-dir "deploy/")
-     :repo-download-source "https://github.com/PolitAktiv/releases/tree/master/liferay/3rd/6.2.1-ce-ga2/"
+     :repo-download-source "https://github.com/PolitAktiv/releases/releases/download/6.2.x/"
+     ;:repo-download-source "https://github.com/PolitAktiv/releases/tree/master/liferay/3rd/6.2.1-ce-ga2/"
      :release-dir (str liferay-home-dir "prepare-rollout/")
      :releases [(liferay-config/default-release-config domain-config)]
      :tomcat {:tomcat-root-dir "/usr/share/tomcat7/"
