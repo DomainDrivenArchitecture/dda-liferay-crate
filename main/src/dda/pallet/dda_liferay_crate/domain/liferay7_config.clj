@@ -13,7 +13,8 @@
 ; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
-(ns dda.pallet.dda-liferay-crate.domain.liferay-config
+
+(ns dda.pallet.dda-liferay-crate.domain.liferay7-config
   (:require
     [schema.core :as s]
     [dda.pallet.dda-liferay-crate.domain.schema :as schema]))
@@ -57,8 +58,8 @@
   "The default release configuration."
   [portal-ext-lines]
  {:name "LiferayCE"
-  :version [6 2 1]
-  :app ["ROOT" "http://ufpr.dl.sourceforge.net/project/lportal/Liferay%20Portal/6.2.1%20GA2/liferay-portal-6.2-ce-ga2-20140319114139101.war"]
+  :version [7 0 0]
+  :app ["ROOT" "https://netcologne.dl.sourceforge.net/project/lportal/Liferay%20Portal/7.0.4%20GA5/liferay-ce-portal-7.0-ga5-20171018150113838.war"]
   :config portal-ext-lines})
 
 (s/defn default-release-config
