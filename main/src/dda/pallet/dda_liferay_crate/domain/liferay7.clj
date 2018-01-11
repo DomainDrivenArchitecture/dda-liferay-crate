@@ -81,13 +81,15 @@
      :home-dir liferay-home-dir
      :lib-dir (str liferay-home-dir "lib/")
      :deploy-dir (str liferay-home-dir "deploy/")
-     :repo-download-source "https://github.com/DomainDrivenArchitecture/liferay-jar/tree/master/lr7/"
+     :repo-download-source "https://github.com/PolitAktiv/releases/releases/download/7.0.x/"
      :dependencies ["activation" "ccpp" "hsql" "jms"
                     "jta" "jutf7" "mail"
                     "mysql" "persistence"
                     "portlet" "postgresql" "support-tomcat"
                     ; LR7 specifi
-                    "hsql" "portal-kernel" "com.liferay.registry.api" "jms"]
+                    "mariadb"
+                    "com.liferay.osgi.service.tracker.collections-2.0.3" 
+                    "portal-kernel" "com.liferay.registry.api" "jms"]
      :release-dir (str liferay-home-dir "prepare-rollout/")
      :releases [(liferay-config/default-release-config domain-config)]
      :tomcat {:tomcat-root-dir (str "/usr/share/tomcat8/")
