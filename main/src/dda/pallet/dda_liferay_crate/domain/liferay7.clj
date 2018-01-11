@@ -63,7 +63,7 @@
 (s/defn ^:always-validate
   tomcat-domain-configuration
   [domain-config :- DomainConfigResolved]
-  {:lr-6x {:xmx-megabbyte 2560            ; e.g. 6072 or 2560
+  {:lr-7x {:xmx-megabbyte 2560            ; e.g. 6072 or 2560
            :lr-home liferay-home-dir}}) ; e.g. /var/lib/liferay
 
 (s/defn ^:always-validate
