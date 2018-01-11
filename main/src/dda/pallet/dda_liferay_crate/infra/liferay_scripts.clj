@@ -58,7 +58,7 @@
               (do
                 (doseq [part ~application-parts-hot]
                   ("cp" (str ~prepare-dir @1 "/" @part "/*") ~deploy-dir))
-                ("chown tomcat7" (str ~deploy-dir "*")))
+                ("chown -R tomcat7" (str ~deploy-dir "*")))
               (do
                 ("service tomcat7 stop")
                 ("rm -rf" (str ~tomcat-dir "*"))

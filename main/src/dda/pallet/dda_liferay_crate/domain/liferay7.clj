@@ -81,7 +81,13 @@
      :home-dir liferay-home-dir
      :lib-dir (str liferay-home-dir "lib/")
      :deploy-dir (str liferay-home-dir "deploy/")
-     :repo-download-source "https://github.com/DomainDrivenArchitecture/liferay-jar/lr7/"
+     :repo-download-source "https://github.com/DomainDrivenArchitecture/liferay-jar/tree/master/lr7/"
+     :dependencies ["activation" "ccpp" "hsql" "jms"
+                    "jta" "jutf7" "mail"
+                    "mysql" "persistence"
+                    "portlet" "postgresql" "support-tomcat"
+                    ; LR7 specifi
+                    "hsql" "portal-kernel" "com.liferay.registry.api" "jms"]
      :release-dir (str liferay-home-dir "prepare-rollout/")
      :releases [(liferay-config/default-release-config domain-config)]
      :tomcat {:tomcat-root-dir (str "/usr/share/tomcat8/")
