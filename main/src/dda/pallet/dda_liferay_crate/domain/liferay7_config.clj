@@ -34,10 +34,10 @@
      "# MySQL"
      "#"
      "jdbc.default.driverClassName=com.mysql.jdbc.Driver"
-     (str "jdbc.default.url=jdbc:mysql://localhost:3306/" :db-name
+     (str "jdbc.default.url=jdbc:mysql://localhost:3306/" db-name
           "?useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false")
-     (str "jdbc.default.username=" :db-user-name)
-     (str "jdbc.default.password=" :db-user-passwd)
+     (str "jdbc.default.username=" db-user-name)
+     (str "jdbc.default.password=" db-user-passwd)
      "#"
      "# C3PO"
      "#"

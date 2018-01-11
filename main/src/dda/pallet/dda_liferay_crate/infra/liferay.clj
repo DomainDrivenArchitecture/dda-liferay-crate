@@ -25,7 +25,7 @@
     [dda.pallet.dda-liferay-crate.infra.schema :as schema]
     [dda.pallet.dda-liferay-crate.infra.liferay-scripts :as liferay-scripts]))
 
-; ----------------  functions for the installation   -------------
+; ----------------  general installation functions  -------------
 (defn- liferay-dir
   "Create a single folder"
   [dir-path & {:keys [owner mode]
@@ -39,6 +39,43 @@
       :group owner
       :mode mode))
 
+(defn- liferay-config-file
+  "Install a file with the specified content"
+  [file-name content  & {:keys [owner mode]
+                         :or {owner "tomcat7" mode "644"}}]
+  (actions/remote-file
+    file-name
+    :owner owner
+    :group owner
+    :mode mode
+    :literal true
+    :content (string/join \newline content)))
+
+(defn- liferay-remote-file
+  "Install a file  from a URL"
+  [file-name download-url & {:keys [owner mode]
+                             :or {owner "tomcat7" mode "644"}}]
+  (actions/remote-file
+    file-name
+    :owner owner
+    :group owner
+    :mode mode
+    :insecure true
+    :literal true
+    :url download-url))
+
+(defn liferay-remote-file-unzip
+  "Unzip and install files from a zip from a URL"
+  [target-dir download-url owner group]
+  (actions/remote-directory
+    target-dir
+    :url download-url
+    :unpack :unzip
+    :recursive true
+    :owner owner
+    :group group))
+
+; ----------------  liferay specific installation functions  -------------
 (s/defn create-liferay-directories
   "Create folders required for liferay"
   [config :- schema/LiferayCrateConfig]
@@ -52,43 +89,24 @@
     (liferay-dir lib-dir)
     (liferay-dir release-dir :owner "root")))
 
-(defn- liferay-config-file
-  "Create and upload a config file"
-  [file-name content  & {:keys [owner mode]
-                         :or {owner "tomcat7" mode "644"}}]
-  (actions/remote-file
-    file-name
-    :owner owner
-    :group owner
-    :mode mode
-    :literal true
-    :content (string/join \newline content)))
-
-(defn- liferay-remote-file
-  "Create and upload a config file"
-  [file-name url & {:keys [owner mode]
-                    :or {owner "tomcat7" mode "644"}}]
-  (actions/remote-file
-    file-name
-    :owner owner
-    :group owner
-    :mode mode
-    :insecure true
-    :literal true
-    :url url))
-
 (s/defn liferay-dependencies-into-tomcat
   "get dependency files"
   [config :- schema/LiferayCrateConfig]
   (let [{:keys [lib-dir
+                dependencies
                 repo-download-source]} config]
-    (doseq [jar ["activation" "ccpp" "hsql" "jms"
-                 "jta" "jtds" "junit" "jutf7" "mail"
-                 "mysql" "persistence" "portal-service"
-                 "portlet" "postgresql" "support-tomcat"]]
+    (doseq [jar dependencies]
       (let [download-location (str repo-download-source jar ".jar")
             target-file (str lib-dir jar ".jar")]
         (liferay-remote-file target-file download-location)))))
+
+(s/defn liferay-specific-dependencies
+  "Install liferay dependency files into liferay home"
+  [config :- schema/LiferayCrateConfig]
+  (let [{:keys [lib-dir repo-download-source]} config]
+    ;TODO url etc configurable
+    (liferay-dir (str lib-dir "osgitst/"))))
+    ;TODO (liferay-remote-file-unzip (str lib-dir "osgitst/") (str repo-download-source "ccpp.jar") "tomcat8" "tomcat8")))
 
 (s/defn download-and-store-applications
   "download and store liferay applications in given directory"
@@ -163,6 +181,8 @@
   [config :- schema/LiferayCrateConfig]
   (create-liferay-directories config)
   (liferay-dependencies-into-tomcat config)
+  ;TODO next line only for LR7
+  (liferay-specific-dependencies config)
   (install-do-rollout-script config)
   (prepare-rollout config))
 

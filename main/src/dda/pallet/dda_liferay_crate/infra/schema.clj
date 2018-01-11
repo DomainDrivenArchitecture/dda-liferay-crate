@@ -42,6 +42,7 @@
    :lib-dir s/Str
    :deploy-dir s/Str
    :repo-download-source s/Str
+   :dependencies [s/Str]
    :release-dir directory/NonRootDirectory
    :releases [LiferayRelease]
    :tomcat {:tomcat-root-dir s/Str
