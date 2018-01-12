@@ -79,34 +79,31 @@
 (s/defn create-liferay-directories
   "Create folders required for liferay"
   [config :- schema/LiferayCrateConfig]
-  (let [{:keys [home-dir
-                lib-dir
-                deploy-dir
-                release-dir]} config]
-    (liferay-dir (str home-dir "logs"))
-    (liferay-dir (str home-dir "data"))
-    (liferay-dir deploy-dir)
-    (liferay-dir lib-dir)
+  (let [{:keys [home-dir lib-dir deploy-dir release-dir tomcat]} config
+        {:keys [tomcat-user]} tomcat]
+    (liferay-dir (str home-dir "logs") :owner tomcat-user)
+    (liferay-dir (str home-dir "data") :owner tomcat-user)
+    (liferay-dir deploy-dir :owner tomcat-user)
+    (liferay-dir lib-dir :owner tomcat-user)
     (liferay-dir release-dir :owner "root")))
 
 (s/defn liferay-dependencies-into-tomcat
   "get dependency files"
   [config :- schema/LiferayCrateConfig]
-  (let [{:keys [lib-dir
-                dependencies
-                repo-download-source]} config]
+  (let [{:keys [lib-dir dependencies repo-download-source tomcat]} config
+        {:keys [tomcat-user]} tomcat]
     (doseq [jar dependencies]
       (let [download-location (str repo-download-source jar ".jar")
             target-file (str lib-dir jar ".jar")]
-        (liferay-remote-file target-file download-location)))))
+        (liferay-remote-file target-file download-location :owner tomcat-user)))))
 
 (s/defn liferay-specific-dependencies
   "Install liferay dependency files into liferay home"
   [config :- schema/LiferayCrateConfig]
-  (let [{:keys [lib-dir repo-download-source]} config]
-    ;TODO url etc configurable
-    (liferay-dir (str lib-dir "osgitst/"))))
-    ;TODO (liferay-remote-file-unzip (str lib-dir "osgitst/") (str repo-download-source "ccpp.jar") "tomcat8" "tomcat8")))
+  (let [{:keys [lib-dir repo-download-source tomcat]} config
+        {:keys [tomcat-user tomcat-service]} tomcat]
+    (liferay-dir (str lib-dir "osgitst/") :owner tomcat-user)))
+    ;TODO (liferay-remote-file-unzip lib-dir (str repo-download-source "osgi.zip") "tomcat8" "tomcat8")))
 
 (s/defn download-and-store-applications
   "download and store liferay applications in given directory"
