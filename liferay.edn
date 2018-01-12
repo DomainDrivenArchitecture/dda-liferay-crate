@@ -1,5 +1,5 @@
 ; specification of installation and configuration for liferay and required SW
-{:liferay-version :LR6
+{:liferay-version :LR7
  :fq-domain-name "example.de"
  :google-id "xxxxxxxxxxxxxxxxxxxxx"
  :db-root-passwd {:plain "test1234"}
