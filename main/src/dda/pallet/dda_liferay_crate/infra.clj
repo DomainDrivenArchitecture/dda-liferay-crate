@@ -21,7 +21,8 @@
     [dda.pallet.core.dda-crate :as dda-crate]
     [schema.core :as s]
     [dda.pallet.dda-liferay-crate.infra.schema :as schema]
-    [dda.pallet.dda-liferay-crate.infra.liferay :as liferay]))
+    [dda.pallet.dda-liferay-crate.infra.liferay :as liferay]
+    [dda.pallet.dda-liferay-crate.infra.osgi :as osgi]))
 
 ; -------------  facility and version  ------------------
 (def facility :dda-liferay-crate)
@@ -37,7 +38,10 @@
 ; -------------  methods and definitions  ------------------
 (s/defmethod dda-crate/dda-install facility
   [dda-crate config]
-  (liferay/install-liferay config))
+  (let [{:keys [osgi]} config]
+    (liferay/install-liferay config)
+    (when (contains? config :osgi)
+      (osgi/install-osgi osgi))))
 
 (s/defmethod dda-crate/dda-configure facility
   [dda-crate config]

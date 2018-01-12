@@ -82,15 +82,18 @@
      :lib-dir (str liferay-home-dir "lib/")
      :deploy-dir (str liferay-home-dir "deploy/")
      :repo-download-source "https://github.com/PolitAktiv/releases/releases/download/7.0.x/"
+     :release-dir (str liferay-home-dir "prepare-rollout/")
      :dependencies ["activation" "ccpp" "hsql" "jms"
                     "jta" "jutf7" "mail"
                     "mysql" "persistence"
                     "portlet" "postgresql" "support-tomcat"
                     ; LR7 specifi
                     "mariadb"
-                    "com.liferay.osgi.service.tracker.collections-2.0.3" 
+                    "com.liferay.osgi.service.tracker.collections-2.0.3"
                     "portal-kernel" "com.liferay.registry.api" "jms"]
-     :release-dir (str liferay-home-dir "prepare-rollout/")
+     :osgi {:download-url "https://github.com/PolitAktiv/releases/releases/download/7.0.x/osgi.zip"
+            :dir liferay-home-dir
+            :os-user "tomcat8"}
      :releases [(liferay-config/default-release-config domain-config)]
      :tomcat {:tomcat-root-dir (str "/usr/share/tomcat8/")
               :tomcat-webapps-dir "/var/lib/tomcat8/webapps/"}

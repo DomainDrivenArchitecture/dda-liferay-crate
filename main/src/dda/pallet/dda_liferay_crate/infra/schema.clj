@@ -17,7 +17,8 @@
   (:require
    [schema.core :as s]
    [dda.config.commons.version-model :as version]
-   [dda.config.commons.directory-model :as directory]))
+   [dda.config.commons.directory-model :as dir-model]
+   [dda.pallet.dda-liferay-crate.infra.osgi :as osgi]))
 
 (def LiferayApp
   "Represents a liferay application (portlet, theme or the portal itself)."
@@ -38,12 +39,13 @@
 (def LiferayCrateConfig
   "The infra config schema."
   {:fq-domain-name s/Str
-   :home-dir s/Str
-   :lib-dir s/Str
-   :deploy-dir s/Str
+   :home-dir dir-model/NonRootDirectory
+   :lib-dir dir-model/NonRootDirectory
+   :deploy-dir dir-model/NonRootDirectory
+   (s/optional-key :osgi) osgi/OsgiConfig
    :repo-download-source s/Str
    :dependencies [s/Str]
-   :release-dir directory/NonRootDirectory
+   :release-dir dir-model/NonRootDirectory
    :releases [LiferayRelease]
    :tomcat {:tomcat-root-dir s/Str
             :tomcat-webapps-dir s/Str}
