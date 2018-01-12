@@ -75,7 +75,7 @@
   "Generates the AppConfig from a smaller domain-config."
   [resolved-domain-config :- domain/DomainConfigResolved
    group-key :- s/Keyword]
-  (mu/deep-merge (db/app-configuration
+  (mu/deep-merge (db/app-configuration-resolved
                    (liferay6/db-domain-configuration resolved-domain-config)
                    :group-key group-key)
                  (httpd/tomcat-app-configuration
@@ -95,7 +95,7 @@
   "Generates the AppConfig from a smaller domain-config."
   [resolved-domain-config :- domain/DomainConfigResolved
    group-key :- s/Keyword]
-  (mu/deep-merge (db/app-configuration
+  (mu/deep-merge (db/app-configuration-resolved
                    (liferay7/db-domain-configuration resolved-domain-config)
                    :group-key group-key)
                  (httpd/tomcat-app-configuration
