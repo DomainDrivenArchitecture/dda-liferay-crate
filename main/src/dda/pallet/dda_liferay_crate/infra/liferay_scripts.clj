@@ -28,7 +28,9 @@
   "Provides the do-deploy script content."
   [prepare-dir :- dir-model/NonRootDirectory
    deploy-dir :- dir-model/NonRootDirectory
-   tomcat-dir] :- dir-model/NonRootDirectory
+   tomcat-dir :- dir-model/NonRootDirectory
+   tomcat-user :- s/Str
+   tomcat-service :- s/Str]
 
   (let [application-parts-hot ["hooks" "layouts" "portlets" "themes"]
         ;TODO ext muss hinzugefügt werden / oder ist schon?
@@ -58,16 +60,16 @@
               (do
                 (doseq [part ~application-parts-hot]
                   ("cp" (str ~prepare-dir @1 "/" @part "/*") ~deploy-dir))
-                ("chown -R tomcat7" (str ~deploy-dir "*")))
+                ("chown -R" ~tomcat-user (str ~deploy-dir "*")))
               (do
-                ("service tomcat7 stop")
+                ("service" ~tomcat-service "stop")
                 ("rm -rf" (str ~tomcat-dir "*"))
                 (doseq [part ~application-parts-full]
                   ("cp" (str ~prepare-dir @1 "/" @part "/*") ~tomcat-dir))
                 ("unzip" (str ~tomcat-dir "ROOT.war -d " ~tomcat-dir "ROOT/"))
                 ("cp" (str ~prepare-dir @1 "/config/portal-ext.properties") (str ~tomcat-dir "ROOT/WEB-INF/classes/"))
-                ("chown tomcat7" (str ~tomcat-dir "*"))
-                ("service tomcat7 start")))
+                ("chown" ~tomcat-user (str ~tomcat-dir "*"))
+                ("service " ~tomcat-service " start")))
             (do
               (println "\"\"")
               (println "\"ERROR: Specified release does not exist or you don't have the permission for it! Please run again as root! For a list of the available releases, run this script without parameters in order to show the available releases!\" ;")
@@ -118,22 +120,21 @@
         " -e \"UPDATE User_ SET agreedToTermsOfUse=0 WHERE agreedToTermsOfUse=1\"")
    "echo \"...Nutzungsbedingungen muessen nun von allen Buergern wieder bestaetigt werden!\""])
 
-
 (defn var-lib-liferay-prodDataReplacements-sh
-  [fqdn-to-be-replaced fqdn-replacement db-name db-user-name db-user-passwd]
+  [fqdn-to-be-replaced fqdn-replacement db-name db-user-name db-user-passwd tomcat-user]
   ["#!/bin/bash"
    ""
    "# politaktiv script that replaces the data with productive copy"
    ""
    "# tomcat stop"
-   "service tomcat7 stop"
+   "service " tomcat-user " stop"
    ""
    "# Ort der Backups"
    "cd /home/dataBackupSource/restore"
    ""
    "# als root auf dev:"
-   (str "mysql -hlocalhost -u" db-user-name
-        " -p" db-user-passwd
+   (str "mysql -hlocalhost -u " db-user-name
+        " -p " db-user-passwd
         " -e \"drop database " db-name "\";")
    ""
    "# SQL"
@@ -175,5 +176,5 @@
    "most_recent_file_dump=$(ls -t1 ./liferay_pa-prod_file_* | head -n1)"
    "rm -r /var/lib/liferay/data/*"
    "tar -xzf ${most_recent_file_dump} -C /var/lib/liferay/data"
-   "chown -R tomcat7:tomcat7 /var/lib/liferay/data"
+   "chown -R "tomcat-user":"tomcat-user " /var/lib/liferay/data"
    "echo \"file finished\""])

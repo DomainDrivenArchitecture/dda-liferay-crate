@@ -136,15 +136,15 @@
 (s/defn install-do-rollout-script
   "Creates script for rolling liferay version. To be called by the admin connected to the server via ssh"
   [config :- schema/LiferayCrateConfig]
-  (let [{:keys [home-dir deploy-dir release-dir tomcat]} config]
+  (let [{:keys [home-dir deploy-dir release-dir tomcat]} config
+        {:keys [tomcat-webapps-dir tomcat-user tomcat-service]} tomcat]
     (actions/remote-file
       (str home-dir "do-rollout.sh")
       :owner "root"
       :group "root"
       :mode "0744"
       :literal true
-      :content (liferay-scripts/do-deploy-script release-dir deploy-dir (:tomcat-webapps-dir tomcat)))))
-
+      :content (liferay-scripts/do-deploy-script release-dir deploy-dir tomcat-webapps-dir tomcat-user tomcat-service))))
 (s/defn release-name :- s/Str
   "get the release name"
   [release :- schema/LiferayRelease]
@@ -190,8 +190,9 @@
 (s/defn configure-liferay
   "dda liferay crate: configure routine"
   [config :- schema/LiferayCrateConfig]
-  (let [{:keys [fq-domain-name home-dir db-name db-user-name db-user-passwd]}
-        config fqdn-to-be-replaced "fqdn-to-be-replaced"] ;TODO resolve fqdn-to-be-replaced
+  (let [{:keys [fq-domain-name home-dir db-name db-user-name db-user-passwd tomcat]} config
+        {:keys [tomcat-user]} tomcat
+        fqdn-to-be-replaced "fqdn-to-be-replaced"] ;TODO resolve fqdn-to-be-replaced
     (liferay-config-file
       (str home-dir "prodDataReplacements.sh")
       (liferay-scripts/var-lib-liferay-prodDataReplacements-sh
