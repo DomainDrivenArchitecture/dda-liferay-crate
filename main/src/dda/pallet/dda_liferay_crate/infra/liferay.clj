@@ -193,5 +193,5 @@
     (liferay-config-file
       (str home-dir "prodDataReplacements.sh")
       (liferay-scripts/var-lib-liferay-prodDataReplacements-sh
-        fqdn-to-be-replaced fq-domain-name db-name db-user-name db-user-passwd)
+        fqdn-to-be-replaced fq-domain-name db-name db-user-name db-user-passwd tomcat-user)
       :owner "root" :mode "744")))
