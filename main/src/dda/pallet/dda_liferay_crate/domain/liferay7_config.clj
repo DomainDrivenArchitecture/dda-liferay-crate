@@ -22,8 +22,9 @@
 ; ----------  auxiliary functions for creating infra configuration  ------
 (s/defn portal-ext-properties
   "creates the default portal-ext.properties for mySql."
-  [domain-config :- schema/DomainConfigResolved]
-  (let [{:keys [db-name db-user-name db-user-passwd]} domain-config]
+  [domain-config :- schema/DomainConfigResolved
+   db-name :- s/Str]
+  (let [{:keys [db-user-name db-user-passwd]} domain-config]
     ["#"
      "# Techbase"
      "#"
@@ -58,11 +59,12 @@
   "The default release configuration."
   [portal-ext-lines]
  {:name "LiferayCE"
-  :version [7 0 0]
+  :version [7 0 4]
   :app ["ROOT" "https://netcologne.dl.sourceforge.net/project/lportal/Liferay%20Portal/7.0.4%20GA5/liferay-ce-portal-7.0-ga5-20171018150113838.war"]
   :config portal-ext-lines})
 
 (s/defn default-release-config
   "The default release configuration."
-  [domain-config :- schema/DomainConfigResolved]
-  (default-release (portal-ext-properties domain-config)))
+  [domain-config :- schema/DomainConfigResolved
+   db-name :- s/Str]
+  (default-release (portal-ext-properties domain-config db-name)))

@@ -89,7 +89,7 @@
                     "portlet" "postgresql" "support-tomcat"
                     "portal-service" "jtds" "junit"]
      :release-dir (str liferay-home-dir "prepare-rollout/")
-     :releases [(liferay-config/default-release-config domain-config)]
+     :releases [(liferay-config/default-release-config domain-config db-name)]
      :tomcat {:tomcat-root-dir "/usr/share/tomcat7/"
               :tomcat-webapps-dir "/var/lib/tomcat7/webapps/"
               :tomcat-user "tomcat7"

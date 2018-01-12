@@ -94,7 +94,7 @@
      :osgi {:download-url "https://github.com/PolitAktiv/releases/releases/download/7.0.x/osgi.zip"
             :dir liferay-home-dir
             :os-user "tomcat8"}
-     :releases [(liferay-config/default-release-config domain-config)]
+     :releases [(liferay-config/default-release-config domain-config db-name)]
      :tomcat {:tomcat-root-dir (str "/usr/share/tomcat8/")
               :tomcat-webapps-dir "/var/lib/tomcat8/webapps/"
               :tomcat-user "tomcat8"

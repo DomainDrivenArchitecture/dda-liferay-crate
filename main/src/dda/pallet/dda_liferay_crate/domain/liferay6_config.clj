@@ -22,8 +22,9 @@
 ; ----------  auxiliary functions for creating infra configuration  ------
 (s/defn portal-ext-properties
   "creates the default portal-ext.properties for mySql."
-  [domain-config :- schema/DomainConfigResolved]
-  (let [{:keys [db-name db-user-name db-user-passwd]} domain-config]
+  [domain-config :- schema/DomainConfigResolved
+   db-name :- s/Str]
+  (let [{:keys [db-user-name db-user-passwd]} domain-config]
     ["#"
      "# Techbase"
      "#"
@@ -64,5 +65,6 @@
 
 (s/defn default-release-config
   "The default release configuration."
-  [domain-config :- schema/DomainConfigResolved]
-  (default-release (portal-ext-properties domain-config)))
+  [domain-config :- schema/DomainConfigResolved
+   db-name :- s/Str]
+  (default-release (portal-ext-properties domain-config db-name)))
