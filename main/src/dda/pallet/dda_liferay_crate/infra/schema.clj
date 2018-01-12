@@ -48,7 +48,9 @@
    :release-dir dir-model/NonRootDirectory
    :releases [LiferayRelease]
    :tomcat {:tomcat-root-dir s/Str
-            :tomcat-webapps-dir s/Str}
+            :tomcat-webapps-dir s/Str
+            :tomcat-user s/Str
+            :tomcat-service s/Str}
    :db {:db-name s/Str
         :db-user-name s/Str
         :db-user-passwd s/Str}})

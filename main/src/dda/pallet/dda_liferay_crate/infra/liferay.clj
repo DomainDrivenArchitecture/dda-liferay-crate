@@ -79,34 +79,31 @@
 (s/defn create-liferay-directories
   "Create folders required for liferay"
   [config :- schema/LiferayCrateConfig]
-  (let [{:keys [home-dir
-                lib-dir
-                deploy-dir
-                release-dir]} config]
-    (liferay-dir (str home-dir "logs"))
-    (liferay-dir (str home-dir "data"))
-    (liferay-dir deploy-dir)
-    (liferay-dir lib-dir)
+  (let [{:keys [home-dir lib-dir deploy-dir release-dir tomcat]} config
+        {:keys [tomcat-user]} tomcat]
+    (liferay-dir (str home-dir "logs") :owner tomcat-user)
+    (liferay-dir (str home-dir "data") :owner tomcat-user)
+    (liferay-dir deploy-dir :owner tomcat-user)
+    (liferay-dir lib-dir :owner tomcat-user)
     (liferay-dir release-dir :owner "root")))
 
 (s/defn liferay-dependencies-into-tomcat
   "get dependency files"
   [config :- schema/LiferayCrateConfig]
-  (let [{:keys [lib-dir
-                dependencies
-                repo-download-source]} config]
+  (let [{:keys [lib-dir dependencies repo-download-source tomcat]} config
+        {:keys [tomcat-user]} tomcat]
     (doseq [jar dependencies]
       (let [download-location (str repo-download-source jar ".jar")
             target-file (str lib-dir jar ".jar")]
-        (liferay-remote-file target-file download-location)))))
+        (liferay-remote-file target-file download-location :owner tomcat-user)))))
 
 (s/defn liferay-specific-dependencies
   "Install liferay dependency files into liferay home"
   [config :- schema/LiferayCrateConfig]
-  (let [{:keys [lib-dir repo-download-source]} config]
-    ;TODO url etc configurable
-    (liferay-dir (str lib-dir "osgitst/"))))
-    ;TODO (liferay-remote-file-unzip (str lib-dir "osgitst/") (str repo-download-source "ccpp.jar") "tomcat8" "tomcat8")))
+  (let [{:keys [lib-dir repo-download-source tomcat]} config
+        {:keys [tomcat-user tomcat-service]} tomcat]
+    (liferay-dir (str lib-dir "osgitst/") :owner tomcat-user)))
+    ;TODO (liferay-remote-file-unzip lib-dir (str repo-download-source "osgi.zip") "tomcat8" "tomcat8")))
 
 (s/defn download-and-store-applications
   "download and store liferay applications in given directory"
@@ -136,15 +133,15 @@
 (s/defn install-do-rollout-script
   "Creates script for rolling liferay version. To be called by the admin connected to the server via ssh"
   [config :- schema/LiferayCrateConfig]
-  (let [{:keys [home-dir deploy-dir release-dir tomcat]} config]
+  (let [{:keys [home-dir deploy-dir release-dir tomcat]} config
+        {:keys [tomcat-webapps-dir tomcat-user tomcat-service]} tomcat]
     (actions/remote-file
       (str home-dir "do-rollout.sh")
       :owner "root"
       :group "root"
       :mode "0744"
       :literal true
-      :content (liferay-scripts/do-deploy-script release-dir deploy-dir (:tomcat-webapps-dir tomcat)))))
-
+      :content (liferay-scripts/do-deploy-script release-dir deploy-dir tomcat-webapps-dir tomcat-user tomcat-service))))
 (s/defn release-name :- s/Str
   "get the release name"
   [release :- schema/LiferayRelease]
@@ -190,8 +187,9 @@
 (s/defn configure-liferay
   "dda liferay crate: configure routine"
   [config :- schema/LiferayCrateConfig]
-  (let [{:keys [fq-domain-name home-dir db-name db-user-name db-user-passwd]}
-        config fqdn-to-be-replaced "fqdn-to-be-replaced"] ;TODO resolve fqdn-to-be-replaced
+  (let [{:keys [fq-domain-name home-dir db-name db-user-name db-user-passwd tomcat]} config
+        {:keys [tomcat-user]} tomcat
+        fqdn-to-be-replaced "fqdn-to-be-replaced"] ;TODO resolve fqdn-to-be-replaced
     (liferay-config-file
       (str home-dir "prodDataReplacements.sh")
       (liferay-scripts/var-lib-liferay-prodDataReplacements-sh

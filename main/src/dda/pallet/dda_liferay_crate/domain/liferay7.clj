@@ -96,7 +96,9 @@
             :os-user "tomcat8"}
      :releases [(liferay-config/default-release-config domain-config)]
      :tomcat {:tomcat-root-dir (str "/usr/share/tomcat8/")
-              :tomcat-webapps-dir "/var/lib/tomcat8/webapps/"}
+              :tomcat-webapps-dir "/var/lib/tomcat8/webapps/"
+              :tomcat-user "tomcat8"
+              :tomcat-service "tomcat8"}
      :db {:db-name db-name
           :db-user-name db-user-name
           :db-user-passwd db-user-passwd}}))
