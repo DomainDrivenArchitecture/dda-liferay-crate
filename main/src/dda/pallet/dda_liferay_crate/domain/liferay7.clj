@@ -34,18 +34,20 @@
 
 (def db-name "lportal")
 
-(def tomcat-version "7")
+(def tomcat-version "8")
 (def tomcat-user "tomcat8")
 
 ; ---  functions to create other configs from the liferay domain config  --
-(s/defn ^:always-validate db-domain-configuration
+(s/defn ^:always-validate
+  db-domain-configuration
   [domain-config :- DomainConfigResolved]
   (let [{:keys [db-root-passwd db-user-name db-user-passwd]} domain-config]
     {:root-passwd db-root-passwd
      :settings #{}
      :db [{:db-name db-name
            :db-user-name db-user-name
-           :db-user-passwd db-user-passwd}]}))
+           :db-user-passwd db-user-passwd
+           :create-options "character set utf8"}]}))
 
 (s/defn ^:always-validate
   httpd-domain-configuration
@@ -97,8 +99,8 @@
      :releases [(liferay-config/default-release-config domain-config db-name)]
      :tomcat {:tomcat-root-dir (str "/usr/share/tomcat8/")
               :tomcat-webapps-dir "/var/lib/tomcat8/webapps/"
-              :tomcat-user "tomcat8"
-              :tomcat-service "tomcat8"}
+              :tomcat-user tomcat-user
+              :tomcat-service tomcat-user}
      :db {:db-name db-name
           :db-user-name db-user-name
           :db-user-passwd db-user-passwd}}))

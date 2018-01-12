@@ -34,8 +34,8 @@
      "#"
      "# MySQL"
      "#"
-     "jdbc.default.driverClassName=com.mysql.jdbc.Driver"
-     (str "jdbc.default.url=jdbc:mysql://localhost:3306/" db-name
+     "jdbc.default.driverClassName=org.mariadb.jdbc.Driver"
+     (str "jdbc.default.url=jdbc:mariadb://localhost:3306/" db-name
           "?useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false")
      (str "jdbc.default.username=" db-user-name)
      (str "jdbc.default.password=" db-user-passwd)
