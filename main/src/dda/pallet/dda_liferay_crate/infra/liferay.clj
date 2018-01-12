@@ -122,7 +122,8 @@
                  :owner "root"))
         :config (liferay-config-file
                   (str dir "portal-ext.properties")
-                  (:config release))
+                  (:config release)
+                  :owner "root")
         (:hooks :layouts :themes :portlets) (doseq [app (st/get-in release [key])]
                                               (let [app-name (subs (second app) (+ 1 (.lastIndexOf (second app) "/")))]
                                                 (liferay-remote-file
