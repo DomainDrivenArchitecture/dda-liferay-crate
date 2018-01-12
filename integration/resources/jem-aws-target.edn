@@ -4,7 +4,7 @@
            :subnet-ids ["subnet-f929df91"]}
  :node-spec {:region "eu-central-1a"
              :ami-id "ami-82cf0aed"
-             :hardware-id "t2.micro"
+             :hardware-id "t2.medium"
              :security-group-ids ["sg-0606b16e"]
              :subnet-id "subnet-f929df91"
              :provisioning-user {:login "ubuntu"
