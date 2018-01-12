@@ -21,24 +21,20 @@ This crate is working with:
  * pallet 0.8
  * ubuntu 16.04
  * apache httpd 2.4
- 
- 
- 
- * apache tomcat7
- * oracle java1.6 as specified by liferay 6.2
- * liferay 6.2.1 or liferay7
-
-
+ * mariadb 10.x
+ * apache tomcat8
+ * openjdk8
+ * liferay7.0ga5
 
 ## Features
 
 This crate installs liferay with all the necessary components. These components are liferay, httpd, tomcat, maraidb and backups.
 
 ## Usage documentation
-This crate is responsible for configuring and installing liferay. 
+This crate is responsible for configuring and installing liferay.
 
 ### Prepare vm
-This crate was tested on an installed ubuntu 16.04 installation. 
+This crate was tested on an installed ubuntu 16.04 installation.
 1. Install ubuntu16.04
 2. In some cases update and upgrade can fix some minor problems. Be sure the remote machine has a running ssh-service.
 ```
@@ -75,11 +71,11 @@ Example content of file `liferay.edn`:
  :db-user-passwd {:plain "test1234"}    ; the user password for the database
  :settings #{:test}}                    ; multiple keywords can be set. E.g. :test will use snakeoil certificates
 
-```         
+```
 
-For `Secret` you can find more adapters in dda-palet-commons. 
+For `Secret` you can find more adapters in dda-palet-commons.
 
-#### Use Integration 
+#### Use Integration
 The dda-liferay-crate provides easy access to the required installation and configuration process.
 To apply your configuration simply create the necessary files and proceed to the corresponding integration namespace.
 For example:
@@ -89,6 +85,13 @@ For example:
 (apply-configure)
 ```   
 This will apply the installation and configuration process to the provided targets defined in targets.edn.
+
+To finish your installation you've to
+```bash
+service apache2 restart
+service tomcat8 stop
+/var/lib/liferay/do-rollout.sh LiferayCE-7.0.4
+```
 
 ### Watch log for debug reasons
 In case of problems you may want to have a look at the log-file:
