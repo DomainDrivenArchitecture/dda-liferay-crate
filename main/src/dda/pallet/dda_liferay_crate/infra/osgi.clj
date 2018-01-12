@@ -34,5 +34,5 @@
       :url download-url
       :unpack :unzip
       :recursive true
-      :owner "root"
+      :owner os-user
       :group os-user)))
