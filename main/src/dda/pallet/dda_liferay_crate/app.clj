@@ -38,6 +38,8 @@
 
 (def with-liferay infra/with-liferay)
 
+(def ProvisioningUser existing/ProvisioningUser)
+
 (def LiferayCrateAppConfig
  {:group-specific-config
    {s/Keyword (merge db/InfraResult
@@ -130,3 +132,11 @@
     (if (= liferay-version :LR6)
       (lr6-app-configuration resolved-domain-config group-key)
       (lr7-app-configuration resolved-domain-config group-key))))
+
+(s/defn ^:always-validate existing-provisioning-spec
+  "Creates an integrated group spec from a domain config and a provisioning user."
+  [domain-config :- domain/DomainConfig
+   provisioning-user :- ProvisioningUser]
+  (merge
+   (liferay-group-spec (app-configuration (resolve-secrets domain-config)))
+   (existing/node-spec provisioning-user)))
