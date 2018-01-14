@@ -39,16 +39,4 @@
 
 (def DomainConfigResolved
   "The high-level domain configuration for the liferay-crate with secrets resolved."
-  {:liferay-version LiferayVersion
-   :fq-domain-name s/Str
-   (s/optional-key :google-id) s/Str
-   :db-root-passwd s/Str
-   :db-user-name s/Str
-   :db-user-passwd s/Str
-   :settings (hash-set (s/enum :test))
-   (s/optional-key :backup) {:bucket-name s/Str
-                             :gpg {:gpg-public-key s/Str
-                                   :gpg-private-key s/Str
-                                   :gpg-passphrase s/Str}
-                             :aws {:aws-access-key-id s/Str
-                                   :aws-secret-access-key s/Str}}})
+  (secret/create-resolved-schema DomainConfig))
