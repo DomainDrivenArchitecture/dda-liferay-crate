@@ -32,57 +32,23 @@
 ; --------------  standard configuration values   -----------------------
 (def liferay-home-dir "/var/lib/liferay/")
 
-(def db-name "lportal")
-
-(def tomcat-version "7")
 (def tomcat-user "tomcat7")
 
 ; ---  functions to create other configs from the liferay domain config  --
-(s/defn ^:always-validate db-domain-configuration
-  [domain-config :- DomainConfigResolved]
-  (let [{:keys [db-root-passwd db-user-name db-user-passwd]} domain-config]
-    {:root-passwd db-root-passwd
-     :settings #{}
-     :db [{:db-name db-name
-           :db-user-name db-user-name
-           :db-user-passwd db-user-passwd}]}))
-
-(s/defn ^:always-validate
-  httpd-domain-configuration
-  [domain-config :- DomainConfigResolved]
-  (let [{:keys [fq-domain-name google-id settings]} domain-config]
-    (merge
-      {:domain-name fq-domain-name}
-      (when (contains? domain-config :google-id)
-        {:google-id google-id})
-      (when (contains? domain-config :settings)
-        {:settings settings})
-      {:alias [{:url "/quiz/" :path "/var/www/static/quiz/"}]
-       :jk-unmount [{:path "/quiz/*" :worker "mod_jk_www"}]})))
-
-(s/defn ^:always-validate
-  tomcat-domain-configuration
+(s/defn tomcat-domain-configuration
   [domain-config :- DomainConfigResolved]
   {:lr-6x {:xmx-megabbyte 2560            ; e.g. 6072 or 2560
-           :lr-home liferay-home-dir}}) ; e.g. /var/lib/liferay
+           :lr-home liferay-home-dir}})
 
-(s/defn ^:always-validate
-  backup-domain-configuration
-  [domain-config :- DomainConfigResolved]
-  (let [{:keys []} domain-config]
-    (backup/backup-domain-config domain-config)))
-
-(s/defn ^:always-validate
-  liferay-infra-configuration :- infra/LiferayCrateConfig
-  [domain-config :- DomainConfigResolved]
+(s/defn liferay-infra-configuration :- infra/LiferayCrateConfig
+  [domain-config :- DomainConfigResolved
+   db-name :- s/Str]
   (let [{:keys [fq-domain-name db-user-name db-user-passwd]} domain-config]
-    ;TODO replace hard coded values of tomcat ?
     {:fq-domain-name fq-domain-name
      :home-dir liferay-home-dir
      :lib-dir (str liferay-home-dir "lib/")
      :deploy-dir (str liferay-home-dir "deploy/")
      :repo-download-source "https://github.com/PolitAktiv/releases/releases/download/6.2.x/"
-     ;:repo-download-source "https://github.com/PolitAktiv/releases/tree/master/liferay/3rd/6.2.1-ce-ga2/"
      :dependencies ["activation" "ccpp" "hsql" "jms"
                     "jta" "jutf7" "mail"
                     "mysql" "persistence"
@@ -90,14 +56,10 @@
                     "portal-service" "jtds" "junit"]
      :release-dir (str liferay-home-dir "prepare-rollout/")
      :releases [(liferay-config/default-release-config domain-config db-name)]
-     :tomcat {:tomcat-root-dir "/usr/share/tomcat7/"
-              :tomcat-webapps-dir "/var/lib/tomcat7/webapps/"
-              :tomcat-user "tomcat7"
-              :tomcat-service "tomcat7"}
+     :tomcat {:tomcat-root-dir (str "/usr/share/" tomcat-user "/")
+              :tomcat-webapps-dir (str "/var/lib/" tomcat-user "/webapps/")
+              :tomcat-user tomcat-user
+              :tomcat-service tomcat-user}
      :db {:db-name db-name
           :db-user-name db-user-name
           :db-user-passwd db-user-passwd}}))
-
-(s/defn ^:always-validate infra-configuration :- infra/InfraResult
-  [domain-config :- DomainConfigResolved]
-  {infra/facility (liferay-infra-configuration domain-config)})

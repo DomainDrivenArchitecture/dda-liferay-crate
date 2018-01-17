@@ -20,18 +20,15 @@
     [dda.cm.group :as group]
     [dda.config.commons.map-utils :as mu]
     [dda.pallet.commons.secret :as secret]
+    [dda.pallet.commons.existing :as existing]
+    [dda.pallet.commons.external-config :as ext-config]
     [dda.pallet.dda-config-crate.infra :as config]
     [dda.pallet.dda-httpd-crate.app :as httpd]
     [dda.pallet.dda-mariadb-crate.app :as db]
     [dda.pallet.dda-tomcat-crate.app :as tomcat]
     [dda.pallet.dda-backup-crate.app :as backup]
-    [dda.pallet.dda-user-crate.app :as user]
-    [dda.pallet.commons.existing :as existing]
-    [dda.pallet.commons.external-config :as ext-config]
-    [dda.pallet.dda-liferay-crate.infra :as infra]
     [dda.pallet.dda-liferay-crate.domain :as domain]
-    [dda.pallet.dda-liferay-crate.domain.liferay6 :as liferay6]
-    [dda.pallet.dda-liferay-crate.domain.liferay7 :as liferay7]))
+    [dda.pallet.dda-liferay-crate.infra :as infra]))
 
 ; ---------------------- schemas  ---------------------------
 (def InfraResult infra/InfraResult)
@@ -40,7 +37,7 @@
 
 (def ProvisioningUser existing/ProvisioningUser)
 
-(def LiferayCrateAppConfig
+(def LiferayAppConfig
  {:group-specific-config
    {s/Keyword (merge db/InfraResult
                      httpd/InfraResult
@@ -73,48 +70,26 @@
                   :aws {:aws-access-key-id (secret/resolve-secret (:aws-access-key-id aws))}
                   :aws-secret-access-key (secret/resolve-secret (:aws-secret-access-key aws))}}))))
 
-(s/defn ^:always-validate lr6-app-configuration :- LiferayCrateAppConfig
+(s/defn ^:always-validate app-configuration :- LiferayAppConfig
   "Generates the AppConfig from a smaller domain-config."
   [resolved-domain-config :- domain/DomainConfigResolved
-   group-key :- s/Keyword]
-  (mu/deep-merge (db/app-configuration-resolved
-                   (liferay6/db-domain-configuration resolved-domain-config)
-                   :group-key group-key)
-                 (httpd/tomcat-app-configuration
-                   (liferay6/httpd-domain-configuration resolved-domain-config)
-                   :group-key group-key)
-                 (tomcat/app-configuration
-                   (liferay6/tomcat-domain-configuration resolved-domain-config)
-                   :group-key group-key)
-                 ;(backup/app-configuration)
-                  ; (domain/backup-domain-configuration resolved-domain-config)
-                   ;:group-key group-key)
-                 {:group-specific-config
-                  {group-key
-                   (liferay6/infra-configuration resolved-domain-config)}}))
-
-(s/defn ^:always-validate lr7-app-configuration :- LiferayCrateAppConfig
-  "Generates the AppConfig from a smaller domain-config."
-  [resolved-domain-config :- domain/DomainConfigResolved
-   group-key :- s/Keyword]
-  (mu/deep-merge (db/app-configuration-resolved
-                   (liferay7/db-domain-configuration resolved-domain-config)
-                   :group-key group-key)
-                 (httpd/tomcat-app-configuration
-                   (liferay7/httpd-domain-configuration resolved-domain-config)
-                   :group-key group-key)
-                 (tomcat/app-configuration
-                   (liferay7/tomcat-domain-configuration resolved-domain-config)
-                   :group-key group-key)
-                 ;(backup/app-configuration)
-                  ; (domain/backup-domain-configuration resolved-domain-config)
-                   ;:group-key group-key)
-                 {:group-specific-config
-                  {group-key
-                   (liferay7/infra-configuration resolved-domain-config)}}))
+   & options]
+  (let [{:keys [group-key] :or {group-key infra/facility}} options]
+    (mu/deep-merge
+     (db/app-configuration-resolved
+       (domain/db-domain-configuration resolved-domain-config) :group-key group-key)
+     (httpd/tomcat-app-configuration
+       (domain/httpd-domain-configuration resolved-domain-config) :group-key group-key)
+     (tomcat/app-configuration
+       (domain/tomcat-domain-configuration resolved-domain-config) :group-key group-key)
+     ;(backup/app-configuration)
+      ; (domain/backup-domain-configuration resolved-domain-config) :group-key group-key)
+     {:group-specific-config
+      {group-key
+       (domain/infra-configuration resolved-domain-config)}})))
 
 (s/defn ^:always-validate liferay-group-spec
- [app-config :- LiferayCrateAppConfig]
+ [app-config :- LiferayAppConfig]
  (group/group-spec
    app-config [(config/with-config app-config)
                db/with-mariadb
@@ -122,16 +97,6 @@
                tomcat/with-tomcat
                ;backup/with-backup
                with-liferay]))
-
-(s/defn ^:always-validate app-configuration :- LiferayCrateAppConfig
-  "Generates the AppConfig from a smaller domain-config."
-  [resolved-domain-config :- domain/DomainConfigResolved
-   & options]
-  (let [{:keys [group-key] :or {group-key infra/facility}} options
-        {:keys [liferay-version]} resolved-domain-config]
-    (if (= liferay-version :LR6)
-      (lr6-app-configuration resolved-domain-config group-key)
-      (lr7-app-configuration resolved-domain-config group-key))))
 
 (s/defn ^:always-validate existing-provisioning-spec
   "Creates an integrated group spec from a domain config and a provisioning user."
