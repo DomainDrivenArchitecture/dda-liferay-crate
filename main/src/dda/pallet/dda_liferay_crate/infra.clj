@@ -35,7 +35,16 @@
 
 (def InfraResult {facility LiferayCrateConfig})
 
-; -------------  methods and definitions  ------------------
+; -------------  server-spec  ------------------
+(def liferay-crate
+  (dda-crate/make-dda-crate
+   :facility facility
+   :version version))
+
+(def with-liferay
+  (dda-crate/create-server-spec liferay-crate))
+
+; -------------  dda methods  ------------------))
 (s/defmethod dda-crate/dda-install facility
   [dda-crate config]
   (let [{:keys [osgi]} config]
@@ -47,10 +56,8 @@
   [dda-crate config]
   (liferay/configure-liferay config))
 
-(def liferay-crate
-  (dda-crate/make-dda-crate
-   :facility facility
-   :version version))
-
-(def with-liferay
-  (dda-crate/create-server-spec liferay-crate))
+(s/defmethod dda-crate/dda-app-rollout facility
+  [dda-crate partial-effective-config]
+  ;TODO check partial or complete config
+  (let [config (dda-crate/merge-config dda-crate partial-effective-config)]
+    (liferay/prepare-rollout config)))
