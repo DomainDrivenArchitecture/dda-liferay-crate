@@ -26,6 +26,7 @@
     [dda.pallet.dda-httpd-crate.app :as httpd]
     [dda.pallet.dda-mariadb-crate.app :as db]
     [dda.pallet.dda-tomcat-crate.app :as tomcat]
+    [dda.pallet.dda-user-crate.app :as user]
     [dda.pallet.dda-backup-crate.app :as backup]
     [dda.pallet.dda-liferay-crate.domain :as domain]
     [dda.pallet.dda-liferay-crate.infra :as infra]))
@@ -95,6 +96,7 @@
                db/with-mariadb
                httpd/with-httpd
                tomcat/with-tomcat
+               user/with-user
                backup/with-backup
                with-liferay]))
 
