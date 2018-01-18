@@ -68,10 +68,17 @@
       :LR7 (liferay7/tomcat-domain-configuration domain-config))))
 
 (s/defn ^:always-validate
+  tomcat-user
+  [domain-config :- DomainConfigResolved]
+  (let [{:keys [liferay-version]} domain-config]
+    (case liferay-version
+      :LR6 liferay6/tomcat-user
+      :LR7 liferay7/tomcat-user)))
+
+(s/defn ^:always-validate
   backup-domain-configuration
   [domain-config :- DomainConfigResolved]
-  (let [{:keys []} domain-config]
-    (backup/backup-domain-config domain-config)))
+  (backup/backup-domain-config domain-config db-name (tomcat-user domain-config)))
 
 (s/defn ^:always-validate
   infra-configuration :- infra/InfraResult

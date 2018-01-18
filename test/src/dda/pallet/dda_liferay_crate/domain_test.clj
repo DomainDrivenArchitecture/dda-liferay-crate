@@ -50,6 +50,13 @@
     (is (= "xxxxxxxxxxxxxxxxxxxxx"
           (:google-id (sut/httpd-domain-configuration config-full))))))
 
+(deftest test-backup-configuration
+  (testing
+    "test the backup config creation"
+    (is (thrown? Exception (sut/backup-domain-configuration {})))
+    (is (= "liferay"
+           (:backup-name (sut/backup-domain-configuration config-full))))))
+
 (deftest test-infra-configuration
   (testing
     "test the infra config creation"

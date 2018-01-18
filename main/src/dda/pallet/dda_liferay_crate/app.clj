@@ -42,8 +42,8 @@
    {s/Keyword (merge db/InfraResult
                      httpd/InfraResult
                      tomcat/InfraResult
-                     infra/InfraResult)}})
-                    ;backup/InfraResult)}})
+                     infra/InfraResult
+                     backup/InfraResult)}})
 
 ; ----------------------- functions  --------------------------
 (s/defn ^:always-validate load-targets :- existing/Targets
@@ -82,8 +82,8 @@
        (domain/httpd-domain-configuration resolved-domain-config) :group-key group-key)
      (tomcat/app-configuration
        (domain/tomcat-domain-configuration resolved-domain-config) :group-key group-key)
-     ;(backup/app-configuration)
-      ; (domain/backup-domain-configuration resolved-domain-config) :group-key group-key)
+     (backup/app-configuration
+       (domain/backup-domain-configuration resolved-domain-config) :group-key group-key)
      {:group-specific-config
       {group-key
        (domain/infra-configuration resolved-domain-config)}})))
@@ -95,7 +95,7 @@
                db/with-mariadb
                httpd/with-httpd
                tomcat/with-tomcat
-               ;backup/with-backup
+               backup/with-backup
                with-liferay]))
 
 (s/defn ^:always-validate existing-provisioning-spec
