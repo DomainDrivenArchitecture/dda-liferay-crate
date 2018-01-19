@@ -27,7 +27,7 @@
   [domain-config
    db-name
    tomcat-user]
-  (let [{:keys [backup db-root-passwd]} domain-config
+  (let [{:keys [backup db-root-passwd settings]} domain-config
         {:keys [bucket-name gpg aws]} backup]
     (merge
       {:backup-name "liferay"
@@ -35,21 +35,24 @@
        :service-restart "apache2"
        :local-management {:gens-stored-on-source-system 1}
        :backup-elements
-       [{:type :mysql
-         :name "liferay"
-         :db-user-name "root"
-         :db-user-passwd db-root-passwd
-         :db-name db-name
-         :db-create-options "character set utf8"}
-        {:type :file-compressed
-         :name "liferay"
-         :root-dir "/var/lib/liferay/data/"
-         :subdir-to-save "document_library images"
-         :new-owner tomcat-user}
-        {:type :file-compressed
-         :name "letsencrypt"
-         :root-dir "/etc/letsencrypt/"
-         :subdir-to-save "accounts csr keys renewal live"}]}
+       (vec
+        (concat
+         [{:type :mysql
+           :name "liferay"
+           :db-user-name "root"
+           :db-user-passwd db-root-passwd
+           :db-name db-name
+           :db-create-options "character set utf8"}
+          {:type :file-compressed
+           :name "liferay"
+           :root-dir "/var/lib/liferay/"
+           :subdir-to-save "data"
+           :new-owner tomcat-user}]
+         (when (not (contains? settings :test))
+           [{:type :file-compressed
+             :name "letsencrypt"
+             :root-dir "/etc/letsencrypt/"
+             :subdir-to-save "accounts csr keys renewal live"}])))}
 
       (if (contains? domain-config :backup)
         {:transport-management  {:duplicity-push
