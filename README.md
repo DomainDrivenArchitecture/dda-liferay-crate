@@ -34,20 +34,28 @@ You can install the liferay crate by following the steps below:
 ### 1. Prepare your target machine
 This crate was tested on an installed ubuntu 16.04 installation. If not already prepared, please perfom the following actions on the target machine:
 1. Install ubuntu16.04
-2. Ensure you system is up-to-date and has openssh-server running by:
+2. Ensure you system is up-to-date, has java installed and openssh-server running:
 ```
 sudo apt-get update
 sudo apt-get upgrade
+sudo apt-get install openjdk8
 sudo apt-get install openssh-server
 ```
 By the way, openssh-server isn't required, if you install this crate locally.
 
-### 2. Create the configurations
+### 2. Download installer and configuration facilities
+1. Please download the
+<!--- TODO update links --->
+[installer](https://github.com/DomainDrivenArchitecture/dda-liferay-crate/releases/tag/dda-liferay-crate-0.x.x).
+1. Then download the 2 example configuration files into the same folder where you've saved the installer.  
+ * [targets.edn](https://github.com/DomainDrivenArchitecture/dda-liferay-create/blob/master/targets.edn)  
+ * [liferay.edn](https://github.com/DomainDrivenArchitecture/dda-liferay-create/blob/master/targets.edn)
+
+### 3. Adapt the configuration files
 The configuration for installing this crate consists of two files, which specify both WHERE to install the software and WHAT to install.
 * `targets.edn`: describes on which target system(s) the software will be installed.
 * `liferay.edn`: describes the configuration of the application-server.
 
-Examples of these files can be found in the root directory of this repository.  
 You need to adjust the values of the fields of `targets.edn` according to your own settings. The file `liferay.edn` can be used as given, if you just want to create a demo installation.
 
 #### Targets config example
@@ -71,25 +79,56 @@ Example content of file `liferay.edn`:
 
 ```
 
-Instead of plain passwords, you can use the possibilities of other **secrets**. For more information about this topic, please refer to [dda-pallet-commons](https://github.com/DomainDrivenArchitecture/dda-pallet-commons/blob/master/doc/secret_spec.md).
+Instead of using plain passwords, you can use the possibilities of other **secrets**. For more information about this topic, please refer to [dda-pallet-commons](https://github.com/DomainDrivenArchitecture/dda-pallet-commons/blob/master/doc/secret_spec.md).
 
-#### Use Integration
-The dda-liferay-crate provides easy access to the required installation and configuration process.
-To apply your configuration simply create the necessary files and proceed to the corresponding integration namespace.
-For example:
-```clojure
-(in-ns 'dda.pallet.dda-liferay-crate.app.instantiate-existing)
-(apply-install)
-(apply-configure)
-```   
-This will apply the installation and configuration process to the provided targets defined in targets.edn.
-
-To finish your installation you've to
+### 4. Execute installation
+You can start the installation in a terminal by running the installer with the name of the `liferay.edn`-file:
+<!--- TODO update version --->
 ```bash
-service apache2 restart
-service tomcat8 stop
-/var/lib/liferay/do-rollout.sh LiferayCE-7.0.4
+java -jar dda-liferay-ide-0.3.3-standalone.jar liferay.edn
 ```
+This will apply the installation and configuration process to the provided targets defined in `targets.edn`. This can take several minutes, as a lot of software needs to be installed. In case of success you'll see something similar as:
+
+### 5. Deploy and configure liferay
+To finish your installation and to set up liferay properly several manual steps are required:
+
+#### Deploy liferay to tomcat
+Stop tomcat and use the rollout script.
+
+```bash
+sudo service tomcat8 stop
+sudo /var/lib/liferay/do-rollout.sh LiferayCE-7.0.4
+```
+The version of Liferay may be subjected to changed. You can get a list of possible versions to be installed by using the rollout-script without version specified:
+```bash
+sudo /var/lib/liferay/do-rollout.sh
+```
+
+#### Startup liferay
+Restart apache and start tomcat with liferay now deployed:
+
+```bash
+sudo service apache2 restart
+sudo service tomcat8 start
+```
+Please perform the following steps. Please note, that each step may take some time dependent on your environment.
+* Open browser and go to http://localhost
+* You'll see the liferay basic configuration screen with fields already filled in, like the database configuration. Adjust the settings according to you needs, if you want, then click **Finish configuration** button.
+* In case of succes you'll see the message **Your configuration was saved successfully... Please restart the portal now.**
+* Copy the just created liferay configuration properties to the appropriate tomcat folder:
+```bash
+sudo cp /var/lib/liferay/portal-setup-wizard.properties /var/lib/tomcat8/webapps/ROOT/WEB-INF/classes/portal-ext.properties
+```
+
+Restart tomcat with the new liferay settings:
+
+```bash
+sudo service tomcat8 restart
+```
+
+
+
+
 
 ### Watch log for debug reasons
 In case of problems you may want to have a look at the log-file:
