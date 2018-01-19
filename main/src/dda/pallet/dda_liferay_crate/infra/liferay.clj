@@ -97,14 +97,6 @@
             target-file (str lib-dir jar ".jar")]
         (liferay-remote-file target-file download-location :owner tomcat-user)))))
 
-(s/defn liferay-specific-dependencies
-  "Install liferay dependency files into liferay home"
-  [config :- schema/LiferayCrateConfig]
-  (let [{:keys [lib-dir repo-download-source tomcat]} config
-        {:keys [tomcat-user tomcat-service]} tomcat]
-    (liferay-dir (str lib-dir "osgitst/") :owner tomcat-user)))
-    ;TODO (liferay-remote-file-unzip lib-dir (str repo-download-source "osgi.zip") "tomcat8" "tomcat8")))
-
 (s/defn download-and-store-applications
   "download and store liferay applications in given directory"
   [release-dir :- dir-model/NonRootDirectory
@@ -179,8 +171,6 @@
   [config :- schema/LiferayCrateConfig]
   (create-liferay-directories config)
   (liferay-dependencies-into-tomcat config)
-  ;TODO next line only for LR7
-  (liferay-specific-dependencies config)
   (install-do-rollout-script config)
   (prepare-rollout config))
 
