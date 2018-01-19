@@ -8,13 +8,9 @@
 
 This is a crate to install, configure and run a full blown 3 tier liferay server via Pallet.
 
-Currently this crate uses Apache2 as httpd, mariadb as db and tomcat7 as web application server on Ubuntu.
+Currently this crate uses Apache2 as httpd server, mariadb as database and tomcat8 as web application server on Ubuntu for Liferay version 7.x (for backwards compatibility also Liferay version 6.x can be installed, but is not recommended anymore).
 
-If you are interested in enhancing this to provide additional
-configuration options or to work with other linux flavors,
-contributions are welcome!
-
-## compatability
+## Compatibility
 
 This crate is working with:
  * clojure 1.7
@@ -24,48 +20,50 @@ This crate is working with:
  * mariadb 10.x
  * apache tomcat8
  * openjdk8
- * liferay7.0ga5
+ * LiferayCE-7.0.4-ga5
 
 ## Features
 
-This crate installs liferay with all the necessary components. These components are liferay, httpd, tomcat, maraidb and backups.
+This crate installs Liferay with all the necessary components: httpd, tomcat, mariadb and backup facilities.
+
+This software can be installed on a Linux standalone system, but usually would be installed on a Linux *virtual machine*. For this reason we usually refer to the target system as "virtual machine" in the text below.
 
 ## Usage documentation
-This crate is responsible for configuring and installing liferay.
+You can install the liferay crate by following the steps below:
 
-### Prepare vm
-This crate was tested on an installed ubuntu 16.04 installation.
+### 1. Prepare your target machine
+This crate was tested on an installed ubuntu 16.04 installation. If not already prepared, please perfom the following actions on the target machine:
 1. Install ubuntu16.04
-2. In some cases update and upgrade can fix some minor problems. Be sure the remote machine has a running ssh-service.
+2. Ensure you system is up-to-date and has openssh-server running by:
 ```
 sudo apt-get update
 sudo apt-get upgrade
 sudo apt-get install openssh-server
 ```
+By the way, openssh-server isn't required, if you install this crate locally.
 
-### Configuration
-The configuration consists of two files defining both WHERE to install the software and WHAT to install and configure.
-* `targets.edn`: describes on which target system(s) the software will be installed
+### 2. Create the configurations
+The configuration for installing this crate consists of two files, which specify both WHERE to install the software and WHAT to install.
+* `targets.edn`: describes on which target system(s) the software will be installed.
 * `liferay.edn`: describes the configuration of the application-server.
 
-Examples of these files can be found in the root directory of this repository.
+Examples of these files can be found in the root directory of this repository.  
+You need to adjust the values of the fields of `targets.edn` according to your own settings. The file `liferay.edn` can be used as given, if you just want to create a demo installation.
 
 #### Targets config example
 Example content of file `targets.edn`:
 ```clojure
-{:existing [{:node-name "test-vm1"            ; semantic name
-             :node-ip "35.157.19.218"}]       ; the ip4 address of the machine to be provisioned
- :provisioning-user {:login "initial"         ; account used to provision
-                     :password "secure1234"}} ; optional password, if no ssh key is authorized
+{:existing [{:node-name "test-vm1"            ; semantic name (keep the default or use a name that suits you)
+             :node-ip "192.168.56.104"}]      ; the ip4 address of the machine to be provisioned
+ :provisioning-user {:login "initial"         ; user on the target machine, must have sudo rights
+                     :password "secure1234"}} ; password can be empty, if a ssh key is authorized
 ```
 
 #### Liferay config example
 Example content of file `liferay.edn`:
 ```clojure
-; specification of installation and configuration for liferay and required SW
-{:liferay-version :LR6                  ;specifies the Liferay version to be installed
+{:liferay-version :LR7                  ; specifies the Liferay version to be installed either :LR7 or :LR6
  :fq-domain-name "example.de"           ; the full qualified domain name
- :google-id "xxxxxxxxxxxxxxxxxxxxx"     ; your google id
  :db-root-passwd {:plain "test1234"}    ; the root password for the database
  :db-user-name "dbtestuser"             ; the database user
  :db-user-passwd {:plain "test1234"}    ; the user password for the database
@@ -73,7 +71,7 @@ Example content of file `liferay.edn`:
 
 ```
 
-For `Secret` you can find more adapters in dda-palet-commons.
+Instead of plain passwords, you can use the possibilities of other **secrets**. For more information about this topic, please refer to [dda-pallet-commons](https://github.com/DomainDrivenArchitecture/dda-pallet-commons/blob/master/doc/secret_spec.md).
 
 #### Use Integration
 The dda-liferay-crate provides easy access to the required installation and configuration process.
