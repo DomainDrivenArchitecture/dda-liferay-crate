@@ -57,7 +57,5 @@
   (liferay/configure-liferay config))
 
 (s/defmethod dda-crate/dda-app-rollout facility
-  [dda-crate partial-effective-config]
-  ;TODO check partial or complete config
-  (let [config (dda-crate/merge-config dda-crate partial-effective-config)]
-    (liferay/prepare-rollout config)))
+  [dda-crate config]
+  (liferay/prepare-rollout config))

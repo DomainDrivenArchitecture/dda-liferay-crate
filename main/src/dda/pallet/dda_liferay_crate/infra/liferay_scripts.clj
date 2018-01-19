@@ -33,7 +33,6 @@
    tomcat-service :- s/Str]
 
   (let [application-parts-hot ["hooks" "layouts" "portlets" "themes"]
-        ;TODO ext muss hinzugefügt werden / oder ist schon?
         application-parts-full ["app" "hooks" "layouts" "portlets" "themes" "ext"]]
     (stevedore/with-script-language :pallet.stevedore.bash/bash
       (stevedore/with-source-line-comments false
