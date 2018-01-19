@@ -104,30 +104,27 @@ The version of Liferay may be subjected to changed. You can get a list of possib
 sudo /var/lib/liferay/do-rollout.sh
 ```
 
-#### Startup liferay
-Restart apache and start tomcat with liferay now deployed:
-
+#### Start liferay
+Perform the following steps in order to finish the liferay setup. Please note, that each step may take some time dependent on your environment.
+* Restart apache and start tomcat with liferay now deployed:
 ```bash
 sudo service apache2 restart
 sudo service tomcat8 start
 ```
-Please perform the following steps. Please note, that each step may take some time dependent on your environment.
 * Open browser and go to http://localhost
 * You'll see the liferay basic configuration screen with fields already filled in, like the database configuration. Adjust the settings according to you needs, if you want, then click **Finish configuration** button.
 * In case of succes you'll see the message **Your configuration was saved successfully... Please restart the portal now.**
-* Copy the just created liferay configuration properties to the appropriate tomcat folder:
+* Copy the just created liferay configuration properties to the appropriate tomcat folder by:
 ```bash
 sudo cp /var/lib/liferay/portal-setup-wizard.properties /var/lib/tomcat8/webapps/ROOT/WEB-INF/classes/portal-ext.properties
 ```
-
-Restart tomcat with the new liferay settings:
-
+* Restart tomcat with the new liferay portal properties:
 ```bash
 sudo service tomcat8 restart
 ```
-
-
-
+* In the browser open http://localhost
+* On the pages shown proceed with accepting the license and completing the the password reminder.
+* In the end you should see the liferay welcome page, e.g. "Hello World".
 
 
 ### Watch log for debug reasons
