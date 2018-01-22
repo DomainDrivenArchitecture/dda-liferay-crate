@@ -32,7 +32,7 @@
     (merge
       {:backup-name "liferay"
        :backup-user os-user
-       :service-restart "apache2"
+       :service-restart tomcat-user   ;service-name is identical to user for tomcat
        :local-management {:gens-stored-on-source-system 1}
        :backup-elements
        (vec
