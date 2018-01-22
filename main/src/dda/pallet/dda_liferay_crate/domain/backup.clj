@@ -38,15 +38,16 @@
        (vec
         (concat
          [{:type :mysql
-           :name "liferay"
+           :name "liferay_db"
            :db-user-name "root"
            :db-user-passwd db-root-passwd
            :db-name db-name
-           :db-create-options "character set utf8"}
+           ;leading space required for db-create-options
+           :db-create-options " character set utf8"}
           {:type :file-compressed
-           :name "liferay"
-           :root-dir "/var/lib/liferay/"
-           :subdir-to-save "data"
+           :name "var_lib_liferay_data"
+           :root-dir "/var/lib/liferay/data"
+           :subdir-to-save "*"
            :new-owner tomcat-user}]
          (when (not (contains? settings :test))
            [{:type :file-compressed
