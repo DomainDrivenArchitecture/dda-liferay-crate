@@ -6,9 +6,9 @@
 [![Slack](https://img.shields.io/badge/chat-clojurians-green.svg?style=flat)](https://clojurians.slack.com/messages/#dda-pallet/) | [<img src="https://domaindrivenarchitecture.org/img/meetup.svg" width=50 alt="DevOps Hacking with Clojure Meetup"> DevOps Hacking with Clojure](https://www.meetup.com/de-DE/preview/dda-pallet-DevOps-Hacking-with-Clojure) | [Website & Blog](https://domaindrivenarchitecture.org)
 
 
-This is a crate to install, configure and run a full blown 3 tier liferay server via Pallet.
+This is a crate to install, configure and run a full blown 3 tier liferay server on a Linux system.
 
-Currently this crate uses Apache2 as httpd server, mariadb as database and tomcat8 as web application server on Ubuntu for Liferay version 7.x (for backwards compatibility also Liferay version 6.x can be installed, but is not recommended anymore).
+This version of this crate uses Apache2 as httpd server, mariadb as database and tomcat8 as web application server on Ubuntu for Liferay version 7.x (for backwards compatibility also Liferay version 6.x can be installed, but is not recommended anymore).
 
 ## Compatibility
 
@@ -34,14 +34,14 @@ You can install the liferay crate by following the steps below:
 ### 1. Prepare your target machine
 This crate was tested on an installed ubuntu 16.04 installation. If not already prepared, please perfom the following actions on the target machine:
 1. Install ubuntu16.04
-2. Ensure you system is up-to-date, has java installed and openssh-server running:
+2. Ensure your system is up-to-date, has java installed and openssh-server running:
 ```
 sudo apt-get update
 sudo apt-get upgrade
 sudo apt-get install openjdk8
 sudo apt-get install openssh-server
 ```
-By the way, openssh-server isn't required, if you install this crate locally.
+By the way, openssh-server is not required when installing this crate on the local machine instead of remotely.
 
 ### 2. Download installer and configuration facilities
 1. Please download the
