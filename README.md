@@ -16,7 +16,7 @@ This version of this crate uses Apache2 as httpd server, mariadb as database and
 * [Features](#features)
 * [Usage documentation](#usage-documentation)
   + [1. Prepare your target machine](#1-prepare-your-target-machine)
-  + [2. Download installer and configuration facilities](#2-download-installer-and-configuration-facilities)
+  + [2. Download installer and configuration files](#2-download-installer-and-configuration-files)
   + [3. Adapt the configuration files](#3-adapt-the-configuration-files)
     - [Targets config example](#targets-config-example)
     - [Liferay config example](#liferay-config-example)
@@ -25,10 +25,14 @@ This version of this crate uses Apache2 as httpd server, mariadb as database and
     - [Deploy liferay to tomcat](#deploy-liferay-to-tomcat)
     - [Start liferay](#start-liferay)
   + [Watch log for debug reasons](#watch-log-for-debug-reasons)
+* [Backup](#backup)
+  + [Backup file locations](#backup-file-locations)
+  + [Manual backup](#manual-backup)
+  + [Restore a backup](#restore-a-backup)
 * [Reference](#reference)
   + [Domain API](#domain-api)
-    - [Targets](#targets)
-    - [Liferay config](#liferay-config)
+    - [Target configuration](#target-configuration)
+    - [Liferay configuration](#liferay-configuration)
   + [Infra API](#infra-api)
 * [License](#license)
 
@@ -66,7 +70,7 @@ sudo apt-get install openssh-server
 ```
 By the way, openssh-server is not required when installing this crate on the local machine instead of remotely.
 
-### 2. Download installer and configuration facilities
+### 2. Download installer and configuration files
 1. First download the [installer](https://github.com/DomainDrivenArchitecture/dda-liferay-crate/releases/tag/dda-liferay-crate-0.x.x).
 <!--- TODO update links --->
 1. Then download the 2 example configuration files into the same folder where you've saved the installer.  
@@ -129,21 +133,21 @@ sudo /var/lib/liferay/do-rollout.sh
 #### Start liferay
 Perform the following steps in order to finish the liferay setup.
 * Restart apache and start tomcat with liferay now deployed:
-```bash
-sudo service apache2 restart
-sudo service tomcat8 start           #use tomcat7 for liferay 6
-```
+  ```bash
+  sudo service apache2 restart
+  sudo service tomcat8 start           #use tomcat7 for liferay 6
+  ```
 * Open browser with the url or ip-address where you installed liferay (e.g. http://localhost in case you installed it locally or open the browser from within the target machine). If no valid certificates were supplied, you will see the security warning of your browser (e.g. if you had used :test settings, then dummy snakeoil certificates were installed). In this case you still can access liferay by using the following or similar steps to add an exception to your browser: Click "Advanced" > "Add Exception" > "Confirm Security Exception".
 * Next you should see the liferay basic configuration screen with fields already filled in, like the database configuration. Adjust the settings according to you needs, if you want, then click **Finish configuration** button. Note, that this may take some minutes dependent on your environment.
 * In case of succes you'll see the message **Your configuration was saved successfully... Please restart the portal now.**
 * Copy the just created liferay configuration properties to the appropriate tomcat folder by:
-```bash
-sudo cp /var/lib/liferay/portal-setup-wizard.properties /var/lib/tomcat8/webapps/ROOT/WEB-INF/classes/portal-ext.properties
-```
+  ```bash
+  sudo cp /var/lib/liferay/portal-setup-wizard.properties /var/lib/tomcat8/webapps/ROOT/WEB-INF/classes/portal-ext.properties
+  ```
 * Restart tomcat with the new liferay portal properties:
-```bash
-sudo service tomcat8 restart
-```
+  ```bash
+  sudo service tomcat8 restart
+  ```
 * In the browser open the url or ip-address where you installed liferay (e.g. http://localhost in case you installed it locally). The default userid / password are test@liferay.com / test, which should be changed after the successful setup. **Note**, that it may take some minutes to open the page, dependent on your environment.
 * On the pages which come up, please proceed with accepting the license and completing the the password reminder.
 * In the end you should see the liferay welcome page, e.g. "Hello World".
