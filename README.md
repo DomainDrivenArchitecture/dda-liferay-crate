@@ -144,7 +144,7 @@ sudo cp /var/lib/liferay/portal-setup-wizard.properties /var/lib/tomcat8/webapps
 ```bash
 sudo service tomcat8 restart
 ```
-* In the browser open the url or ip-address where you installed liferay (e.g. http://localhost in case you installed it locally). **Note**, that it may take some minutes to open the page, dependent on your environment.
+* In the browser open the url or ip-address where you installed liferay (e.g. http://localhost in case you installed it locally). The default userid and password are test@liferay.com respectively test, which should be changed after the successful setup. **Note**, that it may take some minutes to open the page, dependent on your environment.
 * On the pages which come up, please proceed with accepting the license and completing the the password reminder.
 * In the end you should see the liferay welcome page, e.g. "Hello World".
 
