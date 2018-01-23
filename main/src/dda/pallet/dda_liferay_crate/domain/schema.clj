@@ -16,9 +16,26 @@
 (ns dda.pallet.dda-liferay-crate.domain.schema
   (:require
     [schema.core :as s]
+    [dda.config.commons.version-model :as version]
     [dda.pallet.commons.secret :as secret]))
 
 (def LiferayVersion (s/enum :LR6 :LR7))
+
+(def LiferayApp
+  "Represents a liferay application (portlet, theme or the portal itself)."
+  [(s/one s/Str "name") (s/one s/Str "url")])
+
+(def LiferayRelease
+  "LiferayRelease contains a release name with specification of versioned apps."
+  {:name s/Str
+   :version version/Version
+   (s/optional-key :app) LiferayApp
+   (s/optional-key :config) [s/Str]
+   (s/optional-key :hooks) [LiferayApp]
+   (s/optional-key :layouts) [LiferayApp]
+   (s/optional-key :themes) [LiferayApp]
+   (s/optional-key :portlets) [LiferayApp]
+   (s/optional-key :ext) [LiferayApp]})
 
 (def DomainConfig
   "The high-level domain configuration for the liferay-crate."
@@ -30,6 +47,7 @@
    :db-user-passwd secret/Secret
    ;if :test is specified in :settings, snakeoil certificates will be used
    :settings (hash-set (s/enum :test))
+   (s/optional-key :releases) [LiferayRelease]
    (s/optional-key :backup) {:bucket-name s/Str
                              :gpg {:gpg-public-key  secret/Secret
                                    :gpg-private-key secret/Secret

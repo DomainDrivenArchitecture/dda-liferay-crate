@@ -1,4 +1,4 @@
-# dda-liferay-crate
+# About dda-liferay-crate
 
 [![Clojars Project](https://img.shields.io/clojars/v/dda/dda-liferay-crate.svg)](https://clojars.org/dda/dda-liferay-crate)
 [![Build Status](https://travis-ci.org/DomainDrivenArchitecture/dda-liferay-crate.svg?branch=master)](https://travis-ci.org/DomainDrivenArchitecture/dda-liferay-crate)
@@ -9,6 +9,29 @@
 This is a crate to install, configure and run a full blown 3 tier liferay server on a Linux system.
 
 This version of this crate uses Apache2 as httpd server, mariadb as database and tomcat8 as web application server on Ubuntu for Liferay version 7.x (for backwards compatibility also Liferay version 6.x can be installed, but is not recommended anymore).
+
+## Table of contents
+
+* [Compatibility](#compatibility)
+* [Features](#features)
+* [Usage documentation](#usage-documentation)
+  + [1. Prepare your target machine](#1-prepare-your-target-machine)
+  + [2. Download installer and configuration facilities](#2-download-installer-and-configuration-facilities)
+  + [3. Adapt the configuration files](#3-adapt-the-configuration-files)
+    - [Targets config example](#targets-config-example)
+    - [Liferay config example](#liferay-config-example)
+  + [4. Execute installation](#4-execute-installation)
+  + [5. Deploy and configure liferay](#5-deploy-and-configure-liferay)
+    - [Deploy liferay to tomcat](#deploy-liferay-to-tomcat)
+    - [Start liferay](#start-liferay)
+  + [Watch log for debug reasons](#watch-log-for-debug-reasons)
+* [Reference](#reference)
+  + [Domain API](#domain-api)
+    - [Targets](#targets)
+    - [Liferay config](#liferay-config)
+  + [Infra API](#infra-api)
+* [License](#license)
+
 
 ## Compatibility
 
