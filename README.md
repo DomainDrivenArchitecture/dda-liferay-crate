@@ -163,6 +163,8 @@ The dda-liferay-crate installs a facility (a so-called cron-job) which makes a b
 * the liferay database (i.e. database name: lportal)
 * all files and folders in the liferay data folder: "/var/lib/liferay/data/"
 
+Detailed information about this backup process you can find in our [dda gitbook](https://dda.gitbooks.io/domaindrivenarchitecture/content/en/10_backup/40_architecture/backup_process.html).
+
 ### Backup file locations
 * The scripts for backing up and restore can be found at: ```/usr/local/lib/dda-backup/```
 * The backups themselves (i.e. the data is backed up) are stored at: ```/var/backups/transport-outgoing/```. If you'd like to save your data backups at another place, you may transfer the files from there to the appropriate location.
