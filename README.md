@@ -155,6 +155,37 @@ sudo service tomcat8 restart
 In case of problems you may want to have a look at the log-file:
 `less logs/pallet.log`
 
+
+## Backup
+The dda-liferay-crate installs a facility (a so-called cron-job) which makes a backup of the liferay data on a regular base. The data backed up consists of:
+* the liferay database (i.e. database name: lportal)
+* all files and folders in the liferay data folder: "/var/lib/liferay/data/"
+
+### Backup file locations
+The scripts for backing up and restore can be found at: "/usr/local/lib/dda-backup/"
+```bash
+liferay_backup.sh
+liferay_restore.sh
+```
+
+The files containing the data backed up are stored at: "/var/backups/transport-outgoing/".  
+If you'd like to save your data backups at another place you may transfer the files from you to the appropriate location.
+
+When restoring, the data to be restored needs to be placed in folder: ""
+
+### Manual backup
+A backup can also be triggered manually by running the backup script in a terminal:
+```bash
+sudo /usr/ ...
+```
+
+### Restore a backup
+A backup can also be triggered manually by running the backup script in a terminal:
+```bash
+sudo /usr/ ...
+```
+
+
 ## Reference
 Some details about the architecture: We provide two levels of API. **Domain** is a high-level API with many build in conventions. If this conventions don't fit your needs, you can use our low-level **infra** API and realize your own conventions.
 
