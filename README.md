@@ -160,8 +160,8 @@ Some details about the architecture: We provide two levels of API. **Domain** is
 
 ### Domain API
 
-#### Targets
-The schema for the targets config is:
+#### Target configuration
+The schema for the targets config (used in file "targets.edn"):
 ```clojure
 (def ExistingNode {:node-name Str                   ; your name for the node
                    :node-ip Str                     ; nodes ip4 address       
@@ -175,21 +175,40 @@ The schema for the targets config is:
               :provisioning-user ProvisioningUser   ; common user account on all nodes given above
               })
 ```
-The "targets.edn" uses this schema.
 
-#### Liferay config
-The schema for the liferay configuration is:
+
+#### Liferay configuration
+The schema for the liferay configuration (used in file "liferay.edn"):
 ```clojure
+(def LiferayVersion (s/enum :LR6 :LR7))
+
+(def LiferayApp
+  "Represents a liferay application (portlet, theme or the portal itself)."
+  [(s/one s/Str "name") (s/one s/Str "url")])
+
+(def LiferayRelease
+  "LiferayRelease contains a release name with specification of versioned apps."
+  {:name s/Str
+   :version version/Version
+   (s/optional-key :app) LiferayApp
+   (s/optional-key :config) [s/Str]
+   (s/optional-key :hooks) [LiferayApp]
+   (s/optional-key :layouts) [LiferayApp]
+   (s/optional-key :themes) [LiferayApp]
+   (s/optional-key :portlets) [LiferayApp]
+   (s/optional-key :ext) [LiferayApp]})
+
 (def DomainConfig
   "The high-level domain configuration for the liferay-crate."
-  {:liferay-version LiferayVersion
-   :fq-domain-name s/Str
+  {:liferay-version LiferayVersion       ;either :LR7 or :LR6
+   :fq-domain-name s/Str                 ;the fully qualified domain name
    (s/optional-key :google-id) s/Str
    :db-root-passwd secret/Secret
    :db-user-name s/Str
    :db-user-passwd secret/Secret
    ;if :test is specified in :settings, snakeoil certificates will be used
    :settings (hash-set (s/enum :test))
+   (s/optional-key :releases) [LiferayRelease]     ;when missing a default will be used
    (s/optional-key :backup) {:bucket-name s/Str
                              :gpg {:gpg-public-key  secret/Secret
                                    :gpg-private-key secret/Secret
@@ -201,12 +220,43 @@ The schema for the liferay configuration is:
 For `Secret` you can find more adapters in dda-pallet-commons.
 
 ### Infra API
-The Infra configuration is a configuration on the infrastructure level of a crate. It contains the complete configuration options that are possible with the crate functions. You can find the details of the infra configurations at the other crates used:
-* [dda-tomcat-crate](https://github.com/DomainDrivenArchitecture/dda-tomcat-crate)
-* [dda-backup-crate](https://github.com/DomainDrivenArchitecture/dda-backup-crate)
-* [dda-httpd-crate](https://github.com/DomainDrivenArchitecture/dda-httpd-crate)
-* [dda-mariadb-crate](https://github.com/DomainDrivenArchitecture/dda-mariadb-crate)
+The Infra configuration is a configuration on the infrastructure level of a crate. It contains the complete configuration options that are possible with the crate functions. It is defined as specified below:
+```clojure
+(def LiferayApp
+  "Represents a liferay application (portlet, theme or the portal itself)."
+  [(s/one s/Str "name") (s/one s/Str "url")])
 
+(def LiferayRelease
+  "LiferayRelease contains a release name with specification of versioned apps."
+  {:name s/Str
+   :version version/Version
+   (s/optional-key :app) LiferayApp
+   (s/optional-key :config) [s/Str]
+   (s/optional-key :hooks) [LiferayApp]
+   (s/optional-key :layouts) [LiferayApp]
+   (s/optional-key :themes) [LiferayApp]
+   (s/optional-key :portlets) [LiferayApp]
+   (s/optional-key :ext) [LiferayApp]})
+
+(def LiferayCrateConfig
+  "The infra config schema."
+  {:fq-domain-name s/Str
+   :home-dir dir-model/NonRootDirectory
+   :lib-dir dir-model/NonRootDirectory
+   :deploy-dir dir-model/NonRootDirectory
+   (s/optional-key :osgi) osgi/OsgiConfig
+   :repo-download-source s/Str
+   :dependencies [s/Str]
+   :release-dir dir-model/NonRootDirectory
+   :releases [LiferayRelease]
+   :tomcat {:tomcat-root-dir s/Str
+            :tomcat-webapps-dir s/Str
+            :tomcat-user s/Str
+            :tomcat-service s/Str}
+   :db {:db-name s/Str
+        :db-user-name s/Str
+        :db-user-passwd s/Str}})
+```
 
 ## License
 Published under [apache2.0 license](LICENSE.md)
