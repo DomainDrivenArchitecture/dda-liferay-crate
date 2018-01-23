@@ -90,14 +90,14 @@ java -jar dda-liferay-ide-0.3.3-standalone.jar liferay.edn
 This will apply the installation and configuration process to the provided targets defined in `targets.edn`. This can take several minutes, as a lot of software needs to be installed. In case of success you'll see something similar as:
 
 ### 5. Deploy and configure liferay
-To finish your installation and to set up liferay properly several manual steps are required:
+To finish your installation and to set up liferay properly several manual steps on the targets are required:
 
 #### Deploy liferay to tomcat
 Stop tomcat and use the rollout script.
 
 ```bash
-sudo service tomcat8 stop
-sudo /var/lib/liferay/do-rollout.sh LiferayCE-7.0.4
+sudo service tomcat8 stop #tomcat7 for liferay 6
+sudo /var/lib/liferay/do-rollout.sh LiferayCE-7.0.4 #different version for liferay 6
 ```
 The version of Liferay may be subjected to changed. You can get a list of possible versions to be installed by using the rollout-script without version specified:
 ```bash
@@ -109,10 +109,11 @@ Perform the following steps in order to finish the liferay setup. Please note, t
 * Restart apache and start tomcat with liferay now deployed:
 ```bash
 sudo service apache2 restart
-sudo service tomcat8 start
+sudo service tomcat8 start #tomcat7 for liferay 6
 ```
-* Open browser and go to http://localhost
-* You'll see the liferay basic configuration screen with fields already filled in, like the database configuration. Adjust the settings according to you needs, if you want, then click **Finish configuration** button.
+* Open browser and go to http://localhost or the appropriate address
+* If no valid certificates were supplied, you will see the security warning of your browser
+* After that you'll see the liferay basic configuration screen with fields already filled in, like the database configuration. Adjust the settings according to you needs, if you want, then click **Finish configuration** button.
 * In case of succes you'll see the message **Your configuration was saved successfully... Please restart the portal now.**
 * Copy the just created liferay configuration properties to the appropriate tomcat folder by:
 ```bash
@@ -174,7 +175,7 @@ The schema for the liferay configuration is:
                                    :aws-secret-access-key secret/Secret}}})
 ```
 
-For `Secret` you can find more adapters in dda-palet-commons.
+For `Secret` you can find more adapters in dda-pallet-commons.
 
 ### Infra API
 The Infra configuration is a configuration on the infrastructure level of a crate. It contains the complete configuration options that are possible with the crate functions. You can find the details of the infra configurations at the other crates used:
