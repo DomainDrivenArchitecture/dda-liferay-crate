@@ -39,6 +39,12 @@
    :db-user-name "dbtestuser"
    :db-user-passwd "test1234"
    :settings #{}
+   :releases
+     [{:name "LiferayCE"
+       :version [7 0 4]
+       :app ["ROOT" "https://netcologne.dl.sourceforge.net/project/lportal/Liferay%20Portal/7.0.4%20GA5/liferay-ce-portal-7.0-ga5-20171018150113838.war"]
+       :config ["some portal extension lines"]}]
+
    :backup {:bucket-name "meissa-backup"
             :gpg {:gpg-public-key
                   "-----BEGIN PGP PUBLIC KEY BLOCK-----
