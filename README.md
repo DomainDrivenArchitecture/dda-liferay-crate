@@ -144,7 +144,7 @@ sudo cp /var/lib/liferay/portal-setup-wizard.properties /var/lib/tomcat8/webapps
 ```bash
 sudo service tomcat8 restart
 ```
-* In the browser open the url or ip-address where you installed liferay (e.g. http://localhost in case you installed it locally). The default userid and password are test@liferay.com respectively test, which should be changed after the successful setup. **Note**, that it may take some minutes to open the page, dependent on your environment.
+* In the browser open the url or ip-address where you installed liferay (e.g. http://localhost in case you installed it locally). The default userid / password are test@liferay.com / test, which should be changed after the successful setup. **Note**, that it may take some minutes to open the page, dependent on your environment.
 * On the pages which come up, please proceed with accepting the license and completing the the password reminder.
 * In the end you should see the liferay welcome page, e.g. "Hello World".
 
@@ -160,29 +160,28 @@ The dda-liferay-crate installs a facility (a so-called cron-job) which makes a b
 * all files and folders in the liferay data folder: "/var/lib/liferay/data/"
 
 ### Backup file locations
-The scripts for backing up and restore can be found at: "/usr/local/lib/dda-backup/"
-```bash
-liferay_backup.sh
-liferay_restore.sh
-```
-
-The files containing the data backed up are stored at: "/var/backups/transport-outgoing/".  
-If you'd like to save your data backups at another place you may transfer the files from you to the appropriate location.
-
-When restoring, the data to be restored needs to be placed in folder: ""
+* The scripts for backing up and restore can be found at: ```/usr/local/lib/dda-backup/```
+* The backups themselves (i.e. the data is backed up) are stored at: ```/var/backups/transport-outgoing/```. If you'd like to save your data backups at another place, you may transfer the files from there to the appropriate location.
+* For restoring the backups to be restored need to be in folder: ```/var/backups/restore/```
 
 ### Manual backup
 A backup can also be triggered manually by running the backup script in a terminal:
 ```bash
-sudo /usr/ ...
+sudo /usr/local/lib/dda-backup/liferay_backup.sh
 ```
 
 ### Restore a backup
-A backup can also be triggered manually by running the backup script in a terminal:
-```bash
-sudo /usr/ ...
-```
-
+You can restore backups by following the steps below:
+* Ensure the backups you want to restore are placed in the restore folder (```/var/backups/restore/```). E.g. in case you kept your backups in the default location, you could copy your backups to the restore folder by
+   ```bash
+   sudo cp /var/backups/transport-outgoing/* /var/backups/restore/
+   ```
+* Run the restore script, (which will use the latest backup version, if several are available) and start tomcat again:
+  ```bash
+  sudo /usr/local/lib/dda-backup/liferay_restore.sh
+  sudo service tomcat8 start                           #use tomcat7 for liferay 6
+  ```
+  Note, that it may take some minutes until liferay is up and running again.
 
 ## Reference
 Some details about the architecture: We provide two levels of API. **Domain** is a high-level API with many build in conventions. If this conventions don't fit your needs, you can use our low-level **infra** API and realize your own conventions.
