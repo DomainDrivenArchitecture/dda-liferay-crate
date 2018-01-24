@@ -139,8 +139,9 @@ Perform the following steps in order to finish the liferay setup.
   ```
 * Open browser with the url or ip-address where you installed liferay (e.g. http://localhost in case you installed it locally or open the browser from within the target machine). If no valid certificates were supplied, you will see the security warning of your browser (e.g. if you had used :test settings, then dummy snakeoil certificates were installed). In this case you still can access liferay by using the following or similar steps to add an exception to your browser: Click "Advanced" > "Add Exception" > "Confirm Security Exception".
 * Next you should see the liferay basic configuration screen with fields already filled in, like the database configuration. Adjust the settings according to you needs, if you want, then click **Finish configuration** button. Note, that this may take some minutes dependent on your environment.
-* In case of succes you'll see the message **Your configuration was saved successfully... Please restart the portal now.**
-* Copy the just created liferay configuration properties to the appropriate tomcat folder by:
+* In case of succes you'll see the message **Your configuration was saved successfully... Please restart the portal now.** (In case of liferay version 6 you'll see the message ```we were not able to save the configuration file in /var/lib/liferay```, please refer to the next step.)
+* *Liferay version 6 only:* Replace the content of file ```/var/lib/tomcat7/webapps/ROOT/WEB-INF/classes/portal-ext.properties``` (instead of /var/lib/liferay/portal-ext.properties) by the data shown in the browser page.
+* *Liferay version 7 only:* Copy the just created liferay configuration properties to the appropriate tomcat folder by:
   ```bash
   sudo cp /var/lib/liferay/portal-setup-wizard.properties /var/lib/tomcat8/webapps/ROOT/WEB-INF/classes/portal-ext.properties
   ```
