@@ -13,7 +13,6 @@
 ; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
-;[dda.pallet.commons.cli-helper :as cli-helper]
 
 (ns dda.pallet.dda-liferay-crate.main
   (:gen-class)
