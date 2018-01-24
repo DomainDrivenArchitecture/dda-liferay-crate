@@ -51,6 +51,18 @@
      (provisioning-spec target-config domain-config)
      :summarize-session true)))
 
+(defn app-rollout
+  [& options]
+  (let [{:keys [domain targets]
+         :or {domain "liferay.edn"
+              targets "targets.edn"}} options
+        target-config (existing/load-targets targets)
+        domain-config (app/load-domain domain)]
+    (operation/do-app-rollout
+      (provider target-config)
+      (provisioning-spec target-config domain-config)
+      :summarize-session true)))
+
 (defn apply-configure
   [& options]
   (let [{:keys [domain targets]
