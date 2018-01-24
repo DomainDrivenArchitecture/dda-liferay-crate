@@ -20,6 +20,7 @@
     [schema.core :as s]
     [schema-tools.core :as st]
     [pallet.stevedore :as stevedore]
+    [pallet.stevedore.bash :as bash] ;; for bash output
     [dda.config.commons.directory-model :as dir-model]
     [dda.pallet.dda-liferay-crate.infra.schema :as schema]))
 
@@ -38,6 +39,7 @@
       (stevedore/with-source-line-comments false
         (stevedore/script
           ;(~lib/declare-arguments [release-dir hot-or-cold])
+          ("#!/bin/bash\n\n")
           ("if [ \"$#\" -eq 0 ]; then")
           (println "\"\"")
           (println "\"Usage is: prepare-rollout [release] [deployment-mode].\"")
