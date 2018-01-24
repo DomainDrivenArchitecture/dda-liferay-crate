@@ -40,6 +40,18 @@
      (provisioning-spec domain-config (:node-spec target-config) count)
      :summarize-session true)))
 
+(defn app-rollout
+  [count & options]
+  (let [{:keys [gpg-key-id gpg-passphrase domain target]
+         :or {domain "liferay.edn"
+              target "integration/resources/jem-aws-target.edn"}} options
+        target-config (cloud-target/load-targets target)
+        domain-config (app/load-domain domain)]
+   (operation/do-app-rollout
+     (cloud-target/provider (:context target-config))
+     (provisioning-spec domain-config (:node-spec target-config) count)
+     :summarize-session true)))
+
 (defn configure
  [& options]
  (let [{:keys [gpg-key-id gpg-passphrase domain target]
