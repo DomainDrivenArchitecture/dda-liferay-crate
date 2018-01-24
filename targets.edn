@@ -1,8 +1,8 @@
 ; specification of the target machine
 {:existing [{:node-name "test-vm1"            ; not yet used
-             :node-ip "192.168.56.105"}]      ; ip of the target machine
+             :node-ip "192.168.56.101"}]      ; ip of the target machine
 
 ; specification and credential of the user on target machine,
 ; which is used to connect to the target machine by ssh
  :provisioning-user {:login "initial"         ; username on target machine
-                     :password "test1234"}} ; password of user above
+                     :password "secure1234"}} ; password of user above
