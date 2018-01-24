@@ -28,7 +28,10 @@
   (let [{:keys [db-user-name db-user-passwd]} domain-config
         db-type (case liferay-version
                   :LR7 "mariadb"
-                  :LR6 "mysql")]
+                  :LR6 "mysql")
+        db-driver (case liferay-version
+                    :LR7 "org.mariadb.jdbc.Driver"
+                    :LR6 "com.mysql.jdbc.Driver")]
     ["#"
      "# Techbase"
      "#"
@@ -38,7 +41,7 @@
      "#"
      "# MySQL"
      "#"
-     (str "jdbc.default.driverClassName=org." db-type ".jdbc.Driver")
+     (str "jdbc.default.driverClassName=" db-driver)
      (str "jdbc.default.url=jdbc:" db-type "://localhost:3306/" db-name
           "?useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false")
      (str "jdbc.default.username=" db-user-name)
