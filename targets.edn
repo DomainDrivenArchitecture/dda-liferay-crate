@@ -5,4 +5,4 @@
 ; specification and credential of the user on target machine,
 ; which is used to connect to the target machine by ssh
  :provisioning-user {:login "initial"         ; username on target machine
-                     :password "secure1234"}} ; password of user above
+                     :password "test1234"}} ; password of user above

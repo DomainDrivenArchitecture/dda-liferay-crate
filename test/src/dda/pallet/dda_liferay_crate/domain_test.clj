@@ -32,7 +32,7 @@
 
 (def config-full
   "domainConfigResolved"
-  {:liferay-version :LR6
+  {:liferay-version :LR7
    :fq-domain-name "liferay.example.de"
    :google-id "xxxxxxxxxxxxxxxxxxxxx"
    :db-root-passwd "test1234"

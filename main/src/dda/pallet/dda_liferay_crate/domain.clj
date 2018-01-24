@@ -23,8 +23,8 @@
     [dda.pallet.dda-liferay-crate.domain.backup :as tomcat]
     [dda.pallet.dda-liferay-crate.domain.backup :as backup]
     [dda.pallet.dda-liferay-crate.domain.schema :as schema]
-    [dda.pallet.dda-liferay-crate.domain.liferay6 :as liferay6]
-    [dda.pallet.dda-liferay-crate.domain.liferay7 :as liferay7]))
+    [dda.pallet.dda-liferay-crate.domain.liferay :as liferay]))
+
 
 ; ----- schemas for the domain configuration ----------
 (def DomainConfig schema/DomainConfig)
@@ -63,17 +63,16 @@
   tomcat-domain-configuration
   [domain-config :- DomainConfigResolved]
   (let [{:keys [liferay-version]} domain-config]
-    (case liferay-version
-      :LR6 (liferay6/tomcat-domain-configuration domain-config)
-      :LR7 (liferay7/tomcat-domain-configuration domain-config))))
+      (liferay/tomcat-domain-configuration domain-config liferay-version)))
+
 
 (s/defn ^:always-validate
   tomcat-user
   [domain-config :- DomainConfigResolved]
   (let [{:keys [liferay-version]} domain-config]
     (case liferay-version
-      :LR6 liferay6/tomcat-user
-      :LR7 liferay7/tomcat-user)))
+      :LR6 "tomcat7"
+      :LR7 "tomcat8")))
 
 (s/defn ^:always-validate
   backup-domain-configuration
@@ -84,6 +83,4 @@
   infra-configuration :- infra/InfraResult
   [domain-config :- DomainConfigResolved]
   (let [{:keys [liferay-version]} domain-config]
-    (case liferay-version
-      :LR6 {infra/facility (liferay6/liferay-infra-configuration domain-config db-name)}
-      :LR7 {infra/facility (liferay7/liferay-infra-configuration domain-config db-name)})))
+    {infra/facility (liferay/liferay-infra-configuration domain-config db-name liferay-version)}))
