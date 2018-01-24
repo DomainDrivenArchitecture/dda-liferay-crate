@@ -45,7 +45,7 @@
   [domain-config :- DomainConfigResolved
    db-name :- s/Str
    liferay-version]
-  (let [{:keys [fq-domain-name db-user-name db-user-passwd]} domain-config
+  (let [{:keys [fq-domain-name db-user-name db-user-passwd releases]} domain-config
         tomcat-user (case liferay-version
                              :LR7 "tomcat8"
                              :LR6 "tomcat7")
@@ -73,7 +73,11 @@
                              "mysql" "persistence"
                              "portlet" "postgresql" "support-tomcat"]
                             add-dependencies))
-       :releases [(liferay-config/default-release-config domain-config db-name liferay-version)]
+       :releases 
+       (if (contains? domain-config :releases)
+         releases
+         ; else use default release
+         [(liferay-config/default-release-config domain-config db-name liferay-version)])
        :tomcat {:tomcat-root-dir (str "/usr/share/" tomcat-user "/")
                 :tomcat-webapps-dir (str "/var/lib/" tomcat-user "/webapps/")
                 :tomcat-user tomcat-user
