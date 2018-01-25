@@ -53,10 +53,22 @@
        provisioning-user)
      :summarize-session true)))
 
+(defn execute-app-rollout
+  [domain-config targets]
+  (let [{:keys [existing provisioning-user]} targets]
+    (operation/do-app-rollout
+     (existing/provider {:dda-liferay-crate existing})
+     (app/existing-provisioning-spec
+       domain-config
+       provisioning-user)
+     :summarize-session true)))
+
+
 (def cli-options
   [["-h" "--help"]
    ["-s" "--server-test"]
    ["-c" "--configure"]
+   ["-a" "--app-rollout"]
    ["-t" "--targets TARGETS.edn" "edn file containing the targets to install on."
     :default "targets.edn"]])
 
@@ -94,6 +106,9 @@
       (:configure options) (execute-configure
                              (app/load-domain (first arguments))
                              (app/load-targets (:targets options)))
+      (:app-rollout options) (execute-app-rollout
+                               (app/load-domain (first arguments))
+                               (app/load-targets (:targets options)))
       :default (execute-install
                  (app/load-domain (first arguments))
                  (app/load-targets (:targets options))))))
