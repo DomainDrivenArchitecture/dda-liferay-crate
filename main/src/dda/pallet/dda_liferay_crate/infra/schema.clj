@@ -39,6 +39,7 @@
 (def LiferayCrateConfig
   "The infra config schema."
   {:fq-domain-name s/Str
+   (s/optional-key :fqdn-to-be-replaced) s/Str
    :home-dir dir-model/NonRootDirectory
    :lib-dir dir-model/NonRootDirectory
    :deploy-dir dir-model/NonRootDirectory

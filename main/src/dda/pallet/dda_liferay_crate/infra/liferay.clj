@@ -178,9 +178,8 @@
 (s/defn configure-liferay
   "dda liferay crate: configure routine"
   [config :- schema/LiferayCrateConfig]
-  (let [{:keys [fq-domain-name home-dir db-name db-user-name db-user-passwd tomcat]} config
-        {:keys [tomcat-user]} tomcat
-        fqdn-to-be-replaced "fqdn-to-be-replaced"] ;TODO resolve fqdn-to-be-replaced
+  (let [{:keys [fq-domain-name home-dir db-name db-user-name db-user-passwd tomcat fqdn-to-be-replaced]} config
+        {:keys [tomcat-user]} tomcat]
     (liferay-config-file
       (str home-dir "prodDataReplacements.sh")
       (liferay-scripts/var-lib-liferay-prodDataReplacements-sh
