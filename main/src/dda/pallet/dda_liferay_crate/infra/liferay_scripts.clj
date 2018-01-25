@@ -128,7 +128,7 @@
    "# politaktiv script that replaces the data with productive copy"
    ""
    "# tomcat stop"
-   "service " tomcat-user " stop"
+   (str "service " tomcat-user " stop")
    ""
    "# Ort der Backups"
    "cd /home/dataBackupSource/restore"
@@ -177,5 +177,5 @@
    "most_recent_file_dump=$(ls -t1 ./liferay_pa-prod_file_* | head -n1)"
    "rm -r /var/lib/liferay/data/*"
    "tar -xzf ${most_recent_file_dump} -C /var/lib/liferay/data"
-   "chown -R "tomcat-user":"tomcat-user " /var/lib/liferay/data"
+   (str "chown -R "tomcat-user":"tomcat-user " /var/lib/liferay/data")
    "echo \"file finished\""])
