@@ -34,6 +34,7 @@
   "domainConfigResolved"
   {:liferay-version :LR6
    :fq-domain-name "liferay.example.de"
+   :fqdn-to-be-replaced "old-domain.de"
    :google-id "xxxxxxxxxxxxxxxxxxxxx"
    :db-root-passwd "test1234"
    :db-user-name "dbtestuser"

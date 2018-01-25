@@ -41,6 +41,7 @@
   "The high-level domain configuration for the liferay-crate."
   {:liferay-version LiferayVersion
    :fq-domain-name s/Str
+   (s/optional-key :fqdn-to-be-replaced) s/Str
    (s/optional-key :google-id) s/Str
    :db-root-passwd secret/Secret
    :db-user-name s/Str

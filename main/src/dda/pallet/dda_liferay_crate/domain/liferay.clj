@@ -45,7 +45,7 @@
   [domain-config :- DomainConfigResolved
    db-name :- s/Str
    liferay-version]
-  (let [{:keys [fq-domain-name db-user-name db-user-passwd releases]} domain-config
+  (let [{:keys [fq-domain-name fqdn-to-be-replaced db-user-name db-user-passwd releases]} domain-config
         tomcat-user (case liferay-version
                              :LR7 "tomcat8"
                              :LR6 "tomcat7")
@@ -73,7 +73,7 @@
                              "mysql" "persistence"
                              "portlet" "postgresql" "support-tomcat"]
                             add-dependencies))
-       :releases 
+       :releases
        (if (contains? domain-config :releases)
          releases
          ; else use default release
@@ -84,4 +84,7 @@
                 :tomcat-service tomcat-user}
        :db {:db-name db-name
             :db-user-name db-user-name
-            :db-user-passwd db-user-passwd}})))
+            :db-user-passwd db-user-passwd}}
+      (when (contains? domain-config :fqdn-to-be-replaced)
+            {:fqdn-to-be-replaced fqdn-to-be-replaced}))))
+        
