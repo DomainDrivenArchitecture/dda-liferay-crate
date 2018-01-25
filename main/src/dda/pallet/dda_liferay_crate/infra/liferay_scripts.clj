@@ -131,7 +131,7 @@
    (str "service " tomcat-user " stop")
    ""
    "# Ort der Backups"
-   "cd /home/dataBackupSource/restore"
+   "cd /var/backups/restore/"
    ""
    "# als root auf dev:"
    (str "mysql -hlocalhost -u " db-user-name
