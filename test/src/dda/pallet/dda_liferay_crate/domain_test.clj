@@ -35,6 +35,7 @@
   {:liferay-version :LR7
    :fq-domain-name "liferay.example.de"
    :google-id "xxxxxxxxxxxxxxxxxxxxx"
+   :tomcat-xmx-megabyte 7777
    :db-root-passwd "test1234"
    :db-user-name "dbtestuser"
    :db-user-passwd "test1234"
@@ -115,6 +116,13 @@
           (:domain-name (sut/httpd-domain-configuration config-simple))))
     (is (= "xxxxxxxxxxxxxxxxxxxxx"
           (:google-id (sut/httpd-domain-configuration config-full))))))
+
+(deftest test-tomcat-configuration
+  (testing
+    "test the tomcat config creation"
+    (is (thrown? Exception (sut/tomcat-domain-configuration {})))
+    (is (= 7777
+           (:xmx-megabbyte (:lr-7x (sut/tomcat-domain-configuration config-full)))))))
 
 (deftest test-backup-configuration
   (testing

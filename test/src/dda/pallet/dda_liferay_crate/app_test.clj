@@ -36,6 +36,7 @@
    :fq-domain-name "liferay.example.de"
    :fqdn-to-be-replaced "old-domain.de"
    :google-id "xxxxxxxxxxxxxxxxxxxxx"
+   :tomcat-xmx-megabyte 7777
    :db-root-passwd "test1234"
    :db-user-name "dbtestuser"
    :db-user-passwd "test1234"

@@ -35,11 +35,12 @@
 ; ---  functions to create other configs from the liferay domain config  --
 (s/defn tomcat-domain-configuration
   [domain-config :- DomainConfigResolved liferay-version]
-  {(case liferay-version
-     :LR7 :lr-7x
-     :LR6 :lr-6x)
-   {:xmx-megabbyte 2560            ; e.g. 6072 or 2560
-    :lr-home liferay-home-dir}})
+  (let [{:keys [tomcat-xmx-megabyte] :or {tomcat-xmx-megabyte 2560}} domain-config]
+    {(case liferay-version
+       :LR7 :lr-7x
+       :LR6 :lr-6x)
+     {:xmx-megabbyte tomcat-xmx-megabyte            ; e.g. 6072 or 2560
+      :lr-home liferay-home-dir}}))
 
 (s/defn liferay-infra-configuration :- infra/LiferayCrateConfig
   [domain-config :- DomainConfigResolved
@@ -87,4 +88,3 @@
             :db-user-passwd db-user-passwd}}
       (when (contains? domain-config :fqdn-to-be-replaced)
             {:fqdn-to-be-replaced fqdn-to-be-replaced}))))
-        

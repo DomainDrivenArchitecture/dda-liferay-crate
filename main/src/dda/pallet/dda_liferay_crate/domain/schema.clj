@@ -43,6 +43,7 @@
    :fq-domain-name s/Str
    (s/optional-key :fqdn-to-be-replaced) s/Str
    (s/optional-key :google-id) s/Str
+   (s/optional-key :tomcat-xmx-megabyte) s/Int
    :db-root-passwd secret/Secret
    :db-user-name s/Str
    :db-user-passwd secret/Secret
