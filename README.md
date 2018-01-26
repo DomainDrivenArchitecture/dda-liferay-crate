@@ -108,12 +108,28 @@ Example content of file `liferay.edn`:
 Instead of using plain passwords, you can use the possibilities of other **secrets**. For more information about this topic, please refer to [dda-pallet-commons](https://github.com/DomainDrivenArchitecture/dda-pallet-commons/blob/master/doc/secret_spec.md).
 
 ### 4. Execute installation
-You can start the installation in a terminal by running the installer with the name of the `liferay.edn`-file:
+You can start the installation in a terminal by running the installer with the name of the `liferay.edn` configuration-file:
 <!--- TODO update version --->
 ```bash
-java -jar dda-liferay-ide-0.3.3-standalone.jar liferay.edn
+java -jar dda-liferay-ide-0.3.0-standalone.jar liferay.edn
 ```
-This will apply the installation and configuration process to the provided targets defined in `targets.edn`. This can take several minutes, as a lot of software needs to be installed. In case of success you'll see something similar as:
+(Tip: You get usage instructions for the jar-file if you run it without parameters: ```java -jar dda-liferay-ide-0.3.0-standalone.jar```)
+
+The step above will apply the installation and configuration process to the provided targets defined in `targets.edn`. This can take several minutes, as a lot of software needs to be installed. In case of success you'll see something similar as:
+```
+PHASES: init, install, configure
+GROUPS: dda-liferay-crate
+ACTIONS:
+  PHASE init:
+    GROUP dda-liferay-crate:
+      NODE 192.168.56.104: OK
+  PHASE install:
+    GROUP dda-liferay-crate:
+      NODE 192.168.56.104: OK
+  PHASE configure:
+    GROUP dda-liferay-crate:
+      NODE 192.168.56.104: OK
+```
 
 ### 5. Deploy and configure liferay
 To finish your installation and to set up liferay properly several manual steps on the targets are required:
