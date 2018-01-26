@@ -71,11 +71,10 @@ sudo apt-get install openssh-server
 By the way, openssh-server is not required when installing this crate on the local machine instead of remotely.
 
 ### 2. Download installer and configuration files
-1. First download the [installer](https://github.com/DomainDrivenArchitecture/dda-liferay-crate/releases/tag/dda-liferay-crate-0.x.x).
-<!--- TODO update links --->
+1. First download the [installer](https://github.com/DomainDrivenArchitecture/dda-liferay-crate/releases/download/1.0.0/dda-liferay-crate-1.0.0-standalone.jar).
 1. Then create the 2 configuration files in the same folder where you've saved the installer. You may want to use data from the example files below:
- * [targets.edn](https://github.com/DomainDrivenArchitecture/dda-liferay-create/blob/master/targets.edn)  
- * [liferay.edn](https://github.com/DomainDrivenArchitecture/dda-liferay-create/blob/master/targets.edn)
+ * [targets.edn](https://github.com/DomainDrivenArchitecture/dda-liferay-crate/blob/master/targets.edn)  
+ * [liferay.edn](https://github.com/DomainDrivenArchitecture/dda-liferay-crate/blob/master/liferay.edn)
 
 ### 3. Adapt the configuration files
 The configuration for installing this crate consists of two files, which specify both WHERE to install the software and WHAT to install.
@@ -112,11 +111,10 @@ Instead of using plain passwords, you can use the possibilities of other **secre
 
 ### 4. Execute installation
 You can start the installation in a terminal by running the installer with the name of the `liferay.edn` configuration-file:
-<!--- TODO update version --->
 ```bash
-java -jar dda-liferay-ide-0.3.0-standalone.jar liferay.edn
+java -jar  dda-liferay-crate-1.0.0-standalone.jar liferay.edn
 ```
-(Tip: You get usage instructions for the jar-file if you run it without parameters: ```java -jar dda-liferay-ide-0.3.0-standalone.jar```)
+(Tip: You get usage instructions for the jar-file if you run it without parameters: ```java -jar  dda-liferay-crate-1.0.0-standalone.jar```)
 
 The step above will apply the installation and configuration process to the provided targets defined in `targets.edn`. This can take several minutes, as a lot of software needs to be installed. In case of success you'll see something similar as:
 ```
