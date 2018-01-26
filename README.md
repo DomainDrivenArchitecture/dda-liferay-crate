@@ -71,11 +71,10 @@ sudo apt-get install openssh-server
 By the way, openssh-server is not required when installing this crate on the local machine instead of remotely.
 
 ### 2. Download installer and configuration files
-1. First download the [installer](https://github.com/DomainDrivenArchitecture/dda-liferay-crate/releases/tag/dda-liferay-crate-0.x.x).
-<!--- TODO update links --->
-1. Then download the 2 example configuration files into the same folder where you've saved the installer.  
- * [targets.edn](https://github.com/DomainDrivenArchitecture/dda-liferay-create/blob/master/targets.edn)  
- * [liferay.edn](https://github.com/DomainDrivenArchitecture/dda-liferay-create/blob/master/targets.edn)
+1. First download the [installer](https://github.com/DomainDrivenArchitecture/dda-liferay-crate/releases/download/1.0.0/dda-liferay-crate-1.0.0-standalone.jar).
+1. Then create the 2 configuration files in the same folder where you've saved the installer. You may want to use data from the example files below:
+ * [targets.edn](https://github.com/DomainDrivenArchitecture/dda-liferay-crate/blob/master/targets.edn)  
+ * [liferay.edn](https://github.com/DomainDrivenArchitecture/dda-liferay-crate/blob/master/liferay.edn)
 
 ### 3. Adapt the configuration files
 The configuration for installing this crate consists of two files, which specify both WHERE to install the software and WHAT to install.
@@ -94,14 +93,17 @@ Example content of file `targets.edn`:
 ```
 
 #### Liferay config example
-Example content of file `liferay.edn`:
+Example content for file `liferay.edn`:
 ```clojure
-{:liferay-version :LR7                  ; specifies the Liferay version to be installed either :LR7 or :LR6
- :fq-domain-name "example.de"           ; the full qualified domain name
- :db-root-passwd {:plain "test1234"}    ; the root password for the database
- :db-user-name "dbtestuser"             ; the database user
- :db-user-passwd {:plain "test1234"}    ; the user password for the database
- :settings #{:test}}                    ; multiple keywords can be set. E.g. :test will use snakeoil certificates
+{:liferay-version :LR7                     ; specifies the Liferay version to be installed either :LR7 or :LR6
+ :fq-domain-name "example.de"              ; the full qualified domain name
+ :fqdn-to-be-replaced "fqdn-to-be-repl.de" ; optional: if domain-name needs to be replaced during estore
+ :google-id "xxxxxxxxxxxxxxxxxxxxx"        ; optional: the google-id
+ :tomcat-xmx-megabyte 7777                 ; optional: tomcat xmx value
+ :db-root-passwd {:plain "test1234"}       ; the root password for the database
+ :db-user-name "dbtestuser"                ; the database user
+ :db-user-passwd {:plain "test1234"}       ; the user password for the database
+ :settings #{:test}}                       ; multiple keywords can be set. E.g. :test will use snakeoil certificates
 
 ```
 
@@ -109,11 +111,10 @@ Instead of using plain passwords, you can use the possibilities of other **secre
 
 ### 4. Execute installation
 You can start the installation in a terminal by running the installer with the name of the `liferay.edn` configuration-file:
-<!--- TODO update version --->
 ```bash
-java -jar dda-liferay-ide-0.3.0-standalone.jar liferay.edn
+java -jar  dda-liferay-crate-1.0.0-standalone.jar liferay.edn
 ```
-(Tip: You get usage instructions for the jar-file if you run it without parameters: ```java -jar dda-liferay-ide-0.3.0-standalone.jar```)
+(Tip: You get usage instructions for the jar-file if you run it without parameters: ```java -jar  dda-liferay-crate-1.0.0-standalone.jar```)
 
 The step above will apply the installation and configuration process to the provided targets defined in `targets.edn`. This can take several minutes, as a lot of software needs to be installed. In case of success you'll see something similar as:
 ```
@@ -251,24 +252,25 @@ The schema for the liferay configuration (used in file "liferay.edn"):
 
 (def DomainConfig
   "The high-level domain configuration for the liferay-crate."
-  {:liferay-version LiferayVersion       ;either :LR7 or :LR6
-   :fq-domain-name s/Str                 ;the fully qualified domain name
+  {:liferay-version LiferayVersion
+   :fq-domain-name s/Str
+   (s/optional-key :fqdn-to-be-replaced) s/Str
    (s/optional-key :google-id) s/Str
+   (s/optional-key :tomcat-xmx-megabyte) s/Int
    :db-root-passwd secret/Secret
    :db-user-name s/Str
    :db-user-passwd secret/Secret
    ;if :test is specified in :settings, snakeoil certificates will be used
    :settings (hash-set (s/enum :test))
-   (s/optional-key :releases) [LiferayRelease]     ;when missing a default will be used
+   (s/optional-key :releases) [LiferayRelease]
    (s/optional-key :backup) {:bucket-name s/Str
                              :gpg {:gpg-public-key  secret/Secret
                                    :gpg-private-key secret/Secret
                                    :gpg-passphrase  secret/Secret}
                              :aws {:aws-access-key-id secret/Secret
-                                   :aws-secret-access-key secret/Secret}}})
 ```
 
-For `Secret` you can find more adapters in dda-pallet-commons.
+For `Secret` you can find more adapters in [dda-pallet-commons](https://github.com/DomainDrivenArchitecture/dda-pallet-commons).
 
 ### Infra API
 The Infra configuration is a configuration on the infrastructure level of a crate. It contains the complete configuration options that are possible with the crate functions. It is defined as specified below:
