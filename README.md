@@ -94,14 +94,17 @@ Example content of file `targets.edn`:
 ```
 
 #### Liferay config example
-Example content of file `liferay.edn`:
+Example content for file `liferay.edn`:
 ```clojure
-{:liferay-version :LR7                  ; specifies the Liferay version to be installed either :LR7 or :LR6
- :fq-domain-name "example.de"           ; the full qualified domain name
- :db-root-passwd {:plain "test1234"}    ; the root password for the database
- :db-user-name "dbtestuser"             ; the database user
- :db-user-passwd {:plain "test1234"}    ; the user password for the database
- :settings #{:test}}                    ; multiple keywords can be set. E.g. :test will use snakeoil certificates
+{:liferay-version :LR7                     ; specifies the Liferay version to be installed either :LR7 or :LR6
+ :fq-domain-name "example.de"              ; the full qualified domain name
+ :fqdn-to-be-replaced "fqdn-to-be-repl.de" ; optional: if domain-name needs to be replaced during estore
+ :google-id "xxxxxxxxxxxxxxxxxxxxx"        ; optional: the google-id
+ :tomcat-xmx-megabyte 7777                 ; optional: tomcat xmx value
+ :db-root-passwd {:plain "test1234"}       ; the root password for the database
+ :db-user-name "dbtestuser"                ; the database user
+ :db-user-passwd {:plain "test1234"}       ; the user password for the database
+ :settings #{:test}}                       ; multiple keywords can be set. E.g. :test will use snakeoil certificates
 
 ```
 
@@ -269,7 +272,7 @@ The schema for the liferay configuration (used in file "liferay.edn"):
                              :aws {:aws-access-key-id secret/Secret
 ```
 
-For `Secret` you can find more adapters in dda-pallet-commons.
+For `Secret` you can find more adapters in [dda-pallet-commons](https://github.com/DomainDrivenArchitecture/dda-pallet-commons).
 
 ### Infra API
 The Infra configuration is a configuration on the infrastructure level of a crate. It contains the complete configuration options that are possible with the crate functions. It is defined as specified below:
