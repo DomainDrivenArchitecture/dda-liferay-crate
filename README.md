@@ -73,7 +73,7 @@ By the way, openssh-server is not required when installing this crate on the loc
 ### 2. Download installer and configuration files
 1. First download the [installer](https://github.com/DomainDrivenArchitecture/dda-liferay-crate/releases/tag/dda-liferay-crate-0.x.x).
 <!--- TODO update links --->
-1. Then download the 2 example configuration files into the same folder where you've saved the installer.  
+1. Then create the 2 configuration files in the same folder where you've saved the installer. You may want to use data from the example files below:
  * [targets.edn](https://github.com/DomainDrivenArchitecture/dda-liferay-create/blob/master/targets.edn)  
  * [liferay.edn](https://github.com/DomainDrivenArchitecture/dda-liferay-create/blob/master/targets.edn)
 
@@ -251,21 +251,22 @@ The schema for the liferay configuration (used in file "liferay.edn"):
 
 (def DomainConfig
   "The high-level domain configuration for the liferay-crate."
-  {:liferay-version LiferayVersion       ;either :LR7 or :LR6
-   :fq-domain-name s/Str                 ;the fully qualified domain name
+  {:liferay-version LiferayVersion
+   :fq-domain-name s/Str
+   (s/optional-key :fqdn-to-be-replaced) s/Str
    (s/optional-key :google-id) s/Str
+   (s/optional-key :tomcat-xmx-megabyte) s/Int
    :db-root-passwd secret/Secret
    :db-user-name s/Str
    :db-user-passwd secret/Secret
    ;if :test is specified in :settings, snakeoil certificates will be used
    :settings (hash-set (s/enum :test))
-   (s/optional-key :releases) [LiferayRelease]     ;when missing a default will be used
+   (s/optional-key :releases) [LiferayRelease]
    (s/optional-key :backup) {:bucket-name s/Str
                              :gpg {:gpg-public-key  secret/Secret
                                    :gpg-private-key secret/Secret
                                    :gpg-passphrase  secret/Secret}
                              :aws {:aws-access-key-id secret/Secret
-                                   :aws-secret-access-key secret/Secret}}})
 ```
 
 For `Secret` you can find more adapters in dda-pallet-commons.
