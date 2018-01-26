@@ -1,4 +1,4 @@
-(defproject dda/dda-liferay-crate "1.0.0"
+(defproject dda/dda-liferay-crate "1.0.1-SNAPSHOT"
   :description "module to install and configure liferay on ubuntu"
   :url "https://www.domaindrivenarchitecture.org"
   :license {:name "Apache License, Version 2.0"
