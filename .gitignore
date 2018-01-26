@@ -8,4 +8,5 @@
 /.nrepl-port
 /classes/
 /my/
+/*.log
 *.jar
