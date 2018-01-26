@@ -72,8 +72,8 @@ By the way, openssh-server is not required when installing this crate on the loc
 
 ### 2. Download installer and configuration files
 1. First download the [installer](https://github.com/DomainDrivenArchitecture/dda-liferay-crate/releases/download/1.0.0/dda-liferay-crate-1.0.0-standalone.jar).
-1. Then create the 2 configuration files in the same folder where you've saved the installer. You may want to use data from the example files below:
- * [targets.edn](https://github.com/DomainDrivenArchitecture/dda-liferay-crate/blob/master/targets.edn)  
+1. Then create the 2 configuration files in the same folder where you've saved the installer. You may want to use data from the following example files or from the example configs described in the next step.
+ * [targets.edn](https://github.com/DomainDrivenArchitecture/dda-liferay-crate/blob/master/targets.edn)
  * [liferay.edn](https://github.com/DomainDrivenArchitecture/dda-liferay-crate/blob/master/liferay.edn)
 
 ### 3. Adapt the configuration files
