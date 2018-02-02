@@ -1,4 +1,4 @@
-(defproject dda/dda-liferay-crate "1.0.1-SNAPSHOT"
+(defproject dda/dda-liferay-crate "1.0.2-SNAPSHOT"
   :description "module to install and configure liferay on ubuntu"
   :url "https://www.domaindrivenarchitecture.org"
   :license {:name "Apache License, Version 2.0"
@@ -24,15 +24,14 @@
                    [[org.clojure/test.check "0.10.0-alpha2"]
                     [org.domaindrivenarchitecture/pallet-aws "0.2.8.2"]
                     [com.palletops/pallet "0.8.12" :classifier "tests"]
-                    [dda/dda-pallet-commons "1.0.0" :classifier "tests"]
                     [ch.qos.logback/logback-classic "1.2.3"]
                     [org.slf4j/jcl-over-slf4j "1.8.0-beta0"]]
                    :plugins
                    [[lein-sub "0.3.0"]]
                    :repl-options {:init-ns dda.pallet.dda-liferay-crate.app.instantiate-aws}
                    :leiningen/reply
-                   {:dependencies [[org.slf4j/jcl-over-slf4j "1.8.0-beta0"]]
-                    :exclusions [commons-logging]}}
+                    {:dependencies [[org.slf4j/jcl-over-slf4j "1.8.0-beta0"]]
+                     :exclusions [commons-logging]}}
              :test {:test-paths ["test/src"]
                     :resource-paths ["test/resources"]
                     :dependencies [[com.palletops/pallet "0.8.12" :classifier "tests"]]}

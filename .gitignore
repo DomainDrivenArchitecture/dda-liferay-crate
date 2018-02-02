@@ -4,6 +4,9 @@
 /.settings/
 /pom.*
 /.lein-failures
+/.lein-repl-history
 /.nrepl-port
 /classes/
 /my/
+/*.log
+*.jar
