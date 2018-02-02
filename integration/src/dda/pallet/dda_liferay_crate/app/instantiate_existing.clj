@@ -22,7 +22,6 @@
     [dda.pallet.commons.pallet-schema :as ps]
     [dda.pallet.commons.operation :as operation]
     [dda.pallet.commons.existing :as existing]
-    [dda.config.commons.user-env :as user-env]
     [dda.pallet.dda-liferay-crate.app :as app]
     [dda.pallet.dda-liferay-crate.infra :as infra]))
 
@@ -75,7 +74,7 @@
       (provisioning-spec target-config domain-config)
       :summarize-session true)))
 
-(defn test-install
+(defn serverspec
   [& options]
   (let [{:keys [domain targets]
          :or {domain "liferay.edn"
