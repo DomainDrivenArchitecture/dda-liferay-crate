@@ -13,69 +13,28 @@
 ; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
+;[dda.pallet.commons.cli-helper :as cli-helper]
 
 (ns dda.pallet.dda-liferay-crate.main
   (:gen-class)
   (:require
     [clojure.string :as str]
     [clojure.tools.cli :as cli]
-    [dda.pallet.commons.existing :as existing]
-    [dda.pallet.commons.operation :as operation]
+    [dda.config.commons.styled-output :as styled]
+    [dda.pallet.core.app :as core-app]
     [dda.pallet.dda-liferay-crate.app :as app]))
-
-(defn execute-server-test
-  [domain-config targets]
-  (let [{:keys [existing provisioning-user]} targets]
-    (operation/do-server-test
-     (existing/provider {:dda-liferay-crate existing})
-     (app/existing-provisioning-spec
-       domain-config
-       provisioning-user)
-     :summarize-session true)))
-
-(defn execute-configure
-  [domain-config targets]
-  (let [{:keys [existing provisioning-user]} targets]
-    (operation/do-apply-configure
-     (existing/provider {:dda-liferay-crate existing})
-     (app/existing-provisioning-spec
-       domain-config
-       provisioning-user)
-     :summarize-session true)))
-
-(defn execute-install
-  [domain-config targets]
-  (let [{:keys [existing provisioning-user]} targets]
-    (operation/do-apply-install
-     (existing/provider {:dda-liferay-crate existing})
-     (app/existing-provisioning-spec
-       domain-config
-       provisioning-user)
-     :summarize-session true)))
-
-(defn execute-app-rollout
-  [domain-config targets]
-  (let [{:keys [existing provisioning-user]} targets]
-    (operation/do-app-rollout
-     (existing/provider {:dda-liferay-crate existing})
-     (app/existing-provisioning-spec
-       domain-config
-       provisioning-user)
-     :summarize-session true)))
-
 
 (def cli-options
   [["-h" "--help"]
-   ["-s" "--server-test"]
-   ["-c" "--configure"]
-   ["-a" "--app-rollout"]
-   ["-t" "--targets TARGETS.edn" "edn file containing the targets to install on."
-    :default "targets.edn"]])
+   ["-i" "--install-dependencies"]
+   ["-t" "--targets [localhost-target.edn]" "edn file containing the targets to test."
+    :default "localhost-target.edn"]
+   ["-v" "--verbose"]])
 
 (defn usage [options-summary]
   (str/join
    \newline
-   ["dda-liferay-crate installs a working liferay"
+   ["dda-liferay-crate installs liferay to a server"
     ""
     "Usage: java -jar dda-liferay-crate-[version]-standalone.jar [options] liferay.edn"
     ""
@@ -83,7 +42,8 @@
     options-summary
     ""
     "liferay.edn"
-    "  - has to be a valid liferayconfig schema (see: https://github.com/DomainDrivenArchitecture/dda-liferay-crate)"
+    "  - follows the edn format."
+    "  - has to be a valid DomainConfig (see: https://github.com/DomainDrivenArchitecture/dda-liferay-crate)"
     ""]))
 
 (defn error-msg [errors]
@@ -95,20 +55,20 @@
   (System/exit status))
 
 (defn -main [& args]
-  (let [{:keys [options arguments errors summary help]} (cli/parse-opts args cli-options)]
+  (let [{:keys [options arguments errors summary help]} (cli/parse-opts args cli-options)
+        verbose (if (contains? options :verbose) 1 0)]
     (cond
       help (exit 0 (usage summary))
       errors (exit 1 (error-msg errors))
       (not= (count arguments) 1) (exit 1 (usage summary))
-      (:server-test options) (execute-server-test
-                               (app/load-domain (first arguments))
-                               (app/load-targets (:targets options)))
-      (:configure options) (execute-configure
-                             (app/load-domain (first arguments))
-                             (app/load-targets (:targets options)))
-      (:app-rollout options) (execute-app-rollout
-                               (app/load-domain (first arguments))
-                               (app/load-targets (:targets options)))
-      :default (execute-install
-                 (app/load-domain (first arguments))
-                 (app/load-targets (:targets options))))))
+      (:install-dependencies options) (core-app/existing-install
+                                        app/crate-app
+                                        {:domain (first arguments)
+                                         :targets (:targets options)})
+      :default (if (core-app/existing-serverspec
+                     app/crate-app
+                     {:domain (first arguments)
+                      :targets (:targets options)
+                      :verbosity verbose})
+                   (exit 0 (styled/styled "ALL TESTS PASSED" :green))
+                   (exit 2 (styled/styled "SOME TESTS FAILED" :red))))))

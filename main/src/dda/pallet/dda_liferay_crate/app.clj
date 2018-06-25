@@ -17,11 +17,9 @@
 (ns dda.pallet.dda-liferay-crate.app
   (:require
     [schema.core :as s]
-    [dda.cm.group :as group]
     [dda.config.commons.map-utils :as mu]
     [dda.pallet.commons.secret :as secret]
-    [dda.pallet.commons.existing :as existing]
-    [dda.pallet.commons.external-config :as ext-config]
+    [dda.pallet.core.app :as core-app]
     [dda.pallet.dda-config-crate.infra :as config]
     [dda.pallet.dda-httpd-crate.app :as httpd]
     [dda.pallet.dda-mariadb-crate.app :as db]
@@ -31,12 +29,13 @@
     [dda.pallet.dda-liferay-crate.domain :as domain]
     [dda.pallet.dda-liferay-crate.infra :as infra]))
 
-; ---------------------- schemas  ---------------------------
-(def InfraResult infra/InfraResult)
-
 (def with-liferay infra/with-liferay)
 
-(def ProvisioningUser existing/ProvisioningUser)
+(def LiferayDomainConfig domain/LiferayDomainConfig)
+
+(def LiferayDomainConfigResolved domain/LiferayDomainConfigResolved)
+
+(def InfraResult infra/InfraResult)
 
 (def LiferayAppConfig
  {:group-specific-config
@@ -46,34 +45,8 @@
                      infra/InfraResult
                      backup/InfraResult)}})
 
-; ----------------------- functions  --------------------------
-(s/defn ^:always-validate load-targets :- existing/Targets
-  [file-name :- s/Str]
-  (existing/load-targets file-name))
-
-(s/defn ^:always-validate load-domain :- domain/DomainConfig
-  [file-name :- s/Str]
-  (ext-config/parse-config file-name))
-
-(s/defn resolve-secrets :- domain/DomainConfigResolved
-  [domain-config :- domain/DomainConfig]
-  (let [{:keys [db-root-passwd db-user-passwd backup]} domain-config
-        {:keys [bucket-name gpg aws]} backup]
-    (merge
-      domain-config
-      {:db-root-passwd (secret/resolve-secret db-root-passwd)
-       :db-user-passwd (secret/resolve-secret db-user-passwd)}
-      (when (contains? domain-config :backup)
-        {:backup {:bucket-name bucket-name
-                  :gpg {:gpg-public-key  (secret/resolve-secret (:gpg-public-key gpg))
-                        :gpg-private-key (secret/resolve-secret (:gpg-private-key gpg))
-                        :gpg-passphrase  (secret/resolve-secret (:gpg-passphrase gpg))}
-                  :aws {:aws-access-key-id (secret/resolve-secret (:aws-access-key-id aws))}
-                  :aws-secret-access-key (secret/resolve-secret (:aws-secret-access-key aws))}}))))
-
-(s/defn ^:always-validate app-configuration :- LiferayAppConfig
-  "Generates the AppConfig from a smaller domain-config."
-  [resolved-domain-config :- domain/DomainConfigResolved
+(s/defn ^:always-validate app-configuration-resolved :- LiferayAppConfig
+  [resolved-domain-config :- domain/LiferayDomainConfigResolved
    & options]
   (let [{:keys [group-key] :or {group-key infra/facility}} options]
     (mu/deep-merge
@@ -89,21 +62,31 @@
       {group-key
        (domain/infra-configuration resolved-domain-config)}})))
 
-(s/defn ^:always-validate liferay-group-spec
- [app-config :- LiferayAppConfig]
- (group/group-spec
-   app-config [(config/with-config app-config)
-               db/with-mariadb
-               httpd/with-httpd
-               tomcat/with-tomcat
-               user/with-user
-               backup/with-backup
-               with-liferay]))
+(s/defn ^:always-validate
+  app-configuration :- LiferayAppConfig
+  [domain-config :- LiferayDomainConfig
+   & options]
+  (let [resolved-domain-config (secret/resolve-secrets domain-config LiferayDomainConfig)]
+    (do
+      (print resolved-domain-config)
+      (apply app-configuration-resolved resolved-domain-config options))))
 
-(s/defn ^:always-validate existing-provisioning-spec
-  "Creates an integrated group spec from a domain config and a provisioning user."
-  [domain-config :- domain/DomainConfig
-   provisioning-user :- ProvisioningUser]
-  (merge
-   (liferay-group-spec (app-configuration (resolve-secrets domain-config)))
-   (existing/node-spec provisioning-user)))
+(s/defmethod ^:always-validate
+ core-app/group-spec infra/facility
+ [crate-app
+  domain-config :- LiferayDomainConfigResolved]
+ (let [app-config (app-configuration-resolved domain-config)]
+   (core-app/pallet-group-spec
+     app-config [(config/with-config app-config)
+                 db/with-mariadb
+                 httpd/with-httpd
+                 tomcat/with-tomcat
+                 user/with-user
+                 backup/with-backup
+                 with-liferay])))
+
+(def crate-app (core-app/make-dda-crate-app
+                  :facility infra/facility
+                  :domain-schema LiferayDomainConfig
+                  :domain-schema-resolved LiferayDomainConfigResolved
+                  :default-domain-file "liferay.edn"))
