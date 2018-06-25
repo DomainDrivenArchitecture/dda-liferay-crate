@@ -37,7 +37,7 @@
    (s/optional-key :portlets) [LiferayApp]
    (s/optional-key :ext) [LiferayApp]})
 
-(def DomainConfig
+(def LiferayDomainConfig
   "The high-level domain configuration for the liferay-crate."
   {:liferay-version LiferayVersion
    :fq-domain-name s/Str
@@ -57,6 +57,6 @@
                              :aws {:aws-access-key-id secret/Secret
                                    :aws-secret-access-key secret/Secret}}})
 
-(def DomainConfigResolved
+(def LiferayDomainConfigResolved
   "The high-level domain configuration for the liferay-crate with secrets resolved."
-  (secret/create-resolved-schema DomainConfig))
+  (secret/create-resolved-schema LiferayDomainConfig))

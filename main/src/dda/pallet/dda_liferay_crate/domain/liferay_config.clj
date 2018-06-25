@@ -22,7 +22,7 @@
 ; ----------  auxiliary functions for creating infra configuration  ------
 (s/defn portal-ext-properties
   "creates the default portal-ext.properties for MySQL or mariaDB."
-  [domain-config :- schema/DomainConfigResolved
+  [domain-config :- schema/LiferayDomainConfigResolved
    db-name :- s/Str
    liferay-version]
   (let [{:keys [db-user-name db-user-passwd]} domain-config
@@ -75,7 +75,7 @@
 
 (s/defn default-release-config
   "The default release configuration."
-  [domain-config :- schema/DomainConfigResolved
+  [domain-config :- schema/LiferayDomainConfigResolved
    db-name :- s/Str
    liferay-version]
   (default-release (portal-ext-properties domain-config db-name liferay-version) liferay-version))

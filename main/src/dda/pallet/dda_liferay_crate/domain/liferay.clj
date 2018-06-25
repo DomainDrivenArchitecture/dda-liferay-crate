@@ -25,16 +25,17 @@
     [dda.pallet.dda-liferay-crate.domain.backup :as backup]))
 
 ; ----- schemas for the high-level domain configuration ----------
-(def DomainConfig schema/DomainConfig)
+(def LiferayDomainConfig schema/LiferayDomainConfig)
 
-(def DomainConfigResolved schema/DomainConfigResolved)
+(def LiferayDomainConfigResolved schema/LiferayDomainConfigResolved)
 
 ; --------------  standard configuration values   -----------------------
 (def liferay-home-dir "/var/lib/liferay/")
 
 ; ---  functions to create other configs from the liferay domain config  --
 (s/defn tomcat-domain-configuration
-  [domain-config :- DomainConfigResolved liferay-version]
+  [domain-config :- LiferayDomainConfigResolved
+   liferay-version]
   (let [{:keys [tomcat-xmx-megabyte] :or {tomcat-xmx-megabyte 2560}} domain-config]
     {(case liferay-version
        :LR7 :lr-7x
@@ -43,7 +44,7 @@
       :lr-home liferay-home-dir}}))
 
 (s/defn liferay-infra-configuration :- infra/LiferayCrateConfig
-  [domain-config :- DomainConfigResolved
+  [domain-config :- LiferayDomainConfigResolved
    db-name :- s/Str
    liferay-version]
   (let [{:keys [fq-domain-name fqdn-to-be-replaced db-user-name db-user-passwd releases]} domain-config

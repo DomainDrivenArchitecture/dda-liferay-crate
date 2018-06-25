@@ -27,9 +27,9 @@
 
 
 ; ----- schemas for the domain configuration ----------
-(def DomainConfig schema/DomainConfig)
+(def LiferayDomainConfig schema/LiferayDomainConfig)
 
-(def DomainConfigResolved schema/DomainConfigResolved)
+(def LiferayDomainConfigResolved schema/LiferayDomainConfigResolved)
 
 ; --------------  standard configuration values   -----------------------
 (def db-name "lportal")
@@ -37,7 +37,7 @@
 ; -----------------  functions  -----------------------
 (s/defn ^:always-validate
   db-domain-configuration
-  [domain-config :- DomainConfigResolved]
+  [domain-config :- LiferayDomainConfigResolved]
   (let [{:keys [db-root-passwd db-user-name db-user-passwd]} domain-config]
     {:root-passwd db-root-passwd
      :settings #{}
@@ -48,27 +48,28 @@
 
 (s/defn ^:always-validate
   httpd-domain-configuration
-  [domain-config :- DomainConfigResolved]
+  [domain-config :- LiferayDomainConfigResolved]
   (let [{:keys [fq-domain-name google-id settings]} domain-config]
-    (merge
+    {:tomcat
+     (merge
       {:domain-name fq-domain-name}
       (when (contains? domain-config :google-id)
         {:google-id google-id})
       (when (contains? domain-config :settings)
         {:settings settings})
       {:alias [{:url "/quiz/" :path "/var/www/static/quiz/"}]
-       :jk-unmount [{:path "/quiz/*" :worker "mod_jk_www"}]})))
+       :jk-unmount [{:path "/quiz/*" :worker "mod_jk_www"}]})}))
 
 (s/defn ^:always-validate
   tomcat-domain-configuration
-  [domain-config :- DomainConfigResolved]
+  [domain-config :- LiferayDomainConfigResolved]
   (let [{:keys [liferay-version]} domain-config]
       (liferay/tomcat-domain-configuration domain-config liferay-version)))
 
 
 (s/defn ^:always-validate
   tomcat-user
-  [domain-config :- DomainConfigResolved]
+  [domain-config :- LiferayDomainConfigResolved]
   (let [{:keys [liferay-version]} domain-config]
     (case liferay-version
       :LR6 "tomcat7"
@@ -76,11 +77,11 @@
 
 (s/defn ^:always-validate
   backup-domain-configuration
-  [domain-config :- DomainConfigResolved]
+  [domain-config :- LiferayDomainConfigResolved]
   (backup/backup-domain-config domain-config db-name (tomcat-user domain-config)))
 
 (s/defn ^:always-validate
   infra-configuration :- infra/InfraResult
-  [domain-config :- DomainConfigResolved]
+  [domain-config :- LiferayDomainConfigResolved]
   (let [{:keys [liferay-version]} domain-config]
     {infra/facility (liferay/liferay-infra-configuration domain-config db-name liferay-version)}))
