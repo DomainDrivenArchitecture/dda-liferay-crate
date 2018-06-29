@@ -16,72 +16,46 @@
 
 (ns dda.pallet.dda-liferay-crate.app.instantiate-existing
   (:require
-    [clojure.inspector :as inspector]
-    [pallet.repl :as pr]
-    [dda.pallet.commons.session-tools :as session-tools]
-    [dda.pallet.commons.pallet-schema :as ps]
-    [dda.pallet.commons.operation :as operation]
-    [dda.pallet.commons.existing :as existing]
-    [dda.pallet.dda-liferay-crate.app :as app]
-    [dda.pallet.dda-liferay-crate.infra :as infra]))
+    [schema.core :as s]
+    [dda.pallet.core.app :as core-app]
+    [dda.pallet.dda-liferay-crate.app :as app]))
 
-(defn provisioning-spec [target-config domain-config]
-  (let [{:keys [provisioning-user]} target-config]
-    (merge
-      (app/liferay-group-spec
-        (app/app-configuration
-          (app/resolve-secrets domain-config)))
-      (existing/node-spec provisioning-user))))
-
-(defn provider [target-config]
-  (let [{:keys [existing]} target-config]
-    (existing/provider
-     {infra/facility existing})))
-
-(defn apply-install
+(defn install
   [& options]
-  (let [{:keys [domain targets]
-         :or {domain "liferay.edn"
-              targets "targets.edn"}} options
-        target-config (existing/load-targets targets)
-        domain-config (app/load-domain domain)]
-    (operation/do-apply-install
-     (provider target-config)
-     (provisioning-spec target-config domain-config)
-     :summarize-session true)))
+  (let [{:keys [domain targets summarize-session]
+         :or {domain "user.edn"
+              targets "targets.edn"
+              summarize-session true}} options]
+    (core-app/existing-install app/crate-app
+                          {:domain domain
+                           :targets targets})))
 
-(defn app-rollout
-  [& options]
-  (let [{:keys [domain targets]
-         :or {domain "liferay.edn"
-              targets "targets.edn"}} options
-        target-config (existing/load-targets targets)
-        domain-config (app/load-domain domain)]
-    (operation/do-app-rollout
-      (provider target-config)
-      (provisioning-spec target-config domain-config)
-      :summarize-session true)))
+(defn configure
+ [& options]
+ (let [{:keys [domain targets summarize-session]
+        :or {domain "user.edn"
+             targets "targets.edn"
+             summarize-session true}} options]
+  (core-app/existing-configure app/crate-app
+                          {:domain domain
+                           :targets targets})))
 
-(defn apply-configure
-  [& options]
-  (let [{:keys [domain targets]
-         :or {domain "liferay.edn"
-              targets "targets.edn"}} options
-        target-config (existing/load-targets targets)
-        domain-config (app/load-domain domain)]
-    (operation/do-apply-configure
-      (provider target-config)
-      (provisioning-spec target-config domain-config)
-      :summarize-session true)))
+(defn configure
+ [& options]
+ (let [{:keys [domain targets summarize-session]
+        :or {domain "user.edn"
+             targets "targets.edn"
+             summarize-session true}} options]
+  (core-app/existing-app-rollout app/crate-app
+                          {:domain domain
+                           :targets targets})))
 
 (defn serverspec
   [& options]
-  (let [{:keys [domain targets]
-         :or {domain "liferay.edn"
-              targets "targets.edn"}} options
-        target-config (existing/load-targets targets)
-        domain-config (app/load-domain domain)]
-    (operation/do-server-test
-      (provider target-config)
-      (provisioning-spec target-config domain-config)
-      :summarize-session true)))
+  (let [{:keys [domain targets summarize-session]
+         :or {domain "user.edn"
+              targets "targets.edn"
+              summarize-session true}} options]
+    (core-app/existing-serverspec app/crate-app
+                             {:domain domain
+                              :targets targets})))

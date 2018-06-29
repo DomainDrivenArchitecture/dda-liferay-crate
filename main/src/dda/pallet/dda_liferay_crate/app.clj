@@ -45,7 +45,8 @@
                      infra/InfraResult
                      backup/InfraResult)}})
 
-(s/defn ^:always-validate app-configuration-resolved :- LiferayAppConfig
+(s/defn ^:always-validate
+  app-configuration-resolved :- LiferayAppConfig
   [resolved-domain-config :- domain/LiferayDomainConfigResolved
    & options]
   (let [{:keys [group-key] :or {group-key infra/facility}} options]

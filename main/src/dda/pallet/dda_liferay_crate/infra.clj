@@ -18,15 +18,14 @@
   "Provides the configuration to be used by the liferay-crate namespaces. The configuration in this
   namespace is the most fundamental and allows for the most customization."
   (:require
-    [dda.pallet.core.infra :as core-infra]
     [schema.core :as s]
+    [dda.pallet.core.infra :as core-infra]
     [dda.pallet.dda-liferay-crate.infra.schema :as schema]
     [dda.pallet.dda-liferay-crate.infra.liferay :as liferay]
     [dda.pallet.dda-liferay-crate.infra.osgi :as osgi]))
 
 ; -------------  facility and version  ------------------
 (def facility :dda-liferay-crate)
-(def version  [0 3 0])
 
 ; -------------  schemas  ------------------
 (def LiferayCrateConfig schema/LiferayCrateConfig)
@@ -34,15 +33,6 @@
 (def LiferayRelease schema/LiferayRelease)
 
 (def InfraResult {facility LiferayCrateConfig})
-
-; -------------  server-spec  ------------------
-(def liferay-crate
-  (core-infra/make-dda-crate-infra
-   :facility facility
-   :version version))
-
-(def with-liferay
-  (core-infra/create-infra-plan liferay-crate))
 
 ; -------------  dda methods  ------------------))
 (s/defmethod core-infra/dda-install facility
@@ -59,3 +49,11 @@
 (s/defmethod core-infra/dda-app-rollout facility
   [dda-crate config]
   (liferay/prepare-rollout config))
+
+; -------------  server-spec  ------------------
+(def liferay-crate
+  (core-infra/make-dda-crate-infra
+   :facility facility))
+
+(def with-liferay
+  (core-infra/create-infra-plan liferay-crate))
