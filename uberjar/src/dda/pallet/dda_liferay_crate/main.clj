@@ -26,7 +26,9 @@
 
 (def cli-options
   [["-h" "--help"]
-   ["-i" "--install-dependencies"]
+   ["-s" "--serverspec"]
+   ["-c" "--configure"]
+   ["-r" "--app-rollout"]
    ["-t" "--targets [localhost-target.edn]" "edn file containing the targets to test."
     :default "localhost-target.edn"]
    ["-v" "--verbose"]])
@@ -61,14 +63,22 @@
       help (exit 0 (usage summary))
       errors (exit 1 (error-msg errors))
       (not= (count arguments) 1) (exit 1 (usage summary))
-      (:install-dependencies options) (core-app/existing-install
-                                        app/crate-app
-                                        {:domain (first arguments)
-                                         :targets (:targets options)})
-      :default (if (core-app/existing-serverspec
-                     app/crate-app
-                     {:domain (first arguments)
-                      :targets (:targets options)
-                      :verbosity verbose})
-                   (exit 0 (styled/styled "ALL TESTS PASSED" :green))
-                   (exit 2 (styled/styled "SOME TESTS FAILED" :red))))))
+      (:serverspec options) (if (core-app/existing-serverspec
+                                  app/crate-app
+                                  {:domain (first arguments)
+                                   :targets (:targets options)
+                                   :verbosity verbose})
+                                (exit 0 (styled/styled "ALL TESTS PASSED" :green))
+                                (exit 2 (styled/styled "SOME TESTS FAILED" :red)))
+      (:configure options) (core-app/existing-configure
+                             app/crate-app
+                             {:domain (first arguments)
+                              :targets (:targets options)})
+      (:app-rollout options) (core-app/existing-app-rollout
+                               app/crate-app
+                               {:domain (first arguments)
+                                :targets (:targets options)})
+      :default (core-app/existing-install
+                 app/crate-app
+                 {:domain (first arguments)
+                  :targets (:targets options)}))))
