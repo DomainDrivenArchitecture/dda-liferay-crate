@@ -113,9 +113,9 @@
     "test the httpd config creation"
     (is (thrown? Exception (sut/httpd-domain-configuration {})))
     (is (= "liferay.example.de"
-          (:domain-name (sut/httpd-domain-configuration config-simple))))
+          (-> (sut/httpd-domain-configuration config-simple) :tomcat :domain-name)))
     (is (= "xxxxxxxxxxxxxxxxxxxxx"
-          (:google-id (sut/httpd-domain-configuration config-full))))))
+          (-> (sut/httpd-domain-configuration config-full) :tomcat :google-id)))))
 
 (deftest test-tomcat-configuration
   (testing

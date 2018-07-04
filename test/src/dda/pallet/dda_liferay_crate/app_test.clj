@@ -22,13 +22,24 @@
     [dda.pallet.dda-liferay-crate.app :as sut]))
 
 ; --------------------------- Test configs ---------------------------
-(def config-resolved-min
+
+(def config-unresolved-min
   "domainConfig resolved"
   {:liferay-version :LR6
    :fq-domain-name "example.de"
    :db-root-passwd {:plain "test1234"}
    :db-user-name "dbtestuser"
    :db-user-passwd {:plain "test1234"}
+   :settings #{:test}})
+
+
+(def config-resolved-min
+  "domainConfig resolved"
+  {:liferay-version :LR6
+   :fq-domain-name "example.de"
+   :db-root-passwd "test1234"
+   :db-user-name "dbtestuser"
+   :db-user-passwd "test1234"
    :settings #{ :test}})
 
 (def config-resolved-full
@@ -127,7 +138,7 @@
 (deftest test-resolved-config
   (testing
     (is (= (-> config-resolved-min :db-root-passwd)
-           (-> (sut/app-configuration config-resolved-min) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)
+           (-> (sut/app-configuration config-unresolved-min) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)
            (-> (sut/app-configuration config-resolved-full) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)))
     (is (=
          (-> (sut/app-configuration config-resolved-min) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)
