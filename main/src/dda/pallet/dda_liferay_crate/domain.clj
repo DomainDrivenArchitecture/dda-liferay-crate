@@ -17,10 +17,7 @@
 (ns dda.pallet.dda-liferay-crate.domain
   (:require
     [schema.core :as s]
-    [dda.config.commons.map-utils :as mu]
-    [dda.pallet.commons.secret :as secret]
     [dda.pallet.dda-liferay-crate.infra :as infra]
-    [dda.pallet.dda-liferay-crate.domain.backup :as tomcat]
     [dda.pallet.dda-liferay-crate.domain.backup :as backup]
     [dda.pallet.dda-liferay-crate.domain.schema :as schema]
     [dda.pallet.dda-liferay-crate.domain.liferay :as liferay]))

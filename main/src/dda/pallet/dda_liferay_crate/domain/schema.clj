@@ -55,7 +55,10 @@
                                    :gpg-private-key secret/Secret
                                    :gpg-passphrase  secret/Secret}
                              :aws {:aws-access-key-id secret/Secret
-                                   :aws-secret-access-key secret/Secret}}})
+                                   :aws-secret-access-key secret/Secret}
+                             :duplicity-push {:root-password (s/either {:hashed-password secret/Secret}
+                                                                       {:clear-password secret/Secret})}}})
+
 
 (def LiferayDomainConfigResolved
   "The high-level domain configuration for the liferay-crate with secrets resolved."

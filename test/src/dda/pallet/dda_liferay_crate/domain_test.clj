@@ -105,7 +105,8 @@
   "
                   :gpg-passphrase "passphrase"}
             :aws {:aws-access-key-id "some id"
-                  :aws-secret-access-key "some secret"}}})
+                  :aws-secret-access-key "some secret"}
+            :duplicity-push {:root-password {:clear-password "some clear password"}}}})
 
 ; -------------------------------- Tests ------------------------------})
 (deftest test-httpd-configuration
@@ -122,7 +123,7 @@
     "test the tomcat config creation"
     (is (thrown? Exception (sut/tomcat-domain-configuration {})))
     (is (= 7777
-           (:xmx-megabbyte (:lr-7x (sut/tomcat-domain-configuration config-full)))))))
+           (:xmx-megabyte (:lr-7x (sut/tomcat-domain-configuration config-full)))))))
 
 (deftest test-backup-configuration
   (testing

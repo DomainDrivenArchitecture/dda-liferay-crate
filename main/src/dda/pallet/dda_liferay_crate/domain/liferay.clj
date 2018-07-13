@@ -40,7 +40,7 @@
     {(case liferay-version
        :LR7 :lr-7x
        :LR6 :lr-6x)
-     {:xmx-megabbyte tomcat-xmx-megabyte            ; e.g. 6072 or 2560
+     {:xmx-megabyte tomcat-xmx-megabyte            ; e.g. 6072 or 2560
       :lr-home liferay-home-dir}}))
 
 (s/defn liferay-infra-configuration :- infra/LiferayCrateConfig

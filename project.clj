@@ -4,10 +4,10 @@
   :license {:name "Apache License, Version 2.0"
             :url "https://www.apache.org/licenses/LICENSE-2.0.html"}
   :dependencies [[dda/dda-pallet "2.2.1"]
-                 [dda/dda-httpd-crate "2.0.7"]
+                 [dda/dda-httpd-crate "2.0.10"]
                  [dda/dda-mariadb-crate "1.0.3"]
                  [dda/dda-tomcat-crate "2.0.1"]
-                 [dda/dda-backup-crate "1.0.4"]]
+                 [dda/dda-backup-crate "1.0.5"]]
   :source-paths ["main/src"]
   :resource-paths ["main/resources"]
   :repositories [["snapshots" :clojars]

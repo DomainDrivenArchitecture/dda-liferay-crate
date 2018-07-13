@@ -57,7 +57,7 @@
        (domain/httpd-domain-configuration resolved-domain-config) :group-key group-key)
      (tomcat/app-configuration
        (domain/tomcat-domain-configuration resolved-domain-config) :group-key group-key)
-     (backup/app-configuration
+     (backup/app-configuration-resolved
        (domain/backup-domain-configuration resolved-domain-config) :group-key group-key)
      {:group-specific-config
       {group-key
@@ -68,9 +68,7 @@
   [domain-config :- LiferayDomainConfig
    & options]
   (let [resolved-domain-config (secret/resolve-secrets domain-config LiferayDomainConfig)]
-    (do
-      (print resolved-domain-config)
-      (apply app-configuration-resolved resolved-domain-config options))))
+      (apply app-configuration-resolved resolved-domain-config options)))
 
 (s/defmethod ^:always-validate
  core-app/group-spec infra/facility

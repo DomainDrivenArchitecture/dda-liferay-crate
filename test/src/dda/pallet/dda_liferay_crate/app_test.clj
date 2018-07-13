@@ -49,9 +49,9 @@
    :fqdn-to-be-replaced "old-domain.de"
    :google-id "xxxxxxxxxxxxxxxxxxxxx"
    :tomcat-xmx-megabyte 7777
-   :db-root-passwd {:plain "test1234"}
+   :db-root-passwd "test1234"
    :db-user-name "dbtestuser"
-   :db-user-passwd {:plain "test1234"}
+   :db-user-passwd "test1234"
    :settings #{}
    :releases
      [{:name "LiferayCE"
@@ -118,7 +118,8 @@
   "
                   :gpg-passphrase "passphrase"}
             :aws {:aws-access-key-id "some id"
-                  :aws-secret-access-key "some secret"}}})
+                  :aws-secret-access-key "some secret"}
+            :duplicity-push {:root-password {:clear-password "test1234"}}}})
 
 (def config-unresolved
   "domainConfig unresolved"
@@ -133,23 +134,26 @@
 (deftest test-valid-configs
   (testing
     (is (s/validate domain-space/LiferayDomainConfigResolved config-resolved-min))
-    (is (s/validate domain-space/LiferayDomainConfig config-unresolved))))
+    (is (s/validate domain-space/LiferayDomainConfig config-unresolved))
+    (is (s/validate sut/LiferayAppConfig (sut/app-configuration config-unresolved)))
+    (is (s/validate sut/LiferayDomainConfigResolved config-resolved-full))
+    (is (s/validate sut/LiferayDomainConfig config-unresolved))))
 
 (deftest test-resolved-config
   (testing
     (is (= (-> config-resolved-min :db-root-passwd)
            (-> (sut/app-configuration config-unresolved-min) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)
-           (-> (sut/app-configuration config-resolved-full) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)))
+           (-> (sut/app-configuration-resolved config-resolved-full) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)))
     (is (=
-         (-> (sut/app-configuration config-resolved-min) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)
-         (-> (sut/app-configuration config-resolved-full) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)))
+         (-> (sut/app-configuration config-unresolved-min) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)
+         (-> (sut/app-configuration-resolved config-resolved-full) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)))
     (is (= (-> config-resolved-min :db-root-passwd)
-           (-> (sut/app-configuration config-resolved-min) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)))
+           (-> (sut/app-configuration config-unresolved-min) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)))
     (is (= (-> config-resolved-min :db-root-passwd)
-           (-> (sut/app-configuration config-resolved-full) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)))))
+           (-> (sut/app-configuration-resolved config-resolved-full) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)))))
 
 
 (deftest test-unresolved-config
   (testing
     (is (= (-> config-unresolved :db-root-passwd :plain)
-           (-> (sut/app-configuration config-unresolved)) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd))))
+           (-> (sut/app-configuration config-unresolved) :group-specific-config :dda-liferay-crate :dda-mariadb :root-passwd)))))
